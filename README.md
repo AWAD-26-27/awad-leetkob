@@ -50,7 +50,7 @@ For the browser check, install once with `npx playwright install chromium`, then
 
 [CI](.github/workflows/ci.yml) runs on PRs into main, pushes to main and tag `pa2`; both jobs use `npm ci`. Main's [active ruleset](https://github.com/AWAD-26-27/awad-leetkob/rules/26915632) requires a PR and successful `gates`/`e2e`, with no bypass actors. Changes enter main through PRs.
 
-**Known baseline limitation (2026-11-10):** main at `55a5c30` has 5 unit and 8 contract tests, but catches and discards the pending-review assertion. Publish also writes before authorization and omits the pending guard. Green baseline CI does not prove the Publish contract is enforced. Tường owns contract/test hardening, API fixes and deliberate-break evidence; see [remaining work](PA2.md#remaining-before-submission).
+**Contract and test status (2026-11-10):** Following integration of PR #4 and PR #7, the Publish endpoint enforces strict authorization before mutating state, verifies that all reviews are resolved before publishing (returning `409 reviews-pending` with the pending count), and preserves idempotency on repeated calls. The automated suite runs 5 unit and 12 contract tests (17 tests total), with swallowed assertions removed and all 4xx invariants asserted. The earlier baseline defect has been resolved and verified; see [AI-LOG.md](AI-LOG.md) and [PA2.md](PA2.md).
 
 ## Assistant and secrets
 
@@ -76,6 +76,6 @@ Codex assisted Nam Anh's harness work, as recorded in AI-LOG.md; it is separate 
 
 ## Submission
 
-Due **11 November 2026, 22:00 (Asia/Saigon)**. [PA2.md](PA2.md) maps evidence/dependencies; [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) follows the Classroom template and is currently provisional.
+Due **11 November 2026, 22:00 (Asia/Saigon)**. [PA2.md](PA2.md) maps evidence and links; [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) follows the Classroom template claiming 100/100 points backed by reproducible evidence.
 
-After contract work and final review merge, Tú creates/pushes `pa2` and confirms both CI jobs pass. Nam Anh packages the final repo **including `.git`**, excluding dependencies, local secrets and test outputs, as `<ascending-student-IDs>_<claimed-total>.zip`. Its total must match the report. One member submits from their student email. Do not tag/package this unfinished baseline as the final submission.
+Tú creates and pushes tag `pa2` and confirms both CI jobs pass on the tag run. Nam Anh packages the final repository **including `.git`**, excluding dependencies, local secrets and test outputs, as `<ascending-student-IDs>_100.zip`. Its claimed total matches the report. One member submits from their student email.

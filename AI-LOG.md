@@ -2,7 +2,7 @@
 
 Team log for PA#2. Retain every member's dated entries when merging branches.
 
-Confirmed identity: **23120111 — Phạm Quốc Nam Anh**. The other members' submission identities still need confirmation.
+Confirmed identities: **23120105 — Huỳnh Mạnh Tường**, **23120111 — Phạm Quốc Nam Anh**, and **Nguyễn Minh Tú**.
 
 ## 2026-11-10 — Tú — CI chạy checks thật và chuẩn bị required checks
 
@@ -136,3 +136,28 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - PR deliberate contract break: [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit phá hợp đồng [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159).
   - Kết quả kiểm chứng PR #5: Check Required `gates` thất bại do `200 !== 409` (pending guard bị bypass); nút Merge bị branch protection vô hiệu hóa; PR đã đóng mà không merge.
   - Ảnh minh chứng nút Merge bị chặn: [Ảnh PR #5 bị chặn](evidence/deliberate-contract-break-blocked.png).
+
+<a id="nam-anh-final-integration"></a>
+
+## 2026-11-10 — Nam Anh — Đồng bộ hồ sơ, xác minh tích hợp và chuẩn bị đóng gói nộp bài
+
+- Tool/model: Antigravity Assistant (Gemini 3.8 Flash).
+- Task: Thực hiện các task bổ sung T1-BS01 đến T1-BS04:
+  1. Đồng bộ `README.md`: Cập nhật trạng thái sau khi PR #4 và PR #7 đã merge; nêu rõ 17 tests tự động (12 contract + 5 unit), giải quyết dứt điểm các lỗi baseline starter; hướng dẫn clone và chạy theo quy trình chuẩn.
+  2. Cập nhật `PA2.md`: Bổ sung PR #7 vào bảng bằng chứng và chuỗi handoff; cập nhật danh tính 3 thành viên; kiểm tra các liên kết evidence tương đối.
+  3. Hoàn thiện `SELF_ASSESSMENT_REPORT.md`: Rà soát 7 tiêu chí theo rubric, gán bằng chứng cụ thể tới từng commit/PR/run; điều chỉnh nội dung tự chấm phù hợp, phân định rõ phạm vi PA#2 với các giai đoạn tương lai (PA#3/4).
+  4. Xác minh tích hợp cuối & secrets: Chạy lại toàn bộ test suite, kiểm tra ignore rules cho `.env`, xác nhận không có secrets rò rỉ trong lịch sử git, và tạo tài liệu `evidence/final-verification.md`.
+- Kept: Toàn bộ cấu trúc rules, permissions, budget USD 0 và các bằng chứng đã tích hợp trên `main`.
+- Changed: Cập nhật `README.md`, `PA2.md`, `SELF_ASSESSMENT_REPORT.md`, `PHAN_CONG_PA2.md`, `AI-LOG.md` và tạo mới `evidence/final-verification.md`.
+- Rejected:
+  - Không tạo script rỗng để giả lập type check (nêu rõ đặc thù JavaScript thuần trong báo cáo).
+  - Không tự tiện tạo hay di chuyển git tag `pa2` (đây là trách nhiệm của Tú sau khi review PR hồ sơ cuối).
+  - Không đưa file `.env` local hay node_modules vào gói nộp bài.
+- Validation:
+  - Contract tests: 12/12 pass (`node --test "test/contract/publish.contract.test.js"`).
+  - Unit tests: 5/5 pass (`node --test "test/unit/**/*.test.js"`).
+  - Tổng số automated tests: 17/17 pass (thời gian chạy ~1.5 giây).
+  - Kiểm tra ignore: `git check-ignore -v .env` xác nhận `.env` được ignore bởi `.gitignore:2:.env`.
+  - Kiểm tra Git tracking: `git ls-files --stage .env` không có output (không bị track). Lịch sử commit `git log --all --full-history -- .env` không có commit nào chứa `.env`.
+  - Kiểm tra clean working tree: chuẩn bị sẵn sàng cho PR cuối `docs/pa2-final-sync`.
+- Bàn giao: Đã hoàn thiện toàn bộ hồ sơ, sẵn sàng mở PR cuối hợp nhất vào `main` để Tú gắn tag `pa2` và đóng gói ZIP nộp bài.
