@@ -103,8 +103,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Commit 2 (backend xanh - `f274493`): Chạy lại `node --test "test/contract/publish.contract.test.js"` đạt 9/9 tests pass (0 fail, 0 skipped, 0 cancelled).
   - Unit tests: `node --test "test/unit/**/*.test.js"` đạt 5/5 tests pass.
 - Evidence:
-  - Commit tests đỏ: `fc92efe`
-  - Commit backend xanh: `f274493`
+  - Commit tests đỏ: [fc92efe](https://github.com/AWAD-26-27/awad-leetkob/commit/fc92efe5dcfcd203541581a3ac9aa08b247f6f37)
+  - Commit backend xanh: [f274493](https://github.com/AWAD-26-27/awad-leetkob/commit/f27449353d33510b8d32f156f73141764ae610db)
+  - PR hoàn thiện contract & API (đã merge): [PR #4](https://github.com/AWAD-26-27/awad-leetkob/pull/4)
+  - Deliberate contract break PR (bị chặn merge): [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159)
+  - Ảnh minh chứng nút Merge bị chặn: [Ảnh PR #5 bị chặn](evidence/deliberate-contract-break-blocked.png)
   - Contract specification: `docs/contract/publish.md`
   - Contract test suite: `test/contract/publish.contract.test.js`
   - Route handler implementation: `src/app.js`
