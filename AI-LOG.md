@@ -111,3 +111,28 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Contract specification: `docs/contract/publish.md`
   - Contract test suite: `test/contract/publish.contract.test.js`
   - Route handler implementation: `src/app.js`
+
+<a id="tuong-contract-hardening-supplement"></a>
+
+## 2026-11-10 — Tường — Hoàn thiện hợp đồng theo mẫu IA#3 và siết chặt toàn diện contract tests
+
+- Tool/model: Antigravity Assistant (Gemini 3.8 Flash).
+- Task: Triển khai các task bổ sung T3-BS01 đến T3-BS04:
+  1. Mở rộng `docs/contract/publish.md` theo cấu trúc 5 phần của template `CONTRACT.md` IA#3: Conventions, Errors, Resources, Endpoints, Versions & Evolution Policy.
+  2. Đồng bộ bộ test trong `test/contract/publish.contract.test.js` và `test/helpers.js` để kiểm thử toàn diện các cam kết hợp đồng: kiểm tra trường `title` trong problem details, so sánh nguyên văn body 404 giữa TA ngoài lớp và lab không tồn tại, kiểm tra field rules của response 200, kiểm tra ID không hợp lệ, request body thừa bị bỏ qua, và giả lập lỗi server 500 (`faultyDb`).
+  3. Bàn giao đầy đủ bảng bằng chứng Deliberate Break (PR #5) và đối chiếu ảnh minh chứng.
+- Kept: Route handler hiện tại trong `src/app.js` (không cần sửa code backend vì implementation đã tuân thủ đúng hợp đồng).
+- Changed:
+  - `docs/contract/publish.md`: Bổ sung bảng Conventions (định dạng timestamp `YYYY-MM-DD HH:mm:ss`, positive integer IDs, Bearer token); bổ sung bảng RFC 9457 Problem Details members (`type`, `title`, `status`, `detail`, `pending`); bảng Error Slugs (401, 403, 404, 409, 500); bảng fields Resource cho response 200; sơ đồ thứ tự quyết định của server (Evaluation Order); và chính sách thay đổi contract (Versions & Evolution Policy).
+  - `test/helpers.js`: Cho phép `startApp(customDb)` nhận instance database tùy biến (hoặc fallback về `open()`), hỗ trợ inject mock DB để kiểm thử lỗi 500 mà không cần sửa code production.
+  - `test/contract/publish.contract.test.js`: Nâng số test từ 9 lên 12 tests: thêm kiểm tra `assertProblem` xác thực `title` là chuỗi không rỗng; test so sánh deepEqual body 404 chống rò rỉ thông tin; test response 200 kiểm tra chi tiết regex timestamp và type; test 404 cho ID không hợp lệ (`non-numeric-id`); test bỏ qua request body thừa; và test lỗi nội bộ 500 trả về Problem Details chuẩn.
+- Rejected: Từ chối thêm endpoint public hoặc sửa schema database để giả lập lỗi 500; thay vào đó sử dụng `faultyDb` mock ngay trong test case để cô lập hoàn toàn lỗi.
+- Validation:
+  - Contract tests: `node --test "test/contract/publish.contract.test.js"` đạt 12/12 pass (100%), không có test nào bị skip hay lỗi.
+  - Unit tests: `node --test "test/unit/**/*.test.js"` đạt 5/5 pass (100%).
+  - Tổng số automated tests: 17/17 tests pass.
+- Bảng bàn giao Deliberate Break (T3-BS03):
+  - PR tính năng & sửa contract (đã merge): [PR #4](https://github.com/AWAD-26-27/awad-leetkob/pull/4), commit tests đỏ `fc92efe`, commit sửa xanh `f274493`.
+  - PR deliberate contract break: [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit phá hợp đồng [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159).
+  - Kết quả kiểm chứng PR #5: Check Required `gates` thất bại do `200 !== 409` (pending guard bị bypass); nút Merge bị branch protection vô hiệu hóa; PR đã đóng mà không merge.
+  - Ảnh minh chứng nút Merge bị chặn: [Ảnh PR #5 bị chặn](evidence/deliberate-contract-break-blocked.png).
