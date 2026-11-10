@@ -2,8 +2,8 @@
 import { open } from '../src/db.js';
 import { createApp } from '../src/app.js';
 
-export async function startApp() {
-  const db = open();
+export async function startApp(customDb) {
+  const db = customDb ?? open();
   const server = createApp(db).listen(0);
   await new Promise((r) => server.once('listening', r));
   const base = `http://localhost:${server.address().port}`;
