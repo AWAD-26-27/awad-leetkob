@@ -1,110 +1,81 @@
-# Session 7 starter: a gate that cannot fail
+# LeeTKOB - PA#2 harness and quality gate
 
-CSC13114 · Advanced Web Application Development · HK1 2026–2027
+CSC13114, class 2609-AWAD-23/3. LeeTKOB helps a TA review assignment constraints before publishing C++ lab marks. This repo implements a small review-queue/Publish demo and the PA#2 harness. See [PA2.md](PA2.md) for evidence and [PHAN_CONG_PA2.md](PHAN_CONG_PA2.md) for ownership.
 
-A small piece of **LeeTKOB**: the TA's review queue and the *Publish grades* step, with its
-contract in [`docs/contract/publish.md`](docs/contract/publish.md).
+## Stack and scope
 
-The GitHub Actions workflow in this repository is green. **It proves nothing.** Your job is
-to make it bite: a bad pull request must go red, and red must stop the merge.
+JavaScript ES modules on Node.js **22.13+**, built-in `node:http` and `node:sqlite`, and a plain HTML UI. Checks use ESLint, Prettier, `node:test` and Playwright. CI uses Node 22; use Node 22 locally to match its major version. SQLite may emit an experimental-feature warning.
 
-**Nothing to hand in, not graded.** Already have a LeeTKOB repository with a harness? Read
-step 1 here, then do steps 2–6 on your own repository. That work counts towards `PA#2`.
+SQLite runs **in memory**, seeded at every startup and reset on restart. The public `tok-*` demo identities in `src/db.js` are fixtures, not production authentication. The C++ sandbox, submission judge and eval pipeline are future checkpoints. Gemini access is provisioned for PA#3; the demo does not yet call a model.
 
-You need Node 22.13+, Git, and a GitHub account. Playwright's browser runs in CI, so you do
-not have to install it on your laptop.
+## Install and run
 
-## Commands
+Requirements: Git, Node.js 22.13+ and npm. No database server, provider key or `.env` file is needed.
 
-```bash
-npm ci                  # exactly what the lockfile says
-npm start               # http://localhost:3007
-npm run lint            # ESLint
-npm run format:check    # Prettier
-npm test                # unit tests
-npm run contract        # contract tests for docs/contract/publish.md
-npm run check           # all four above: this is the gate
-npm run e2e             # one browser journey (needs: npx playwright install chromium)
+```sh
+git -c core.autocrlf=false clone https://github.com/AWAD-26-27/awad-leetkob.git
+cd awad-leetkob
+git config --local core.autocrlf false
+npm ci
+npm start
 ```
 
-## The steps
+Open [http://localhost:3007](http://localhost:3007), select TA `ta_a`, confirm or overturn the pending review, then press **Publish grades**. Stop with Ctrl+C. `core.autocrlf=false` preserves repository LF line endings on Windows for the same Prettier result as Linux CI.
 
-### 1. Predict (5 minutes, no assistant)
+[.env.example](.env.example) lists every application/test environment variable without values:
 
-Press **Use this template → Create a new repository**, and make it **public**: branch
-protection is free only on public repositories. Clone it, and read
-`.github/workflows/ci.yml` and `test/contract/`.
+| Variable      | Used by                | Behavior when unset             |
+| ------------- | ---------------------- | ------------------------------- |
+| `PORT`        | `src/server.js`        | Listen on 3007                  |
+| `CHROME_PATH` | `playwright.config.js` | Playwright's installed Chromium |
 
-Write down every way this gate can stay green on a broken build. Then run `npm run check`
-on your laptop and compare with what the workflow runs.
+The app does not load `.env` automatically; set shell variables only if needed. The example also lists `GEMINI_API_KEY` and `GEMINI_MODEL`, used only by the explicitly manual model setup check below, not by the demo or CI. Do not import the blank example as configuration: an empty `PORT` means port 0. E2E starts its own server on port 3007; leave that port free.
 
-### 2. Make the workflow honest
+## Checks: local and CI
 
-Commit first, so `git diff` shows exactly what your assistant changed. Then hand it over.
-A brief that works:
+After `npm ci`, run from the repository root:
 
-> Make `.github/workflows/ci.yml` fail whenever a check fails. It must run on every pull
-> request, on the Node version `package.json` asks for, and run the same `npm run check` a
-> developer runs. Show me your plan first. Do not touch `src/` or `test/` in this step.
+| Check                  | One command            | CI                                             |
+| ---------------------- | ---------------------- | ---------------------------------------------- |
+| Lint                   | `npm run lint`         | Required `gates`, through `npm run check`      |
+| Format                 | `npm run format:check` | Required `gates`, through `npm run check`      |
+| Unit tests             | `npm test`             | Required `gates`, through `npm run check`      |
+| Publish contract tests | `npm run contract`     | Required `gates`, through `npm run check`      |
+| Combined gate          | `npm run check`        | Lint, format, unit, contract; stops on failure |
+| Browser journey        | `npm run e2e`          | Separate required `e2e` job                    |
 
-Open it as a pull request and expect red: **red is the point of this step.** Read the log. The first failure is a lint error that the old workflow was hiding. Have your assistant fix that one line and push.
+Type check: not applicable to this plain JavaScript configuration; no TypeScript or `checkJs` checker is configured. ESLint is not a type checker. No dummy success-only command is used.
 
-The PR goes green. Do not celebrate yet, and do not merge: step 4 is why.
+For the browser check, install once with `npx playwright install chromium`, then run `npm run e2e`. Linux CI installs with `npx playwright install --with-deps chromium`. E2E is additional to the rubric's seven criteria, but this team has made it required.
 
-### 3. Protect `main`
+[CI](.github/workflows/ci.yml) runs on PRs into main, pushes to main and tag `pa2`; both jobs use `npm ci`. Main's [active ruleset](https://github.com/AWAD-26-27/awad-leetkob/rules/26915632) requires a PR and successful `gates`/`e2e`, with no bypass actors. Changes enter main through PRs.
 
-*Settings → Branches → Add branch protection rule*, for `main`:
+**Known baseline limitation (2026-11-10):** main at `55a5c30` has 5 unit and 8 contract tests, but catches and discards the pending-review assertion. Publish also writes before authorization and omits the pending guard. Green baseline CI does not prove the Publish contract is enforced. Tường owns contract/test hardening, API fixes and deliberate-break evidence; see [remaining work](PA2.md#remaining-before-submission).
 
-- *Require a pull request before merging*
-- *Require status checks to pass before merging*, then pick your job name (`gates`)
-- *Do not allow bypassing the above settings*
+## Assistant and secrets
 
-The check appears in the list only after it has run once on your repository. That is why
-step 2 comes first.
+Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real credentials out of Git and untrusted execution, use fixtures in tests, and record actual AI changes/decisions in [AI-LOG.md](AI-LOG.md). `.env` variants, common private-key files and `secrets/` are ignored; `.env.example` is tracked. Scan the complete history before submission, including newly integrated branches.
 
-### 4. Find the tests that cannot fail
+## Model and budget
 
-Some tests in `test/contract/` pass on a broken build. Read each one next to the contract:
-*would this go red if the code broke that rule?* Make them strict, in their own commit, and
-push. The PR goes red again, and that is correct: the code breaks its contract in two places.
+**Provider/model:** Google Gemini API, `gemini-3.8-flash` (selected for code reasoning; constraint-review quality must still be measured by the PA#3/4 eval).
 
-### 5. Fix the code, not the tests
+**Paid spending limit: USD 0.** The dedicated **LeeTKOB PA2** project is **Free tier with no billing account linked**. Its server key inherits that project status. This is a no-paid-billing boundary, not a Google Cloud budget alert or a separately configured numeric paid-tier cap. Do not enable billing, prepay or automatic reload without team authorization. [Project evidence](evidence/gemini-free-tier-2026-11-10.jpg) and [setup record](docs/model-budget.md) document the verified state and limitations.
 
-Hand the two failures to your assistant: *"The contract is right. Fix `src/`. Do not edit
-`test/` or `docs/`."* Then read the diff. Push; the PR goes green; merge it.
+The demo still makes **zero model calls**, so current model API cost per demo lab is **USD 0**. Future calls to this model in free tier are free within provider quotas; an 80-submission model run has not been measured or validated. No paid fallback is configured. Free-tier data may be used to improve Google's products: use synthetic/public fixtures only during setup, and decide data handling before sending real student code.
 
-Now show that the gate bites. On a new branch, break the contract on purpose (delete the
-check that refuses while reviews are pending), open a PR, and watch the merge stop.
+The authorized key is stored only in ignored local `.env`. [.env.example](.env.example) contains variable names with empty values; obtain a separate key through the project owner rather than sharing one in Git/chat. This manual synthetic check uses Node's built-in fetch and sends no student data:
 
-### 6. Add the browser, and get a second reader
+```sh
+node --env-file=.env scripts/model-smoke.js
+```
 
-- Add a second job to the workflow that runs `npm run e2e`: `npx playwright install --with-deps chromium`
-  first. Make it required too.
-- Give a **second assistant, in a fresh session,** the diff of your deliberate-break PR and
-  the contract. Ask: *"What would you block in this pull request, and why? Quote the line."*
-  Did it catch the break? What did it invent?
+It verifies the exact configured model using a short `OK` request and never prints the key or provider error bodies. It is **not** part of unit/contract tests or CI and must stay separate from `npm run check`. A failed provider call must not be hidden or turned into a passing automated test. At setup, model listing returned HTTP 200 with this model, while generation returned 503 then timed out; inference availability remains unverified.
 
-## Done means
+Codex assisted Nam Anh's harness work, as recorded in AI-LOG.md; it is separate from the product model. See [official Gemini billing](https://aistudio.google.com/docs/billing#projects-api-keys) and [pricing](https://aistudio.google.com/docs/pricing#gemini-3.8-flash), checked 10 November 2026.
 
-| # | Check | How | Done when |
-|---|---|---|---|
-| 1 | Nothing swallows a failure | search `.github/workflows/` for `\|\| true` and `continue-on-error` | no match |
-| 2 | CI runs the real gate | open the job log, count the tests | at least 5 unit and 8 contract, the same as on your laptop |
-| 3 | Same Node as the project | the log's `Setup Node` line | 22.13 or newer |
-| 4 | It runs on pull requests | the *Checks* tab of your PR | the `gates` check is there |
-| 5 | A required check | `gh api repos/{owner}/{repo}/branches/main/protection --jq .required_status_checks.contexts` | lists `gates` |
-| 6 | No way round it | `git push origin main` from your laptop | the push is **rejected** |
-| 7 | Red stops the merge | your deliberate-break PR | the merge button is disabled, for you as well, with a red check named |
-| 8 | Refused means nothing changed | your stricter test for *a TA of another class* | it reads `published_at` after the call |
-| 9 | Your tests were not weakened to get green | `git diff <first commit> -- test/` | no assertion was removed or loosened; a removed `try/catch` is fine |
-| 10 | The browser job runs | the `e2e` job in your last PR | green, and required |
+## Submission
 
-## Files
+Due **11 November 2026, 22:00 (Asia/Saigon)**. [PA2.md](PA2.md) maps evidence/dependencies; [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) follows the Classroom template and is currently provisional.
 
-| Path | What it is |
-|---|---|
-| `.github/workflows/ci.yml` | the gate. Start here |
-| `docs/contract/publish.md` | the contract. Treat it as correct |
-| `src/app.js` | the routes |
-| `src/grades.js` | pure logic, unit tested |
-| `test/unit/`, `test/contract/`, `e2e/` | the three layers of the pyramid |
+After contract work and final review merge, Tú creates/pushes `pa2` and confirms both CI jobs pass. Nam Anh packages the final repo **including `.git`**, excluding dependencies, local secrets and test outputs, as `<ascending-student-IDs>_<claimed-total>.zip`. Its total must match the report. One member submits from their student email. Do not tag/package this unfinished baseline as the final submission.

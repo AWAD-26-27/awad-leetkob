@@ -105,36 +105,38 @@ Lưu ý: nền tảng CI xanh chưa chứng minh API đúng, vì starter có con
 
 Bắt đầu branch công việc từ `main` mới nhất sau thông báo của Tú.
 
+**Bàn giao Nam Anh, 10/11/2026:** branch `docs/pa2-harness` từ main `55a5c30`; hồ sơ [PA2.md](PA2.md) và [tự chấm](SELF_ASSESSMENT_REPORT.md) đang là bản nháp có đánh dấu phần chờ Tường/tag của Tú. Danh tính đã xác nhận: 23120111 — Phạm Quốc Nam Anh. Chi tiết validation và secrets trong [AI log](AI-LOG.md#nam-anh-harness).
+
 ### T1.1. Rules file
 
-- [ ] Tạo `AGENTS.md`, ngắn gọn và đúng với công cụ assistant nhóm sử dụng.
-- [ ] Có đủ bốn phần: stack, commands, conventions, never.
-- [ ] Commands khớp với phần Tú đã bàn giao.
-- [ ] Ghi các điều cấm đặc thù sản phẩm: không có secrets trong sandbox; không gọi model thật trong unit tests; không sửa tests/eval data/labels chỉ để che lỗi và làm checks xanh.
-- [ ] Ít nhất hai quy tắc truy được về sự cố thực tế bằng commit hoặc AI log, ví dụ workflow che lỗi và test nuốt assertion.
-- [ ] Quy tắc không được mâu thuẫn với công việc sửa tests cho nghiêm ngặt hoặc PR cố tình phá code đã được nhóm giao rõ ràng; các việc này phải có phạm vi và bằng chứng riêng.
+- [x] Tạo `AGENTS.md`, ngắn gọn và đúng với công cụ assistant nhóm sử dụng.
+- [x] Có đủ bốn phần: stack, commands, conventions, never.
+- [x] Commands khớp với phần Tú đã bàn giao.
+- [x] Ghi các điều cấm đặc thù sản phẩm: không có secrets trong sandbox; không gọi model thật trong unit tests; không sửa tests/eval data/labels chỉ để che lỗi và làm checks xanh.
+- [x] Ít nhất hai quy tắc truy được về sự cố thực tế bằng commit hoặc AI log, ví dụ workflow che lỗi và test nuốt assertion.
+- [x] Quy tắc không được mâu thuẫn với công việc sửa tests cho nghiêm ngặt hoặc PR cố tình phá code đã được nhóm giao rõ ràng; các việc này phải có phạm vi và bằng chứng riêng.
 
 ### T1.2. Permissions và secrets
 
-- [ ] Viết `docs/permissions.md` với ba mức allowed / ask first / never; dẫn link từ rules file khi phù hợp.
-- [ ] `.env.example` liệt kê biến cần thiết không kèm giá trị; khớp với cách chạy thực tế.
-- [ ] `.env` và file chứa secrets được ignore, nhưng `.env.example` vẫn được commit.
-- [ ] Kiểm tra secrets trong cả cây file hiện tại và lịch sử Git, không chỉ commit cuối.
+- [x] Viết `docs/permissions.md` với ba mức allowed / ask first / never; dẫn link từ rules file khi phù hợp.
+- [x] `.env.example` liệt kê biến cần thiết không kèm giá trị; khớp với cách chạy thực tế.
+- [x] `.env` và file chứa secrets được ignore, nhưng `.env.example` vẫn được commit.
+- [x] Kiểm tra secrets trong cả cây file hiện tại và lịch sử Git, không chỉ commit cuối.
 - [ ] Nếu từng lộ credential thật: rotate credential và ghi sự việc/cách xử lý vào AI log; không coi việc xóa file hiện tại là đã xử lý xong.
-- [ ] Ghi thông tin model và spending cap đúng thực tế. Rubric yêu cầu key có spending cap; nếu chưa thiết lập thì ghi phần chưa làm được, không tự nhận đã có.
+- [x] Ghi thông tin model và spending cap đúng thực tế. Rubric yêu cầu key có spending cap; nếu chưa thiết lập thì ghi phần chưa làm được, không tự nhận đã có.
 
 ### T1.3. README và AI log
 
-- [ ] README có stack, yêu cầu môi trường, cách cài đặt, chạy app và từng lệnh check.
-- [ ] Ghi rõ dữ liệu mẫu dùng SQLite trong RAM và reset khi restart.
-- [ ] Phân biệt checks bắt buộc với E2E bổ sung, phù hợp cấu hình nhóm đã chọn.
+- [x] README có stack, yêu cầu môi trường, cách cài đặt, chạy app và từng lệnh check.
+- [x] Ghi rõ dữ liệu mẫu dùng SQLite trong RAM và reset khi restart.
+- [x] Phân biệt checks bắt buộc với E2E bổ sung, phù hợp cấu hình nhóm đã chọn.
 - [ ] Tổng hợp `AI-LOG.md` theo mục 6; giữ nguyên thông tin và bằng chứng của cả ba.
-- [ ] Có Changed / Rejected cụ thể; không ghi câu chuyện hoặc quyết định không xảy ra.
+- [x] Có Changed / Rejected cụ thể; không ghi câu chuyện hoặc quyết định không xảy ra.
 
 ### T1.4. Hồ sơ nộp
 
 - [ ] Tạo `PA2.md` tại root với link repo public, protection settings/ảnh, PR bị chặn, PR xanh và commit sửa, CI cho tag, deliberate contract break.
-- [ ] Chuẩn bị link trang Actions lọc theo tag `pa2` trước khi tạo tag, để tài liệu nộp không cần sửa và di chuyển tag chỉ để chèn URL run phát sinh sau đó.
+- [x] Chuẩn bị link trang Actions lọc theo tag `pa2` trước khi tạo tag, để tài liệu nộp không cần sửa và di chuyển tag chỉ để chèn URL run phát sinh sau đó.
 - [ ] Lấy template Classroom và hoàn thiện `SELF_ASSESSMENT_REPORT.md`: đủ bảy tiêu chí, điểm tự chấm, bằng chứng và phần chưa làm được.
 - [ ] Nhận xác nhận điểm/bằng chứng phần CI từ Tú và phần contract/tests từ Tường.
 - [ ] Chuẩn bị ZIP chứa repository cùng `.git`, đặt tên MSSV tăng dần và tổng điểm tự chấm theo rubric.
@@ -251,10 +253,10 @@ Mỗi người dùng bản clone/working directory riêng. Không để ba ngư�
 | PR CI đỏ bị chặn merge | Tú | Chưa điền |
 | Commit sửa thành xanh và CI run | Tú | Chưa điền |
 | Cấu hình bảo vệ main/ảnh | Tú | Chưa điền |
-| Rules, permissions và kiểm tra secrets | Nam Anh | Chưa điền |
+| Rules, permissions và kiểm tra secrets | Nam Anh | [AGENTS.md](AGENTS.md), [permissions](docs/permissions.md), [scan log](AI-LOG.md#nam-anh-harness); [Gemini free tier, không billing, cap trả phí 0 USD](docs/model-budget.md) |
 | Contract và contract tests | Tường | Chưa điền |
 | Commit tests đỏ và commit sửa API xanh | Tường | Chưa điền |
 | PR cố tình phá contract, CI đỏ và merge bị chặn | Tường + Tú | Chưa điền |
 | AI-LOG.md đủ nội dung của ba người | Cả ba; Nam Anh tổng hợp | Chưa điền |
 | Tag pa2 và CI run cho tag | Tú | Chưa điền |
-| PA2.md, tự chấm, ZIP và xác nhận nộp | Nam Anh + Tú | Chưa điền |
+| PA2.md, tự chấm, ZIP và xác nhận nộp | Nam Anh + Tú | [PA2.md](PA2.md), [tự chấm tạm 83/100](SELF_ASSESSMENT_REPORT.md); ZIP/nộp còn chờ tích hợp, đủ MSSV và tag |
