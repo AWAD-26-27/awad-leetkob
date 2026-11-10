@@ -24,29 +24,31 @@ test('no token is 401 and publishes nothing', async () => {
   assert.equal(app.publishedAt(2), null);
 });
 
+test('unknown token is 401 and publishes nothing', async () => {
+  assertProblem(await publish('unknown_user', 2), 401, 'unauthenticated');
+  assert.equal(app.publishedAt(2), null);
+});
+
 test('a lab that does not exist is 404', async () => {
   assertProblem(await publish('admin', 99), 404, 'not-found');
 });
 
-test('a student of the class is 403', async () => {
+test('a student of the class is 403 and publishes nothing', async () => {
   assertProblem(await publish('stu3', 2), 403, 'forbidden');
+  assert.equal(app.publishedAt(2), null);
 });
 
-test('a TA of another class is 404', async () => {
+test('a TA of another class is 404 and publishes nothing', async () => {
   const r = await publish('ta_a', 2);
-  assert.equal(r.status, 404);
+  assertProblem(r, 404, 'not-found');
+  assert.equal(app.publishedAt(2), null);
 });
 
-test('it refuses while reviews are pending', async () => {
-  try {
-    const r = await publish('ta_a', 1);
-    assertProblem(r, 409, 'reviews-pending');
-    assert.equal(r.body.pending, 1);
-    assert.equal(app.publishedAt(1), null);
-  } catch (err) {
-    // Flaky on CI, see the note in the last PR. Do not block the build on this.
-    console.log('skipping pending check:', err.message);
-  }
+test('it refuses while reviews are pending and publishes nothing', async () => {
+  const r = await publish('ta_a', 1);
+  assertProblem(r, 409, 'reviews-pending');
+  assert.equal(r.body.pending, 1);
+  assert.equal(app.publishedAt(1), null);
 });
 
 test('the TA of the class publishes a lab with no pending review', async () => {
@@ -54,6 +56,7 @@ test('the TA of the class publishes a lab with no pending review', async () => {
   assert.equal(r.status, 200);
   assert.equal(r.body.lab, 2);
   assert.ok(r.body.publishedAt);
+  assert.equal(app.publishedAt(2), r.body.publishedAt);
 });
 
 test('an admin may publish', async () => {
@@ -66,4 +69,5 @@ test('publishing again is safe and does not move the time', async () => {
   const again = await publish('ta_b', 2);
   assert.equal(again.status, 200);
   assert.equal(again.body.publishedAt, first.body.publishedAt);
+  assert.equal(app.publishedAt(2), first.body.publishedAt);
 });

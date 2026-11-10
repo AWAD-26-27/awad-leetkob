@@ -86,3 +86,25 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Fresh clone of that committed branch, with LF and **Node 22.23.4/npm 10.9.9**: `npm ci`, `npm run check`, `npm run e2e` all exit 0, E2E 1/1. `.env` is absent from the clean clone. Contract still reports 8/8 while swallowing the known pending assertion; the limitation remains assigned to Tường, not accepted as correct behavior.
 - Post-commit Gitleaks history scan: **5 commits with diffs, about 148.65 KB, no leaks**, all fetched refs/full history, redaction enabled. The actual local credential was also checked against all staged files without printing it; no match. All 15 changed paths are the assigned harness/docs/evidence plus the explicitly requested manual model setup script; no backend, test, workflow or package files changed.
 - Provisional team score is now **83/100**, including verified no-paid-billing key setup; the missing 17 points relate to the final contract/tests and deliberate-break evidence. The aim remains 100 with verified team handoffs, not a fabricated final score. No final tag, ZIP or Classroom submission is claimed by this PR.
+
+<a id="tuong-publish-contract"></a>
+
+## 2026-11-10 — Tường — Siết chặt contract tests và hoàn thiện backend Publish
+
+- Tool/model: Antigravity Assistant (Gemini 3.8 Flash).
+- Task: Siết chặt kiểm thử hợp đồng theo `docs/contract/publish.md`, loại bỏ assertion bị nuốt trong `test/contract/publish.contract.test.js`, và sửa lỗi backend trong `src/app.js` cho endpoint `POST /api/labs/{labId}/publish`.
+- Kept: Cấu trúc RFC 9457 Problem Details (`application/problem+json`), các bảng fixture trong `src/db.js` và logic kiểm tra review trong `src/grades.js`.
+- Changed:
+  - Trong `test/contract/publish.contract.test.js`: Xóa hoàn toàn khối `try/catch` đang nuốt assertion `200 !== 409`; bổ sung kiểm tra bất biến dữ liệu `assert.equal(app.publishedAt(2), null)` sau mọi mã lỗi 4xx (401 unauthenticated, 403 forbidden, 404 not-found); bổ sung test case token không hợp lệ `unknown_user`.
+  - Trong `src/app.js`: Di chuyển logic phân quyền `isStaff(me, lab.class_id)` lên trước khi cập nhật dữ liệu (trước đó `q.publish.run(lab.id)` chạy trước khi kiểm tra quyền dẫn đến việc sinh viên hoặc TA khác gọi API vẫn làm thay đổi `published_at`); bổ sung kiểm tra tính lũy kế (idempotency) khi lab đã publish; bổ sung kiểm tra các bài nộp còn pending review (`needsReview(s.verdict) && s.decision === null`), trả về 409 `reviews-pending` với trường `pending` và giữ nguyên trạng thái database.
+- Rejected: Tránh đề xuất ban đầu của AI về việc tạo một endpoint riêng để reset lab hoặc can thiệp trực tiếp vào database trong test; tuân thủ nguyên tắc không thay đổi schema hay sửa fixture để né lỗi.
+- Validation:
+  - Commit 1 (tests đỏ - `fc92efe`): Chạy `node --test "test/contract/publish.contract.test.js"` báo 3/9 tests thất bại: (1) sinh viên 403 nhưng làm thay đổi DB, (2) TA lớp khác 404 nhưng làm thay đổi DB, (3) pending review trả về 200 thay vì 409. Đây là bằng chứng test nghiêm ngặt phát hiện chính xác lỗ hổng của starter.
+  - Commit 2 (backend xanh - `f274493`): Chạy lại `node --test "test/contract/publish.contract.test.js"` đạt 9/9 tests pass (0 fail, 0 skipped, 0 cancelled).
+  - Unit tests: `node --test "test/unit/**/*.test.js"` đạt 5/5 tests pass.
+- Evidence:
+  - Commit tests đỏ: `fc92efe`
+  - Commit backend xanh: `f274493`
+  - Contract specification: `docs/contract/publish.md`
+  - Contract test suite: `test/contract/publish.contract.test.js`
+  - Route handler implementation: `src/app.js`
