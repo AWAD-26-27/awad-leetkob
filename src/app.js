@@ -84,12 +84,15 @@ export function createApp(db) {
         return send(res, 200, { lab: lab.id, publishedAt: lab.published_at });
       }
 
-      const pending = q.byLab
-        .all(lab.id)
-        .filter((s) => needsReview(s.verdict) && s.decision === null).length;
-      if (pending > 0) {
-        return problem(res, 409, 'reviews-pending', 'Reviews pending', { pending });
-      }
+      // DELIBERATE CONTRACT BREAK (PA#2 evidence):
+      // Intentionally bypassed the pending review guard to prove that CI detects
+      // the contract violation and branch protection blocks merging into main.
+      // const pending = q.byLab
+      //   .all(lab.id)
+      //   .filter((s) => needsReview(s.verdict) && s.decision === null).length;
+      // if (pending > 0) {
+      //   return problem(res, 409, 'reviews-pending', 'Reviews pending', { pending });
+      // }
 
       q.publish.run(lab.id);
       return send(res, 200, { lab: lab.id, publishedAt: q.lab.get(lab.id).published_at });
