@@ -1,0 +1,173 @@
+{
+  "verified_at_utc": "2026-11-11T12:35:48.314171+00:00",
+  "source_repository": "https://github.com/AWAD-26-27/awad-leetkob",
+  "source_branch": "main",
+  "tested_sha": "5070b6c963ee953481545a14c0cce2f77abdff8c",
+  "remote_main_sha": "5070b6c963ee953481545a14c0cce2f77abdff8c",
+  "clone": {
+    "command": "git clone --no-local --branch main /home/loriant/Projects/web-homework/PA/awad-leetkob <fresh-directory>",
+    "transport": "local upload-pack; independent clone, no local hardlinks",
+    "exit_code": 0,
+    "initial_status_porcelain": "",
+    "initial_env_present": false,
+    "initial_node_modules_present": false,
+    "post_test_status_porcelain": ""
+  },
+  "environment": {
+    "platform": "Linux x86_64, Debian bookworm containers",
+    "node": "22.23.4",
+    "npm": "10.9.9",
+    "playwright": "1.64.1",
+    "chromium": "155.0.8059.79",
+    "check_image": "node:22-bookworm-slim",
+    "check_image_id": "sha256:4b150b48b4116e2a22f2c39cc27025fbf4f153e2078fd3b14d159fdb5c7279da",
+    "e2e_image": "scripthammer-scripthammer:latest",
+    "e2e_image_id": "sha256:e43ef8d7ff5306e0a9566e9f5295d96758b2a434596741e4c013ff1fa644b57d",
+    "e2e_env": {
+      "CI": "true",
+      "CHROME_PATH": "/usr/bin/chromium"
+    },
+    "tests_network": "none"
+  },
+  "commands": [
+    {
+      "command": "npm ci",
+      "exit_code": 0,
+      "added_packages": 90,
+      "audited_packages": 91,
+      "audit_vulnerabilities": 0
+    },
+    {
+      "command": "npm run check",
+      "exit_code": 0,
+      "lint": "pass",
+      "format": "pass",
+      "unit_pass": 5,
+      "contract_pass": 12,
+      "failed": 0,
+      "skipped": 0,
+      "cancelled": 0
+    },
+    {
+      "command": "npm run e2e",
+      "exit_code": 0,
+      "passed": 1,
+      "failed": 0
+    }
+  ],
+  "gitleaks": {
+    "version": "8.30.1",
+    "archive_sha256": "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb",
+    "release_checksum_matched": true,
+    "redact_percent": 100,
+    "config": "default; no added allowlist",
+    "reachable_commits_including_merges": 23,
+    "scanned_refs_file": "scanned-refs.txt",
+    "remote_branch_tips": [
+      {
+        "ref": "refs/heads/chore/pa2-quality-gate",
+        "sha": "ca6ca0b0bfc5bf6248954b56a8503414437bda74",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/docs/pa2-final-sync",
+        "sha": "f7c92d0c8c42678327adb61eac48b9e53044619d",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/docs/pa2-followup-tasks",
+        "sha": "f6e75bfb766d10576a768be414fe56ba1adb432b",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/docs/pa2-submission",
+        "sha": "292b4b08276e70da8968a40d3ca937a19eee226d",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/evidence/break-publish-contract",
+        "sha": "cc6df3a10fdfb5079162fdac2e5274c0ad212159",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/feat/contract-spec-and-tests",
+        "sha": "2c8f3f9c27af735dfb9de91142f047306ac0fd1f",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/feat/publish-contract",
+        "sha": "8c613d4162d3bf16d02e74275d9c4c31bf7e5e5c",
+        "reachable_in_scanned_refs": true
+      },
+      {
+        "ref": "refs/heads/main",
+        "sha": "5070b6c963ee953481545a14c0cce2f77abdff8c",
+        "reachable_in_scanned_refs": true
+      }
+    ],
+    "tracked_snapshot_sha": "5070b6c963ee953481545a14c0cce2f77abdff8c",
+    "tracked_snapshot_files": 38,
+    "scans": [
+      {
+        "scope": "history",
+        "command": [
+          "/tmp/pa2-verification-20261111-E3Pn1I/tools/gitleaks",
+          "git",
+          "/home/loriant/Projects/web-homework/PA/awad-leetkob",
+          "--log-opts=--all --full-history",
+          "--redact=100",
+          "--no-banner",
+          "--report-format",
+          "json",
+          "--report-path",
+          "/home/loriant/Projects/web-homework/PA/awad-leetkob/evidence/verification-2026-11-11/gitleaks-history.json"
+        ],
+        "exit_code": 0,
+        "findings": 0
+      },
+      {
+        "scope": "tree",
+        "command": [
+          "/tmp/pa2-verification-20261111-E3Pn1I/tools/gitleaks",
+          "dir",
+          "/tmp/pa2-verification-20261111-E3Pn1I/tracked-snapshot",
+          "--redact=100",
+          "--no-banner",
+          "--report-format",
+          "json",
+          "--report-path",
+          "/home/loriant/Projects/web-homework/PA/awad-leetkob/evidence/verification-2026-11-11/gitleaks-tree.json"
+        ],
+        "exit_code": 0,
+        "findings": 0
+      }
+    ],
+    "candidate_snapshot": {
+      "selection": "git ls-files --cached --others --exclude-standard -z",
+      "file_count": 48,
+      "source_base_sha": "5070b6c963ee953481545a14c0cce2f77abdff8c",
+      "includes": "new uncommitted verification docs, logs and AI-LOG update; excludes ignored .env/dependencies and .git",
+      "command": [
+        "/tmp/pa2-verification-20261111-E3Pn1I/tools/gitleaks",
+        "dir",
+        "/tmp/pa2-verification-20261111-E3Pn1I/candidate-snapshot",
+        "--redact=100",
+        "--no-banner",
+        "--report-format",
+        "json",
+        "--report-path",
+        "/tmp/pa2-verification-20261111-E3Pn1I/gitleaks-candidate.json"
+      ],
+      "exit_code": 0,
+      "findings": 0,
+      "log": "gitleaks-candidate.log",
+      "report": "gitleaks-candidate.json"
+    }
+  },
+  "limits": [
+    "This verifies the integrated application at the tested SHA; it is not a tag pa2 run.",
+    "docs/pa2-final-sync is not merged into main at the tested SHA.",
+    "E2E uses configured CHROME_PATH with system Chromium in the recorded container, rather than the browser downloaded by the GitHub job.",
+    "These checks do not call a real model or validate inference availability."
+  ]
+}

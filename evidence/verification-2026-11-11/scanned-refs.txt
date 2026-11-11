@@ -1,0 +1,15 @@
+refs/heads/chore/pa2-quality-gate ca6ca0b0bfc5bf6248954b56a8503414437bda74
+refs/heads/docs/pa2-followup-tasks f6e75bfb766d10576a768be414fe56ba1adb432b
+refs/heads/docs/pa2-verification-evidence 5070b6c963ee953481545a14c0cce2f77abdff8c
+refs/heads/evidence/ci-green 944a26b61e48f8e8e78775480d09920e647860c3
+refs/heads/evidence/ci-red 3706d6b846f6976f3e9057ff4ae17d7921c63b6b
+refs/heads/main 5070b6c963ee953481545a14c0cce2f77abdff8c
+refs/remotes/origin/HEAD 5070b6c963ee953481545a14c0cce2f77abdff8c
+refs/remotes/origin/chore/pa2-quality-gate ca6ca0b0bfc5bf6248954b56a8503414437bda74
+refs/remotes/origin/docs/pa2-final-sync f7c92d0c8c42678327adb61eac48b9e53044619d
+refs/remotes/origin/docs/pa2-followup-tasks f6e75bfb766d10576a768be414fe56ba1adb432b
+refs/remotes/origin/docs/pa2-submission 292b4b08276e70da8968a40d3ca937a19eee226d
+refs/remotes/origin/evidence/break-publish-contract cc6df3a10fdfb5079162fdac2e5274c0ad212159
+refs/remotes/origin/feat/contract-spec-and-tests 2c8f3f9c27af735dfb9de91142f047306ac0fd1f
+refs/remotes/origin/feat/publish-contract 8c613d4162d3bf16d02e74275d9c4c31bf7e5e5c
+refs/remotes/origin/main 5070b6c963ee953481545a14c0cce2f77abdff8c

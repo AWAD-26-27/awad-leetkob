@@ -136,3 +136,13 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - PR deliberate contract break: [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit phá hợp đồng [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159).
   - Kết quả kiểm chứng PR #5: Check Required `gates` thất bại do `200 !== 409` (pending guard bị bypass); nút Merge bị branch protection vô hiệu hóa; PR đã đóng mà không merge.
   - Ảnh minh chứng nút Merge bị chặn: [Ảnh PR #5 bị chặn](evidence/deliberate-contract-break-blocked.png).
+
+## 2026-11-11 — Tú — Xác minh mới từ clean clone và bổ sung bằng chứng
+
+- Tool: Codex, Docker, Git, Gitleaks 8.30.1.
+- Task: Theo yêu cầu bổ sung, tạo branch `docs/pa2-verification-evidence`, xác minh SHA chính xác, clean clone/npm ci, đầy đủ npm run check/E2E và secrets scan mới.
+- Changed: Thêm [báo cáo ngày 11/11](evidence/final-verification-2026-11-11.md) và logs/results JSON tại `evidence/verification-2026-11-11/`. Main và contract/tests/code không thay đổi.
+- Validation: GitHub API và clone cùng xác nhận SHA `5070b6c963ee953481545a14c0cce2f77abdff8c`. Clone độc lập bằng `git clone --no-local --branch main` từ repo local; không có .env/node_modules lúc bắt đầu, working tree sạch sau tests. Trong container Node 22.23.4/npm 10.9.9: npm ci exit 0 (90 packages); npm run check exit 0 (lint/format đạt, unit 5/5, contract 12/12); npm run e2e exit 0 (1/1), dùng CHROME_PATH Chromium 155.0.8059.79. Tests chạy với network none, không dùng key thật.
+- Secrets: Gitleaks 8.30.1 được kiểm tra checksum release; all-ref/full-history scan exit 0, 17 commits có diff, 0 findings; tracked snapshot đúng SHA gồm 38 files scan exit 0, 0 findings. Đối chiếu 8 remote branch tips từ GitHub API đều reachable trong refs đã scan. Snapshot bổ sung 48 files gồm các tài liệu/logs mới chưa commit cũng scan exit 0, 0 findings. Xem báo cáo để biết lệnh, checksum, phạm vi và logs redacted.
+- Rejected: Không thay lệnh gate bằng test rời hoặc ghi pass từ log baseline; không sửa tests/backend để vượt giới hạn HTTP listen của host. Chuyển lượt chạy HTTP/browser sang container và ghi rõ môi trường thực tế. Chưa có đề xuất nào được người dùng bác bỏ trong lượt này.
+- Limits: Chưa merge `docs/pa2-final-sync` vào main, chưa tạo tag pa2, chưa xác minh tag run hoặc đóng ZIP. Đây là kiểm chứng SHA đã ghi, không phải tuyên bố mọi commit tương lai đều đạt. Lượt E2E dùng browser có sẵn trong container, khác cách GitHub job cài browser.
