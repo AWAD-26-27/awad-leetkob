@@ -1,0 +1,10 @@
+
+> awad-quality-gate-starter@1.0.0 e2e
+> playwright test
+
+[WebServer] (node:32) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+·
+  1 passed (3.0s)

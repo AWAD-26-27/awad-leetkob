@@ -1,0 +1,65 @@
+
+> awad-quality-gate-starter@1.0.0 check
+> npm run lint && npm run format:check && npm test && npm run contract
+
+
+> awad-quality-gate-starter@1.0.0 lint
+> eslint .
+
+
+> awad-quality-gate-starter@1.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> awad-quality-gate-starter@1.0.0 test
+> node --test --test-reporter=spec "test/unit/**/*.test.js"
+
+✔ no violation keeps the full mark (1.398097ms)
+✔ an upheld violation takes off what the TA declared (0.274182ms)
+✔ an overturned violation takes off nothing (0.170837ms)
+✔ the mark never goes below 0 (0.165712ms)
+✔ violation and unsure need review; pass does not (0.284924ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.211513
+
+> awad-quality-gate-starter@1.0.0 contract
+> node --test --test-reporter=spec "test/contract/**/*.test.js"
+
+(node:107) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ no token is 401 and publishes nothing (60.323138ms)
+✔ unknown token is 401 and publishes nothing (14.801279ms)
+✔ a lab that does not exist is 404 (14.880197ms)
+✔ an invalid non-numeric lab id is 404 not-found (10.187556ms)
+✔ a student of the class is 403 and publishes nothing (6.688036ms)
+✔ a TA of another class gets identical 404 body as non-existent lab (15.071188ms)
+✔ it refuses while reviews are pending and publishes nothing (7.673277ms)
+✔ the TA of the class publishes a lab with no pending review (14.182292ms)
+✔ an unexpected request body is ignored on publish (17.613368ms)
+✔ an admin may publish (7.524968ms)
+✔ publishing again is safe and does not move the time (idempotent retry) (1109.591116ms)
+Error: Simulated database failure
+    at Object.get (file:///work/test/contract/publish.contract.test.js:102:19)
+    at handle (file:///work/src/app.js:73:25)
+    at Server.<anonymous> (file:///work/src/app.js:102:5)
+    at Server.emit (node:events:519:28)
+    at parserOnIncoming (node:_http_server:1186:12)
+    at HTTPParser.parserOnHeadersComplete (node:_http_common:125:17)
+✔ internal server error returns 500 problem details (7.473614ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1423.913275
+
