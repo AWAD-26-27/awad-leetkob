@@ -2,7 +2,12 @@
 
 > **Module:** CSC13114 — Advanced Web App Development (2609-AWAD-23/3)  
 > **Endpoint:** `POST /api/labs/{labId}/publish`  
-> **Specification Standard:** IA#3 Contract Template Alignment (Conventions, Errors, Resources, Endpoints, Evolution)
+> **Reference & Template Source:** Aligned with the course IA#3 API Contract specification template (`CONTRACT.md`), structured into five canonical sections:
+> 1. **Conventions:** Protocol, encoding, identifiers, timestamp format, authentication headers, and forward-compatibility rules.
+> 2. **Errors (RFC 9457 Problem Details):** Uniform `application/problem+json` error envelope, required/conditional members (`type`, `title`, `status`, `pending`), error slugs matrix, and database state invariants.
+> 3. **Resources:** Resource schema for published lab responses, field types, and nullability constraints.
+> 4. **Endpoints:** `POST /api/labs/{labId}/publish`, caller ownership matrix, step-by-step Evaluation Order flowchart, and idempotency / replay safety.
+> 5. **Versions and Evolution Policy:** Additive non-breaking modifications vs. breaking versioning policy, deprecation schedules, and atomic PR synchronization.
 
 ---
 
@@ -142,14 +147,16 @@ The server evaluates the request in the following strict order, terminating at t
 
 ## 5. Versions and Evolution Policy
 
-- **Additive Changes (Compatible):**
+- **Current Version Baseline:**
+  - The endpoint `POST /api/labs/{labId}/publish` operates within the unversioned `/api/` path, serving as the canonical v1 baseline for the grade publishing service.
+- **Additive Changes (Backward-Compatible):**
   - Introducing new optional response fields (e.g., `totalPublishedCount`).
-  - Introducing new problem types (`type` slugs) for distinct edge cases.
-  - These changes are permissible within `/api/v1` without breaking existing clients.
+  - Introducing new problem types (`type` slugs) for newly recognized error conditions.
+  - These changes are permissible directly within the current `/api/` namespace without breaking existing clients.
 - **Breaking Changes:**
-  - Altering the URL route, removing/renaming existing fields (`lab`, `publishedAt`).
-  - Modifying the HTTP status codes or semantics of errors (401, 403, 404, 409).
-  - Changing timestamp formats.
-  - Breaking changes require a new major version prefix (e.g., `/api/v2/...`), with the existing `/api/` endpoints maintained under a declared deprecation schedule before sunsetting.
+  - Altering the existing URL path, removing or renaming existing fields (`lab`, `publishedAt`).
+  - Modifying the HTTP status codes or semantics of existing errors (401, 403, 404, 409).
+  - Changing timestamp formats or making previously optional fields mandatory.
+  - Breaking changes require introducing a new major version path prefix (e.g., `/api/v2/labs/{labId}/publish`), with the existing `/api/` endpoint maintained under a declared deprecation schedule before sunsetting.
 - **Coordinated Updates:**
   - Any contract amendment must be committed together with corresponding contract tests (`test/contract/`) and backend updates (`src/app.js`) in an atomic pull request.
