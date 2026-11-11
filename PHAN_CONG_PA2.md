@@ -54,50 +54,50 @@ Tất cả đường dẫn dưới đây tính từ root repo `awad-leetkob/`. C
 
 ### T2.1. Chốt môi trường và commands
 
-- [ ] Dùng phiên bản Node đáp ứng `package.json` (hiện là `>=22.13`); local và CI dùng phiên bản tương thích, ưu tiên cùng phiên bản.
-- [ ] Kiểm tra `npm ci` cài được dependencies từ lockfile đã commit.
-- [ ] Xác nhận từng lệnh: `npm run lint`, `npm run format:check`, `npm test`, `npm run contract`.
-- [ ] Chốt `npm run check` chạy các checks bắt buộc và trả lỗi nếu một check thất bại.
-- [ ] Chốt cách xử lý type check: nếu áp dụng thì có lệnh kiểm tra thực sự và chạy trong CI; nếu không áp dụng thì ghi rõ lý do theo rubric. Không tạo lệnh chỉ in thông báo thành công để thay type check.
-- [ ] Ghi lại các lệnh, phiên bản Node và lưu ý cài đặt để Nam Anh cập nhật README.
+- [x] Dùng phiên bản Node đáp ứng `package.json` (hiện là `>=22.13`); local và CI dùng phiên bản tương thích, ưu tiên cùng phiên bản.
+- [x] Kiểm tra `npm ci` cài được dependencies từ lockfile đã commit.
+- [x] Xác nhận từng lệnh: `npm run lint`, `npm run format:check`, `npm test`, `npm run contract`.
+- [x] Chốt `npm run check` chạy các checks bắt buộc và trả lỗi nếu một check thất bại.
+- [x] Chốt cách xử lý type check: nếu áp dụng thì có lệnh kiểm tra thực sự và chạy trong CI; nếu không áp dụng thì ghi rõ lý do theo rubric. Không tạo lệnh chỉ in thông báo thành công để thay type check.
+- [x] Ghi lại các lệnh, phiên bản Node và lưu ý cài đặt để Nam Anh cập nhật README.
 
 ### T2.2. Sửa workflow trước, giữ bằng chứng lỗi
 
-- [ ] Sửa workflow chạy trên `pull_request` và trên `main`.
-- [ ] Cấu hình chạy khi push tag nộp bài `pa2`, để có CI run cho tag.
-- [ ] Dùng `npm ci` và cùng `npm run check` như local.
-- [ ] Bỏ `continue-on-error: true`, `|| true` và cơ chế khác che lỗi checks.
-- [ ] Ở commit sửa CI đầu tiên, chưa sửa `src/` hay `test/`; giữ riêng thay đổi workflow để review được.
-- [ ] Mở PR, kiểm tra CI bắt được lỗi lint `legacyLimit` trong `src/http.js`.
-- [ ] Không chỉ nhìn màu job: kiểm tra log để chắc chắn các lệnh cần thiết thực sự chạy.
+- [x] Sửa workflow chạy trên `pull_request` và trên `main`.
+- [x] Cấu hình chạy khi push tag nộp bài `pa2`, để có CI run cho tag.
+- [x] Dùng `npm ci` và cùng `npm run check` như local.
+- [x] Bỏ `continue-on-error: true`, `|| true` và cơ chế khác che lỗi checks.
+- [x] Ở commit sửa CI đầu tiên, chưa sửa `src/` hay `test/`; giữ riêng thay đổi workflow để review được.
+- [x] Mở PR, kiểm tra CI bắt được lỗi lint `legacyLimit` trong `src/http.js`.
+- [x] Không chỉ nhìn màu job: kiểm tra log để chắc chắn các lệnh cần thiết thực sự chạy.
 
 ### T2.3. Bật protection, chứng minh đỏ chặn merge
 
-- [ ] Sau khi check đã chạy và xuất hiện trong GitHub, bật protection cho `main`.
-- [ ] Bắt buộc PR trước khi merge; đặt job `gates` thành required check.
-- [ ] Không cho bypass các điều kiện bảo vệ.
-- [ ] Xác nhận PR đang đỏ thực sự bị chặn merge sau khi protection đã bật; lưu link và ảnh.
-- [ ] Commit riêng sửa lỗi lint `legacyLimit`; không làm yếu quy tắc lint để né lỗi.
-- [ ] Xác nhận CI xanh sau commit sửa; lưu SHA/link commit và CI run.
-- [ ] Nhờ review và merge PR nền tảng. Từ khi bật protection, không push trực tiếp vào `main`.
+- [x] Sau khi check đã chạy và xuất hiện trong GitHub, bật protection cho `main`.
+- [x] Bắt buộc PR trước khi merge; đặt job `gates` thành required check.
+- [x] Không cho bypass các điều kiện bảo vệ.
+- [x] Xác nhận PR đang đỏ thực sự bị chặn merge sau khi protection đã bật; lưu link và ảnh.
+- [x] Commit riêng sửa lỗi lint `legacyLimit`; không làm yếu quy tắc lint để né lỗi.
+- [x] Xác nhận CI xanh sau commit sửa; lưu SHA/link commit và CI run.
+- [x] Nhờ review và merge PR nền tảng. Từ khi bật protection, không push trực tiếp vào `main`.
 
 ### T2.4. E2E theo hướng dẫn Session 7
 
 E2E là phần bổ sung của README, không phải một tiêu chí chấm riêng trong rubric PA#2. Nếu nhóm làm đầy đủ README thì hoàn thành phần này.
 
-- [ ] Thêm job riêng cài browser và chạy `npm run e2e`.
-- [ ] Trong CI, cài Chromium cùng dependencies cần thiết trước khi chạy Playwright.
-- [ ] Xác nhận hành trình TA review rồi Publish chạy được.
-- [ ] Sau khi job xuất hiện và chạy thành công, đặt E2E thành required nếu theo đầy đủ README.
+- [x] Thêm job riêng cài browser và chạy `npm run e2e`.
+- [x] Trong CI, cài Chromium cùng dependencies cần thiết trước khi chạy Playwright.
+- [x] Xác nhận hành trình TA review rồi Publish chạy được.
+- [x] Sau khi job xuất hiện và chạy thành công, đặt E2E thành required nếu theo đầy đủ README.
 
 ### T2.5. Điều kiện bàn giao và thông báo bắt đầu
 
-- [ ] PR nền tảng đã merge vào `main`; CI hiện tại xanh.
-- [ ] `main` được bảo vệ và required checks đang có hiệu lực.
-- [ ] Có link PR đỏ bị chặn, commit sửa xanh, CI run và ảnh cấu hình protection.
-- [ ] Có danh sách commands cuối cùng để hai người còn lại dùng.
-- [ ] Tạo `AI-LOG.md`, ghi các thao tác dùng AI, Changed / Rejected và bằng chứng thực tế của phần Tú.
-- [ ] Thông báo theo mẫu ở mục 1 để Nam Anh và Tường bắt đầu.
+- [x] PR nền tảng đã merge vào `main`; CI hiện tại xanh.
+- [x] `main` được bảo vệ và required checks đang có hiệu lực.
+- [x] Có link PR đỏ bị chặn, commit sửa xanh, CI run và ảnh cấu hình protection.
+- [x] Có danh sách commands cuối cùng để hai người còn lại dùng.
+- [x] Tạo `AI-LOG.md`, ghi các thao tác dùng AI, Changed / Rejected và bằng chứng thực tế của phần Tú.
+- [x] Thông báo theo mẫu ở mục 1 để Nam Anh và Tường bắt đầu.
 
 Lưu ý: nền tảng CI xanh chưa chứng minh API đúng, vì starter có contract tests yếu. Tường sẽ siết tests và sửa API ở giai đoạn 2.
 
@@ -233,14 +233,14 @@ Mỗi người dùng bản clone/working directory riêng. Không để ba ngư�
 
 ## 8. Checklist chung trước khi nộp
 
-- [ ] Tú kiểm tra từ clone mới: làm theo README cài đặt và chạy các checks thành công.
-- [ ] Tường xác nhận contract khớp tests/code, không còn commit cố tình phá trong nhánh nộp.
-- [ ] Nam Anh xác nhận đủ rules, permissions, env example, README, AI log, PA2 và tự chấm.
-- [ ] Cả ba kiểm tra repo public, `main` được bảo vệ, checks bắt buộc và bằng chứng truy cập được.
-- [ ] Nam Anh hoàn thiện `PA2.md`, bao gồm đường dẫn CI theo tag nộp; cả ba review và merge hồ sơ cuối.
+- [x] Tú kiểm tra từ clone mới: làm theo README cài đặt và chạy các checks thành công.
+- [x] Tường xác nhận contract khớp tests/code, không còn commit cố tình phá trong nhánh nộp.
+- [x] Nam Anh xác nhận đủ rules, permissions, env example, README, AI log, PA2 và tự chấm.
+- [x] Cả ba kiểm tra repo public, `main` được bảo vệ, checks bắt buộc và bằng chứng truy cập được.
+- [x] Nam Anh hoàn thiện `PA2.md`, bao gồm đường dẫn CI theo tag nộp; cả ba review và merge hồ sơ cuối.
 - [ ] Tú tạo và push tag **`pa2`** tại commit cuối được chọn; không tự di chuyển tag sau khi nộp.
 - [ ] Tú xác nhận CI thực sự chạy cho tag và xanh; lưu URL run để bàn giao.
-- [ ] Cả ba đối chiếu tự chấm theo rubric; mỗi tiêu chí có bằng chứng, ghi rõ phần chưa làm được.
+- [x] Cả ba đối chiếu tự chấm theo rubric; mỗi tiêu chí có bằng chứng, ghi rõ phần chưa làm được.
 - [ ] Nam Anh tạo ZIP chứa cả `.git` tại trạng thái nộp, tên dạng `<MSSV-tăng-dần>_<tổng-điểm>.zip`.
 - [ ] Tú đại diện nộp một bài của nhóm bằng tài khoản `<MSSV>@student.hcmus.edu.vn`, kiểm tra hạn và trạng thái nộp thành công.
 
