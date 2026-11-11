@@ -4,11 +4,11 @@
 
 Submitted by:
 
+- **23120101 — Nguyễn Minh Tú** (environment, commands, CI gate ruleset & submission packaging)
 - **23120105 — Huỳnh Mạnh Tường** (API contract, test hardening & deliberate break)
 - **23120111 — Phạm Quốc Nam Anh** (engineering harness, documentation, secrets management & coordination)
-- **Nguyễn Minh Tú** (environment, commands, CI gate ruleset & submission packaging)
 
-**Total claimed: 100 / 100.** The final ZIP name uses this total and confirmed student IDs in ascending order: `<IDs-in-ascending-order>_100.zip`.
+**Total claimed: 100 / 100.** The final ZIP name uses this total and confirmed student IDs in ascending order: `23120101-23120105-23120111_100.zip`.
 
 | Criterion                           | Max     | I claim | Evidence and limit                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ----------------------------------- | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

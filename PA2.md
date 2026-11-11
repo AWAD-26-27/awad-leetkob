@@ -3,9 +3,9 @@
 **Submission dossier, 10 November 2026.** All three members' contributions (Tú: CI/quality gate; Nam Anh: harness/docs/budget; Tường: contract/tests/deliberate break) are integrated into `main`. The remaining step before final submission is creating tag `pa2` and generating the submission ZIP.
 
 Confirmed members:
+- **23120101 — Nguyễn Minh Tú**
 - **23120105 — Huỳnh Mạnh Tường**
 - **23120111 — Phạm Quốc Nam Anh**
-- **Nguyễn Minh Tú** (MSSV confirmed in team submission records)
 
 Due **Wednesday, 11 November 2026, 22:00 (Asia/Saigon)**.
 
@@ -37,5 +37,5 @@ Main uses repository rulesets, so the classic branch-protection endpoint can ret
 ## Remaining before submission
 
 - Tú: confirm the final merged commit, create/push `pa2`, verify both jobs on that exact tag, and provide its concrete CI run link. Do not move a submitted tag.
-- Nam Anh: verify checks/secret scan on clean clone, package final repository with `.git` as `<IDs-in-ascending-order>_100.zip`.
+- Nam Anh: verify checks/secret scan on clean clone, package final repository with `.git` as `23120101-23120105-23120111_100.zip`.
 - One member submits by deadline from their `<StudentID>@student.hcmus.edu.vn` account.
