@@ -123,7 +123,7 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   3. Bàn giao đầy đủ bảng bằng chứng Deliberate Break (PR #5) và đối chiếu ảnh minh chứng.
 - Kept: Route handler hiện tại trong `src/app.js` (không cần sửa code backend vì implementation đã tuân thủ đúng hợp đồng).
 - Changed:
-  - `docs/contract/publish.md`: Bổ sung bảng Conventions (định dạng timestamp `YYYY-MM-DD HH:mm:ss`, positive integer IDs, Bearer token); bổ sung bảng RFC 9457 Problem Details members (`type`, `title`, `status`, `detail`, `pending`); bảng Error Slugs (401, 403, 404, 409, 500); bảng fields Resource cho response 200; sơ đồ thứ tự quyết định của server (Evaluation Order); và chính sách thay đổi contract (Versions & Evolution Policy).
+  - `docs/contract/publish.md`: Bổ sung bảng Conventions (định dạng timestamp `YYYY-MM-DD HH:mm:ss`, positive integer IDs, Bearer token); bổ sung bảng RFC 9457 Problem Details members (`type`, `title`, `status`, `pending` — lưu ý: trường `detail` trong RFC 9457 là tùy chọn và không có trong response thực tế của server, do đó không liệt kê trong contract); bảng Error Slugs (401, 403, 404, 409, 500); bảng fields Resource cho response 200; sơ đồ thứ tự quyết định của server (Evaluation Order); và chính sách thay đổi contract (Versions & Evolution Policy).
   - `test/helpers.js`: Cho phép `startApp(customDb)` nhận instance database tùy biến (hoặc fallback về `open()`), hỗ trợ inject mock DB để kiểm thử lỗi 500 mà không cần sửa code production.
   - `test/contract/publish.contract.test.js`: Nâng số test từ 9 lên 12 tests: thêm kiểm tra `assertProblem` xác thực `title` là chuỗi không rỗng; test so sánh deepEqual body 404 chống rò rỉ thông tin; test response 200 kiểm tra chi tiết regex timestamp và type; test 404 cho ID không hợp lệ (`non-numeric-id`); test bỏ qua request body thừa; và test lỗi nội bộ 500 trả về Problem Details chuẩn.
 - Rejected: Từ chối thêm endpoint public hoặc sửa schema database để giả lập lỗi 500; thay vào đó sử dụng `faultyDb` mock ngay trong test case để cô lập hoàn toàn lỗi.
@@ -131,11 +131,22 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Contract tests: `node --test "test/contract/publish.contract.test.js"` đạt 12/12 pass (100%), không có test nào bị skip hay lỗi.
   - Unit tests: `node --test "test/unit/**/*.test.js"` đạt 5/5 pass (100%).
   - Tổng số automated tests: 17/17 tests pass.
-- Bảng bàn giao Deliberate Break (T3-BS03):
+- Bảng bàn giao Contract Hardening & Deliberate Break (T3-BS03):
   - PR tính năng & sửa contract (đã merge): [PR #4](https://github.com/AWAD-26-27/awad-leetkob/pull/4), commit tests đỏ `fc92efe`, commit sửa xanh `f274493`.
+  - PR hợp đồng chuẩn IA#3 và siết 12 tests (đã merge): [PR #7](https://github.com/AWAD-26-27/awad-leetkob/pull/7), commit [2c8f3f9](https://github.com/AWAD-26-27/awad-leetkob/commit/2c8f3f9c27af735dfb9de91142f047306ac0fd1f), [CI xanh PR #7 (run 42854963287)](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42854963287).
   - PR deliberate contract break: [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit phá hợp đồng [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159).
-  - Kết quả kiểm chứng PR #5: Check Required `gates` thất bại do `200 !== 409` (pending guard bị bypass); nút Merge bị branch protection vô hiệu hóa; PR đã đóng mà không merge.
+  - CI đỏ của PR #5: [Run đỏ 42822866948](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948), [Job gates thất bại (129852521896)](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948/job/129852521896) do `200 !== 409`.
+  - Kết quả kiểm chứng PR #5: Check Required `gates` thất bại; nút Merge bị branch protection vô hiệu hóa; PR đã đóng mà không merge.
   - Ảnh minh chứng nút Merge bị chặn: [Ảnh PR #5 bị chặn](evidence/deliberate-contract-break-blocked.png).
+
+## 2026-11-10 — Tú — Lập checklist bổ sung cho Tường và Nam Anh
+
+- Tool: Codex.
+- Task: Đối chiếu rubric và bản main `5aea2cb`, viết một file giao việc bổ sung có đầu ra và điều kiện chấp nhận cụ thể cho hai thành viên.
+- Changed: Thêm [TASK_BO_SUNG_PA2.md](TASK_BO_SUNG_PA2.md), tách phần contract/tests/evidence của Tường và phần đồng bộ hồ sơ/verification/ZIP của Nam Anh; chỉ rõ phần chờ tag và CI của Tú. Không thay contract, tests, code, điểm tự chấm hay trạng thái hoàn thành của thành viên.
+- Rejected: Chưa có đề xuất bị bác bỏ trong lượt này; không suy diễn việc tạo checklist thành các task đã hoàn thành.
+- Validation: Đọc rules/permissions, contract, tests, README, tự chấm và workflow hiện tại; đây là thay đổi tài liệu, không chạy lại test ứng dụng. Kiểm tra diff/đường dẫn sau khi tạo file.
+- Evidence: Branch `docs/pa2-followup-tasks`, [checklist bổ sung](TASK_BO_SUNG_PA2.md).
 
 <a id="nam-anh-final-integration"></a>
 

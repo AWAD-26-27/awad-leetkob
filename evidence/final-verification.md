@@ -66,10 +66,13 @@
   - Direct force-push to `main` is blocked.
 - **Deliberate Contract Break Evidence:**
   - PR [#5](https://github.com/AWAD-26-27/awad-leetkob/pull/5) (branch `evidence/break-publish-contract`, commit `cc6df3a`) deliberately bypassed the pending review guard.
-  - Required check `gates` failed on assertion `200 !== 409`.
+  - Required check `gates` failed on assertion `200 !== 409` in [CI run 42822866948](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948), [gates job](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948/job/129852521896).
   - Branch protection blocked merge (Merge button disabled).
   - PR #5 was closed unmerged to preserve the clean state of `main`.
   - Evidence screenshot: `evidence/deliberate-contract-break-blocked.png`.
+- **Contract Spec & Hardening Verification:**
+  - PR [#7](https://github.com/AWAD-26-27/awad-leetkob/pull/7) (commit `2c8f3f9`) aligned specification with IA#3 template and hardened test suite to 12 tests.
+  - [CI run 42854963287](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42854963287) succeeded with all required checks passing.
 
 ---
 
