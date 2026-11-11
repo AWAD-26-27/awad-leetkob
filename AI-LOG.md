@@ -111,3 +111,12 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Contract specification: `docs/contract/publish.md`
   - Contract test suite: `test/contract/publish.contract.test.js`
   - Route handler implementation: `src/app.js`
+
+## 2026-11-10 — Tú — Lập checklist bổ sung cho Tường và Nam Anh
+
+- Tool: Codex.
+- Task: Đối chiếu rubric và bản main `5aea2cb`, viết một file giao việc bổ sung có đầu ra và điều kiện chấp nhận cụ thể cho hai thành viên.
+- Changed: Thêm [TASK_BO_SUNG_PA2.md](TASK_BO_SUNG_PA2.md), tách phần contract/tests/evidence của Tường và phần đồng bộ hồ sơ/verification/ZIP của Nam Anh; chỉ rõ phần chờ tag và CI của Tú. Không thay contract, tests, code, điểm tự chấm hay trạng thái hoàn thành của thành viên.
+- Rejected: Chưa có đề xuất bị bác bỏ trong lượt này; không suy diễn việc tạo checklist thành các task đã hoàn thành.
+- Validation: Đọc rules/permissions, contract, tests, README, tự chấm và workflow hiện tại; đây là thay đổi tài liệu, không chạy lại test ứng dụng. Kiểm tra diff/đường dẫn sau khi tạo file.
+- Evidence: Branch `docs/pa2-followup-tasks`, [checklist bổ sung](TASK_BO_SUNG_PA2.md). Chưa commit/push hoặc mở PR trong lượt tạo tài liệu này.
