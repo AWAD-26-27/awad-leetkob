@@ -54,50 +54,50 @@ Tất cả đường dẫn dưới đây tính từ root repo `awad-leetkob/`. C
 
 ### T2.1. Chốt môi trường và commands
 
-- [ ] Dùng phiên bản Node đáp ứng `package.json` (hiện là `>=22.13`); local và CI dùng phiên bản tương thích, ưu tiên cùng phiên bản.
-- [ ] Kiểm tra `npm ci` cài được dependencies từ lockfile đã commit.
-- [ ] Xác nhận từng lệnh: `npm run lint`, `npm run format:check`, `npm test`, `npm run contract`.
-- [ ] Chốt `npm run check` chạy các checks bắt buộc và trả lỗi nếu một check thất bại.
-- [ ] Chốt cách xử lý type check: nếu áp dụng thì có lệnh kiểm tra thực sự và chạy trong CI; nếu không áp dụng thì ghi rõ lý do theo rubric. Không tạo lệnh chỉ in thông báo thành công để thay type check.
-- [ ] Ghi lại các lệnh, phiên bản Node và lưu ý cài đặt để Nam Anh cập nhật README.
+- [x] Dùng phiên bản Node đáp ứng `package.json` (hiện là `>=22.13`); local và CI dùng phiên bản tương thích, ưu tiên cùng phiên bản.
+- [x] Kiểm tra `npm ci` cài được dependencies từ lockfile đã commit.
+- [x] Xác nhận từng lệnh: `npm run lint`, `npm run format:check`, `npm test`, `npm run contract`.
+- [x] Chốt `npm run check` chạy các checks bắt buộc và trả lỗi nếu một check thất bại.
+- [x] Chốt cách xử lý type check: nếu áp dụng thì có lệnh kiểm tra thực sự và chạy trong CI; nếu không áp dụng thì ghi rõ lý do theo rubric. Không tạo lệnh chỉ in thông báo thành công để thay type check.
+- [x] Ghi lại các lệnh, phiên bản Node và lưu ý cài đặt để Nam Anh cập nhật README.
 
 ### T2.2. Sửa workflow trước, giữ bằng chứng lỗi
 
-- [ ] Sửa workflow chạy trên `pull_request` và trên `main`.
-- [ ] Cấu hình chạy khi push tag nộp bài `pa2`, để có CI run cho tag.
-- [ ] Dùng `npm ci` và cùng `npm run check` như local.
-- [ ] Bỏ `continue-on-error: true`, `|| true` và cơ chế khác che lỗi checks.
-- [ ] Ở commit sửa CI đầu tiên, chưa sửa `src/` hay `test/`; giữ riêng thay đổi workflow để review được.
-- [ ] Mở PR, kiểm tra CI bắt được lỗi lint `legacyLimit` trong `src/http.js`.
-- [ ] Không chỉ nhìn màu job: kiểm tra log để chắc chắn các lệnh cần thiết thực sự chạy.
+- [x] Sửa workflow chạy trên `pull_request` và trên `main`.
+- [x] Cấu hình chạy khi push tag nộp bài `pa2`, để có CI run cho tag.
+- [x] Dùng `npm ci` và cùng `npm run check` như local.
+- [x] Bỏ `continue-on-error: true`, `|| true` và cơ chế khác che lỗi checks.
+- [x] Ở commit sửa CI đầu tiên, chưa sửa `src/` hay `test/`; giữ riêng thay đổi workflow để review được.
+- [x] Mở PR, kiểm tra CI bắt được lỗi lint `legacyLimit` trong `src/http.js`.
+- [x] Không chỉ nhìn màu job: kiểm tra log để chắc chắn các lệnh cần thiết thực sự chạy.
 
 ### T2.3. Bật protection, chứng minh đỏ chặn merge
 
-- [ ] Sau khi check đã chạy và xuất hiện trong GitHub, bật protection cho `main`.
-- [ ] Bắt buộc PR trước khi merge; đặt job `gates` thành required check.
-- [ ] Không cho bypass các điều kiện bảo vệ.
-- [ ] Xác nhận PR đang đỏ thực sự bị chặn merge sau khi protection đã bật; lưu link và ảnh.
-- [ ] Commit riêng sửa lỗi lint `legacyLimit`; không làm yếu quy tắc lint để né lỗi.
-- [ ] Xác nhận CI xanh sau commit sửa; lưu SHA/link commit và CI run.
-- [ ] Nhờ review và merge PR nền tảng. Từ khi bật protection, không push trực tiếp vào `main`.
+- [x] Sau khi check đã chạy và xuất hiện trong GitHub, bật protection cho `main`.
+- [x] Bắt buộc PR trước khi merge; đặt job `gates` thành required check.
+- [x] Không cho bypass các điều kiện bảo vệ.
+- [x] Xác nhận PR đang đỏ thực sự bị chặn merge sau khi protection đã bật; lưu link và ảnh.
+- [x] Commit riêng sửa lỗi lint `legacyLimit`; không làm yếu quy tắc lint để né lỗi.
+- [x] Xác nhận CI xanh sau commit sửa; lưu SHA/link commit và CI run.
+- [x] Nhờ review và merge PR nền tảng. Từ khi bật protection, không push trực tiếp vào `main`.
 
 ### T2.4. E2E theo hướng dẫn Session 7
 
 E2E là phần bổ sung của README, không phải một tiêu chí chấm riêng trong rubric PA#2. Nếu nhóm làm đầy đủ README thì hoàn thành phần này.
 
-- [ ] Thêm job riêng cài browser và chạy `npm run e2e`.
-- [ ] Trong CI, cài Chromium cùng dependencies cần thiết trước khi chạy Playwright.
-- [ ] Xác nhận hành trình TA review rồi Publish chạy được.
-- [ ] Sau khi job xuất hiện và chạy thành công, đặt E2E thành required nếu theo đầy đủ README.
+- [x] Thêm job riêng cài browser và chạy `npm run e2e`.
+- [x] Trong CI, cài Chromium cùng dependencies cần thiết trước khi chạy Playwright.
+- [x] Xác nhận hành trình TA review rồi Publish chạy được.
+- [x] Sau khi job xuất hiện và chạy thành công, đặt E2E thành required nếu theo đầy đủ README.
 
 ### T2.5. Điều kiện bàn giao và thông báo bắt đầu
 
-- [ ] PR nền tảng đã merge vào `main`; CI hiện tại xanh.
-- [ ] `main` được bảo vệ và required checks đang có hiệu lực.
-- [ ] Có link PR đỏ bị chặn, commit sửa xanh, CI run và ảnh cấu hình protection.
-- [ ] Có danh sách commands cuối cùng để hai người còn lại dùng.
-- [ ] Tạo `AI-LOG.md`, ghi các thao tác dùng AI, Changed / Rejected và bằng chứng thực tế của phần Tú.
-- [ ] Thông báo theo mẫu ở mục 1 để Nam Anh và Tường bắt đầu.
+- [x] PR nền tảng đã merge vào `main`; CI hiện tại xanh.
+- [x] `main` được bảo vệ và required checks đang có hiệu lực.
+- [x] Có link PR đỏ bị chặn, commit sửa xanh, CI run và ảnh cấu hình protection.
+- [x] Có danh sách commands cuối cùng để hai người còn lại dùng.
+- [x] Tạo `AI-LOG.md`, ghi các thao tác dùng AI, Changed / Rejected và bằng chứng thực tế của phần Tú.
+- [x] Thông báo theo mẫu ở mục 1 để Nam Anh và Tường bắt đầu.
 
 Lưu ý: nền tảng CI xanh chưa chứng minh API đúng, vì starter có contract tests yếu. Tường sẽ siết tests và sửa API ở giai đoạn 2.
 
@@ -122,7 +122,7 @@ Bắt đầu branch công việc từ `main` mới nhất sau thông báo của 
 - [x] `.env.example` liệt kê biến cần thiết không kèm giá trị; khớp với cách chạy thực tế.
 - [x] `.env` và file chứa secrets được ignore, nhưng `.env.example` vẫn được commit.
 - [x] Kiểm tra secrets trong cả cây file hiện tại và lịch sử Git, không chỉ commit cuối.
-- [ ] Nếu từng lộ credential thật: rotate credential và ghi sự việc/cách xử lý vào AI log; không coi việc xóa file hiện tại là đã xử lý xong.
+- [x] Rotate key: N/A (chưa từng lộ credential thật, scan 0 leaks).
 - [x] Ghi thông tin model và spending cap đúng thực tế. Rubric yêu cầu key có spending cap; nếu chưa thiết lập thì ghi phần chưa làm được, không tự nhận đã có.
 
 ### T1.3. README và AI log
@@ -130,16 +130,16 @@ Bắt đầu branch công việc từ `main` mới nhất sau thông báo của 
 - [x] README có stack, yêu cầu môi trường, cách cài đặt, chạy app và từng lệnh check.
 - [x] Ghi rõ dữ liệu mẫu dùng SQLite trong RAM và reset khi restart.
 - [x] Phân biệt checks bắt buộc với E2E bổ sung, phù hợp cấu hình nhóm đã chọn.
-- [ ] Tổng hợp `AI-LOG.md` theo mục 6; giữ nguyên thông tin và bằng chứng của cả ba.
+- [x] Tổng hợp `AI-LOG.md` theo mục 6; giữ nguyên thông tin và bằng chứng của cả ba.
 - [x] Có Changed / Rejected cụ thể; không ghi câu chuyện hoặc quyết định không xảy ra.
 
 ### T1.4. Hồ sơ nộp
 
-- [ ] Tạo `PA2.md` tại root với link repo public, protection settings/ảnh, PR bị chặn, PR xanh và commit sửa, CI cho tag, deliberate contract break.
+- [x] Tạo `PA2.md` tại root với link repo public, protection settings/ảnh, PR bị chặn, PR xanh và commit sửa, CI cho tag, deliberate contract break.
 - [x] Chuẩn bị link trang Actions lọc theo tag `pa2` trước khi tạo tag, để tài liệu nộp không cần sửa và di chuyển tag chỉ để chèn URL run phát sinh sau đó.
-- [ ] Lấy template Classroom và hoàn thiện `SELF_ASSESSMENT_REPORT.md`: đủ bảy tiêu chí, điểm tự chấm, bằng chứng và phần chưa làm được.
-- [ ] Nhận xác nhận điểm/bằng chứng phần CI từ Tú và phần contract/tests từ Tường.
-- [ ] Chuẩn bị ZIP chứa repository cùng `.git`, đặt tên MSSV tăng dần và tổng điểm tự chấm theo rubric.
+- [x] Lấy template Classroom và hoàn thiện `SELF_ASSESSMENT_REPORT.md`: đủ bảy tiêu chí, điểm tự chấm, bằng chứng và phần chưa làm được.
+- [x] Nhận xác nhận điểm/bằng chứng phần CI từ Tú và phần contract/tests từ Tường.
+- [ ] Chuẩn bị ZIP chứa repository cùng `.git`, đặt tên MSSV tăng dần và tổng điểm tự chấm theo rubric (chờ tag của Tú).
 
 ## 5. Tường — checklist contract, tests và API
 
@@ -147,48 +147,48 @@ Bắt đầu branch công việc từ `main` mới nhất sau thông báo của 
 
 ### T3.1. Hoàn thiện contract trước
 
-- [ ] Đối chiếu các phần với `CONTRACT.md` của IA#3; lấy template từ tài liệu IA#3 vì repo hiện chưa có file đó.
-- [ ] Ghi cách xác thực, role và ownership: TA chỉ thao tác lab thuộc lớp mình; admin theo contract.
-- [ ] Mô tả request, response, field rules và định dạng timestamp đủ rõ để client dùng được.
-- [ ] Liệt kê các error type và status: 401 unauthenticated, 403 forbidden, 404 not-found, 409 reviews-pending.
-- [ ] Mô tả error body theo problem details, gồm content type, `type`, `title`, `status`, và `pending` khi áp dụng.
-- [ ] Nêu rõ bị từ chối thì không thay đổi dữ liệu; còn review pending thì không Publish.
-- [ ] Nêu rõ Publish lặp lại trả cùng thời gian; endpoint này không phải danh sách nên không cần pagination.
-- [ ] Bổ sung cách xử lý khi contract thay đổi; giữ nguyên các yêu cầu hành vi đã được brief và starter xác định.
+- [x] Đối chiếu các phần với `CONTRACT.md` của IA#3; lấy template từ tài liệu IA#3 vì repo hiện chưa có file đó.
+- [x] Ghi cách xác thực, role và ownership: TA chỉ thao tác lab thuộc lớp mình; admin theo contract.
+- [x] Mô tả request, response, field rules và định dạng timestamp đủ rõ để client dùng được.
+- [x] Liệt kê các error type và status: 401 unauthenticated, 403 forbidden, 404 not-found, 409 reviews-pending.
+- [x] Mô tả error body theo problem details, gồm content type, `type`, `title`, `status`, và `pending` khi áp dụng.
+- [x] Nêu rõ bị từ chối thì không thay đổi dữ liệu; còn review pending thì không Publish.
+- [x] Nêu rõ Publish lặp lại trả cùng thời gian; endpoint này không phải danh sách nên không cần pagination.
+- [x] Bổ sung cách xử lý khi contract thay đổi; giữ nguyên các yêu cầu hành vi đã được brief và starter xác định.
 
 ### T3.2. Siết tests trong commit riêng
 
-- [ ] Bỏ `try/catch` đang nuốt assertion ở test pending.
-- [ ] Kiểm tra error body và content type, không chỉ HTTP status.
-- [ ] Kiểm tra không token và token không hợp lệ.
-- [ ] Kiểm tra lab không tồn tại.
-- [ ] Kiểm tra sinh viên cùng lớp bị 403 và dữ liệu không đổi.
-- [ ] Kiểm tra TA lớp khác bị 404, body như lab không tồn tại và dữ liệu không đổi.
-- [ ] Kiểm tra pending trả 409, đúng số pending và dữ liệu không đổi.
-- [ ] Kiểm tra TA đúng lớp/admin được Publish khi đủ điều kiện.
-- [ ] Kiểm tra idempotency: gọi lặp lại không đổi `publishedAt`.
-- [ ] Dùng database mới cho từng test; cập nhật helpers/fixtures khi cần.
-- [ ] Giữ ít nhất các kiểm tra unit hiện có; bổ sung case còn thiếu nếu cần để kiểm chứng thay đổi backend.
-- [ ] Commit phần contract/tests riêng, mở hoặc cập nhật PR và lưu CI đỏ do tests bắt lỗi code.
+- [x] Bỏ `try/catch` đang nuốt assertion ở test pending.
+- [x] Kiểm tra error body và content type, không chỉ HTTP status.
+- [x] Kiểm tra không token và token không hợp lệ.
+- [x] Kiểm tra lab không tồn tại.
+- [x] Kiểm tra sinh viên cùng lớp bị 403 và dữ liệu không đổi.
+- [x] Kiểm tra TA lớp khác bị 404, body như lab không tồn tại và dữ liệu không đổi.
+- [x] Kiểm tra pending trả 409, đúng số pending và dữ liệu không đổi.
+- [x] Kiểm tra TA đúng lớp/admin được Publish khi đủ điều kiện.
+- [x] Kiểm tra idempotency: gọi lặp lại không đổi `publishedAt`.
+- [x] Dùng database mới cho từng test; cập nhật helpers/fixtures khi cần.
+- [x] Giữ ít nhất các kiểm tra unit hiện có; bổ sung case còn thiếu nếu cần để kiểm chứng thay đổi backend.
+- [x] Commit phần contract/tests riêng, mở hoặc cập nhật PR và lưu CI đỏ do tests bắt lỗi code.
 
 ### T3.3. Sửa API trong commit tiếp theo
 
-- [ ] Kiểm tra quyền trước khi cập nhật `published_at`.
-- [ ] Kiểm tra các verdict cần review chưa có quyết định trước khi Publish.
-- [ ] Trả 409 với số pending khi chưa đủ điều kiện; không cập nhật dữ liệu trong các nhánh bị từ chối.
-- [ ] Giữ đúng idempotency và response/error shape đã đặc tả.
-- [ ] Không làm yếu tests hay đổi contract để né lỗi code.
-- [ ] Chạy checks local, đẩy commit sửa lên cùng PR, lưu CI xanh; nhờ review rồi merge.
+- [x] Kiểm tra quyền trước khi cập nhật `published_at`.
+- [x] Kiểm tra các verdict cần review chưa có quyết định trước khi Publish.
+- [x] Trả 409 với số pending khi chưa đủ điều kiện; không cập nhật dữ liệu trong các nhánh bị từ chối.
+- [x] Giữ đúng idempotency và response/error shape đã đặc tả.
+- [x] Không làm yếu tests hay đổi contract để né lỗi code.
+- [x] Chạy checks local, đẩy commit sửa lên cùng PR, lưu CI xanh; nhờ review rồi merge.
 
 ### T3.4. Tạo bằng chứng deliberate contract break
 
-- [ ] Từ `main` đã có bản đúng, tạo branch riêng, ví dụ `evidence/break-publish-contract`.
-- [ ] Cố tình bỏ điều kiện chặn Publish khi pending; giữ nguyên tests và contract.
-- [ ] Mở PR, xác nhận CI đỏ vì contract test bắt vi phạm, không phải lỗi cài đặt hoặc lỗi không liên quan.
-- [ ] Phối hợp Tú xác nhận PR đỏ bị required check chặn merge; lưu link và ảnh.
-- [ ] Không merge PR chứa code lỗi. Giữ PR/commit/run làm bằng chứng; có thể đóng PR sau khi đã lưu bằng chứng.
-- [ ] Cập nhật `AI-LOG.md` và gửi link contract, tests, commit sửa, PR lỗi cho Nam Anh.
-- [ ] Nếu làm đủ README, nhờ một assistant ở session mới review diff PR phá contract và ghi nhận điều bắt đúng/bắt sai vào AI log.
+- [x] Từ `main` đã có bản đúng, tạo branch riêng, ví dụ `evidence/break-publish-contract`.
+- [x] Cố tình bỏ điều kiện chặn Publish khi pending; giữ nguyên tests và contract.
+- [x] Mở PR, xác nhận CI đỏ vì contract test bắt vi phạm, không phải lỗi cài đặt hoặc lỗi không liên quan.
+- [x] Phối hợp Tú xác nhận PR đỏ bị required check chặn merge; lưu link và ảnh.
+- [x] Không merge PR chứa code lỗi. Giữ PR/commit/run làm bằng chứng; có thể đóng PR sau khi đã lưu bằng chứng.
+- [x] Cập nhật `AI-LOG.md` và gửi link contract, tests, commit sửa, PR lỗi cho Nam Anh.
+- [x] Nếu làm đủ README, nhờ một assistant ở session mới review diff PR phá contract và ghi nhận điều bắt đúng/bắt sai vào AI log.
 
 ## 6. Bắt buộc ghi AI-LOG.md khi làm
 
@@ -233,14 +233,14 @@ Mỗi người dùng bản clone/working directory riêng. Không để ba ngư�
 
 ## 8. Checklist chung trước khi nộp
 
-- [ ] Tú kiểm tra từ clone mới: làm theo README cài đặt và chạy các checks thành công.
-- [ ] Tường xác nhận contract khớp tests/code, không còn commit cố tình phá trong nhánh nộp.
-- [ ] Nam Anh xác nhận đủ rules, permissions, env example, README, AI log, PA2 và tự chấm.
-- [ ] Cả ba kiểm tra repo public, `main` được bảo vệ, checks bắt buộc và bằng chứng truy cập được.
-- [ ] Nam Anh hoàn thiện `PA2.md`, bao gồm đường dẫn CI theo tag nộp; cả ba review và merge hồ sơ cuối.
+- [x] Tú kiểm tra từ clone mới: làm theo README cài đặt và chạy các checks thành công.
+- [x] Tường xác nhận contract khớp tests/code, không còn commit cố tình phá trong nhánh nộp.
+- [x] Nam Anh xác nhận đủ rules, permissions, env example, README, AI log, PA2 và tự chấm.
+- [x] Cả ba kiểm tra repo public, `main` được bảo vệ, checks bắt buộc và bằng chứng truy cập được.
+- [x] Nam Anh hoàn thiện `PA2.md`, bao gồm đường dẫn CI theo tag nộp; cả ba review và merge hồ sơ cuối.
 - [ ] Tú tạo và push tag **`pa2`** tại commit cuối được chọn; không tự di chuyển tag sau khi nộp.
 - [ ] Tú xác nhận CI thực sự chạy cho tag và xanh; lưu URL run để bàn giao.
-- [ ] Cả ba đối chiếu tự chấm theo rubric; mỗi tiêu chí có bằng chứng, ghi rõ phần chưa làm được.
+- [x] Cả ba đối chiếu tự chấm theo rubric; mỗi tiêu chí có bằng chứng, ghi rõ phần chưa làm được.
 - [ ] Nam Anh tạo ZIP chứa cả `.git` tại trạng thái nộp, tên dạng `<MSSV-tăng-dần>_<tổng-điểm>.zip`.
 - [ ] Tú đại diện nộp một bài của nhóm bằng tài khoản `<MSSV>@student.hcmus.edu.vn`, kiểm tra hạn và trạng thái nộp thành công.
 
@@ -250,13 +250,13 @@ Mỗi người dùng bản clone/working directory riêng. Không để ba ngư�
 
 | Hạng mục | Người cung cấp | Link/ghi chú |
 | --- | --- | --- |
-| PR CI đỏ bị chặn merge | Tú | Chưa điền |
-| Commit sửa thành xanh và CI run | Tú | Chưa điền |
-| Cấu hình bảo vệ main/ảnh | Tú | Chưa điền |
+| PR CI đỏ bị chặn merge | Tú | [PR #1](https://github.com/AWAD-26-27/awad-leetkob/pull/1), [run đỏ 42751983807](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42751983807), [ảnh merge bị chặn](evidence/ci-workflow-gate-failed.png) |
+| Commit sửa thành xanh và CI run | Tú | [09d9539](https://github.com/AWAD-26-27/awad-leetkob/commit/09d95396a1a61505030661d2088c9d59181747cd), [run xanh 42755020550](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42755020550), [ảnh PR xanh](evidence/ci-workflow-gate-succeed.png) |
+| Cấu hình bảo vệ main/ảnh | Tú | [Ruleset 26915632](https://github.com/AWAD-26-27/awad-leetkob/rules/26915632), [ảnh ruleset](evidence/main-ruleset.png), [ảnh checks required](evidence/ci-gate-e2e-main-ruleset.png) |
 | Rules, permissions và kiểm tra secrets | Nam Anh | [AGENTS.md](AGENTS.md), [permissions](docs/permissions.md), [scan log](AI-LOG.md#nam-anh-harness); [Gemini free tier, không billing, cap trả phí 0 USD](docs/model-budget.md) |
-| Contract và contract tests | Tường | Chưa điền |
-| Commit tests đỏ và commit sửa API xanh | Tường | Chưa điền |
-| PR cố tình phá contract, CI đỏ và merge bị chặn | Tường + Tú | Chưa điền |
-| AI-LOG.md đủ nội dung của ba người | Cả ba; Nam Anh tổng hợp | Chưa điền |
-| Tag pa2 và CI run cho tag | Tú | Chưa điền |
-| PA2.md, tự chấm, ZIP và xác nhận nộp | Nam Anh + Tú | [PA2.md](PA2.md), [tự chấm tạm 83/100](SELF_ASSESSMENT_REPORT.md); ZIP/nộp còn chờ tích hợp, đủ MSSV và tag |
+| Contract và contract tests | Tường | [docs/contract/publish.md](docs/contract/publish.md), [publish.contract.test.js](test/contract/publish.contract.test.js), [PR #4](https://github.com/AWAD-26-27/awad-leetkob/pull/4), [PR #7](https://github.com/AWAD-26-27/awad-leetkob/pull/7) ([green CI 42854963287](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42854963287)) |
+| Commit tests đỏ và commit sửa API xanh | Tường | Tests đỏ [fc92efe](https://github.com/AWAD-26-27/awad-leetkob/commit/fc92efe5dcfcd203541581a3ac9aa08b247f6f37), Sửa xanh [f274493](https://github.com/AWAD-26-27/awad-leetkob/commit/f27449353d33510b8d32f156f73141764ae610db) |
+| PR cố tình phá contract, CI đỏ và merge bị chặn | Tường + Tú | [PR #5](https://github.com/AWAD-26-27/awad-leetkob/pull/5), commit [cc6df3a](https://github.com/AWAD-26-27/awad-leetkob/commit/cc6df3a10fdfb5079162fdac2e5274c0ad212159), [red CI 42822866948](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948), [gates job](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/42822866948/job/129852521896), [ảnh PR bị chặn](evidence/deliberate-contract-break-blocked.png) |
+| AI-LOG.md đủ nội dung của ba người | Cả ba; Nam Anh tổng hợp | [AI-LOG.md](AI-LOG.md) (đầy đủ các entry của Tú, Nam Anh, Tường) |
+| Tag pa2 và CI run cho tag | Tú | Chờ Tú tạo tag sau khi merge PR hồ sơ cuối: [Actions filtered to pa2](https://github.com/AWAD-26-27/awad-leetkob/actions?query=branch%3Apa2) |
+| PA2.md, tự chấm, ZIP và xác nhận nộp | Nam Anh + Tú | [PA2.md](PA2.md), [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) (100/100), [final-verification.md](evidence/final-verification.md); ZIP/nộp chờ tag |
