@@ -190,3 +190,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: GitHub API xác nhận run `42751983807` có event `pull_request`, head `eba0b2a3578e5e47e8e0fa78c909a7a922970143`, conclusion `failure`; run `42755020550` có event `pull_request`, head `09d95396a1a61505030661d2088c9d59181747cd`, conclusion `success`. `git diff --check` đạt. Chỉ sửa tài liệu, không chạy lại application tests.
 - Rejected: Không suy đoán MSSV từ Git author/email hoặc tự điền một số chưa được thành viên xác nhận.
 - Pending: Danh tính đã được Tú xác nhận; thay đổi chuẩn bị đưa lên PR. Không tự nhận đã tạo tag hoặc ZIP trong lượt sửa tài liệu này.
+
+## 2026-11-23 — PA3 — Chốt contract tích hợp
+
+- Tool: Codex, `pdftotext`, Git, Python 3, C++, npm và Playwright.
+- Task: Đối chiếu class brief, rubric PA3, task list và contract Publish, rồi chốt điểm nối để ba luồng triển khai song song.
+- Changed: Thêm [contract tích hợp PA3](docs/contract/pa3-integration.md) với schema chung, quy tắc worker nhận lại job, giao diện checker/CLI, payload API, cấu hình Azure và fixture `MODEL_OFF=1`. Chốt một lần ghi kết quả hoàn chỉnh và giữ quyền review theo từng constraint.
+- Rejected: Bỏ cách đánh dấu `judged` trước khi ghi verdict vì UI có thể đọc trạng thái cuối khi queue còn thiếu dòng. Giữ demo public ở hàng đợi TA theo rubric, để contract Publish hiện hữu tiếp tục áp dụng cho luồng hiện hữu.
+- Validation: GitHub trả `main` tại `56684dc` khớp nền nhánh. Python đọc được JSON mẫu, kiểm evidence khớp chính xác source và xác nhận ví dụ C++ biên dịch, trả mã 0 với output rỗng. `npm run check` đạt 5 unit và 12 contract tests. `npm run e2e` với Chromium cục bộ đạt 1 test. Các check ứng dụng chạy bộ test hiện hữu.
