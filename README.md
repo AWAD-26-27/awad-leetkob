@@ -74,6 +74,10 @@ It verifies the exact configured model using a short `OK` request and never prin
 
 Codex assisted Nam Anh's harness work, as recorded in AI-LOG.md; it is separate from the product model. See [official Gemini billing](https://aistudio.google.com/docs/billing#projects-api-keys) and [pricing](https://aistudio.google.com/docs/pricing#gemini-3.8-flash), checked 10 November 2026.
 
+## PA3 checker
+
+The shared `evaluateSubmission` API, C1/C2 worker fixture, offline CLI/Docker commands and eval evidence are in the [checker guide](docs/checker.md). For `sort-merge`, 80 Accepted submissions × 1 semantic constraint × 1 attempt gives a maximum of 80 Gemini calls. With the proposed `gemini-3.8-flash` free-tier setup and available quota, 80 × USD 0 = USD 0 projected provider cost. Live inference and measured cost await an approved run.
+
 ## Submission
 
 Due **11 November 2026, 22:00 (Asia/Saigon)**. [PA2.md](PA2.md) maps evidence and links; [SELF_ASSESSMENT_REPORT.md](SELF_ASSESSMENT_REPORT.md) follows the Classroom template claiming 100/100 points backed by reproducible evidence.

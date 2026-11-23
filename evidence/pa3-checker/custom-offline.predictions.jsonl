@@ -1,0 +1,10 @@
+{"solution":"minimum/s01","constraint":"C1","verdict":"violation","evidence":[{"line":8,"text":"    std::cout << min(a, b) << '\\n';"}]}
+{"solution":"minimum/s01","constraint":"C2","verdict":"unsure","evidence":[]}
+{"solution":"minimum/s02","constraint":"C1","verdict":"pass","evidence":[]}
+{"solution":"minimum/s02","constraint":"C2","verdict":"unsure","evidence":[]}
+{"solution":"minimum/s03","constraint":"C1","verdict":"pass","evidence":[]}
+{"solution":"minimum/s03","constraint":"C2","verdict":"unsure","evidence":[]}
+{"solution":"minimum/s04","constraint":"C1","verdict":"violation","evidence":[{"line":8,"text":"    std::cout << PICK(a, b) << '\\n';"}]}
+{"solution":"minimum/s04","constraint":"C2","verdict":"unsure","evidence":[]}
+{"solution":"minimum/s05","constraint":"C1","verdict":"pass","evidence":[]}
+{"solution":"minimum/s05","constraint":"C2","verdict":"unsure","evidence":[]}

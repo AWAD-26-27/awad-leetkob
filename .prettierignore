@@ -1,2 +1,4 @@
 package-lock.json
 *.md
+eval/dev/
+evidence/pa3-checker/*-offline.eval.json

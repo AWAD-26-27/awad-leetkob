@@ -20,5 +20,8 @@
     "@playwright/test": "^1.49.0",
     "eslint": "^9.17.0",
     "prettier": "^3.4.0"
+  },
+  "dependencies": {
+    "@vscode/tree-sitter-wasm": "0.3.1"
   }
 }

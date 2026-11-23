@@ -1,0 +1,22 @@
+{
+  "input": {
+    "statement": "Write a C++ program that returns zero and produces no output.",
+    "constraints": [
+      { "id": "C1", "text": "Do not call `std::min`." },
+      { "id": "C2", "text": "Use recursion." }
+    ],
+    "code": "#include <algorithm>\nint main() { return std::min(0, 1); }\n"
+  },
+  "expected": {
+    "verdicts": [
+      {
+        "constraint": "C1",
+        "verdict": "violation",
+        "evidence": [{ "line": 2, "text": "int main() { return std::min(0, 1); }" }],
+        "source": "hard_rule"
+      },
+      { "constraint": "C2", "verdict": "unsure", "evidence": [], "source": "model_off" }
+    ],
+    "callLogs": []
+  }
+}

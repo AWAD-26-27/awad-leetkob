@@ -206,3 +206,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Không bind mount mã nguồn hay đưa expected output vào container. Docker client có thể tự thêm proxy từ cấu hình người dùng, nên runner ghi đè các biến proxy bằng giá trị rỗng. Compiler và chương trình dùng môi trường sạch.
 - Validation: Build Docker đạt. Smoke test cục bộ đạt `Accepted` với nhiều test, source UTF-8 và stdin lớn, cùng `WA`, `CE`, `RE`, `OLE`, `TLE` theo CPU và wall-clock, và `MLE`. Xác nhận wall timeout xóa container và không còn container test sau khi chạy. Kiểm cấu hình network, UID, host mounts, CPU và cgroup RAM/swap/PID. Container không nhận hai canary Gemini và proxy giả. `npm run check` đạt 5 unit và 12 contract tests. Playwright đạt 1 E2E.
 - Secrets: Gitleaks `--redact=100` báo 0 findings trên snapshot làm việc và 22 commit thuộc các ref đã fetch. Smoke test dùng dữ liệu tổng hợp. Bộ chín fixture sandbox trên CI, worker và Azure deploy nằm ở bước tích hợp sau.
+
+## 2026-11-23 — Nam Anh — Checker, guardrails và eval PA3
+
+- Tool: Codex, Git/GitHub CLI, Node.js 22, Tree-sitter WASM, Docker, G++ và Playwright.
+- Changed: Export `evaluateSubmission`, bàn giao [fixture C1/C2](test/fixtures/pa3-checker-handoff.json), phân tích ban-list trước, làm sạch input model, kiểm JSON/evidence và xử lý timeout. Thêm CLI, Dockerfile, dev set gốc và năm bài custom có nhãn/tag.
+- Rejected: Dò chuỗi đơn thuần có thể phạt nhầm comment, chuỗi và hàm trùng tên. Dùng cây cú pháp và kiểm kết quả trên các ca trap/disguised. Giữ output của lần offline ở các file có nhãn `offline`.
+- Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
+- Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
