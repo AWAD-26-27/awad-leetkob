@@ -214,3 +214,10 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Dò chuỗi đơn thuần có thể phạt nhầm comment, chuỗi và hàm trùng tên. Dùng cây cú pháp và kiểm kết quả trên các ca trap/disguised. Giữ output của lần offline ở các file có nhãn `offline`.
 - Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
 - Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
+
+## 2026-11-23 — Tú — Kiểm chứng sandbox trên CI
+
+- Tool: Codex, Node.js test runner, Docker và Git.
+- Changed: Thêm chín fixture C++ và chín test Docker. Thêm trigger `pa3` và job `sandbox-tests` trên Ubuntu/Node 22. Phân biệt wall deadline do runner với timeout do tiến trình.
+- Rejected: Dùng kiểm chứng giới hạn tiến trình có hiệu lực qua cgroup và canary tổng hợp cho secrets. Fixture mạng chỉ kiểm interface trong namespace của container. Fixture bộ nhớ đọc dữ liệu đã cấp phát bằng phép cộng để giữ hành vi ở mức tối ưu hóa của toolchain.
+- Validation: Job local `node --test --test-reporter=spec test/sandbox.test.js` đạt 9/9. CI trên GitHub cần chạy từ PR và tag nộp thực tế.

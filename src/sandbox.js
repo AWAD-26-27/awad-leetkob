@@ -188,7 +188,11 @@ async function runCase(source, { input, expectedOutput }, limits) {
     const { stopped, compiled, stdout, stderr } = await attach(name, payload, limits);
     if (stopped) {
       removed = true;
-      return { verdict: stopped, diagnostic: stderr.toString('utf8') };
+      return {
+        verdict: stopped,
+        limit: stopped === 'TLE' ? 'wall' : 'output',
+        diagnostic: stderr.toString('utf8'),
+      };
     }
 
     const state = JSON.parse(await docker(['inspect', '--format', '{{json .State}}', name]));
@@ -236,9 +240,9 @@ export async function runSandbox({ code, testCases, limits: overrides = {} }) {
 
   const source = Buffer.from(code);
   for (const [index, test] of testCases.entries()) {
-    const { verdict, diagnostic } = await runCase(source, test, limits);
-    if (verdict !== 'Accepted') {
-      return { verdict, testIndex: index + 1, diagnostic };
+    const result = await runCase(source, test, limits);
+    if (result.verdict !== 'Accepted') {
+      return { ...result, testIndex: index + 1 };
     }
   }
   return { verdict: 'Accepted' };
