@@ -53,3 +53,9 @@ jobs:
         run: docker build -t leetkob-cpp-sandbox:latest sandbox
       - name: Verify the nine sandbox controls
         run: node --test --test-reporter=spec test/sandbox.test.js
+      - name: Install worker dependencies
+        run: npm ci
+      - name: Verify worker restart and exactly-once judging
+        env:
+          MODEL_OFF: '1'
+        run: node --test --test-reporter=spec test/worker.test.js

@@ -221,3 +221,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Thêm chín fixture C++ và chín test Docker. Thêm trigger `pa3` và job `sandbox-tests` trên Ubuntu/Node 22. Phân biệt wall deadline do runner với timeout do tiến trình.
 - Rejected: Dùng kiểm chứng giới hạn tiến trình có hiệu lực qua cgroup và canary tổng hợp cho secrets. Fixture mạng chỉ kiểm interface trong namespace của container. Fixture bộ nhớ đọc dữ liệu đã cấp phát bằng phép cộng để giữ hành vi ở mức tối ưu hóa của toolchain.
 - Validation: Job local `node --test --test-reporter=spec test/sandbox.test.js` đạt 9/9. CI trên GitHub cần chạy từ PR và tag nộp thực tế.
+
+## 2026-11-23 — Tú — Worker PA3 và kiểm tra restart
+
+- Tool: Codex, Git, Docker, Node.js 26 cục bộ, Node 22 trong container offline, npm và Playwright.
+- Changed: Thêm tiến trình `src/worker.js` chạy riêng với `DB_PATH`, claim job SQLite nguyên tử, gia hạn lease và dùng số lần claim để chặn lần chạy cũ ghi kết quả. Worker gọi sandbox, chỉ chạy checker với `Accepted`, rồi lưu toàn bộ kết quả trong một transaction. Lượt gọi model đặt chỗ theo hạn mức của lab. CI chạy kiểm tra restart cùng job sandbox.
+- Rejected: Tách thời gian chạy Docker/model ra khỏi transaction SQLite để API có thể tiếp tục ghi. Worker ưu tiên bảo toàn review của TA và chỉ lưu metadata model. Test chạy `MODEL_OFF=1` hoặc fake checker với dữ liệu tổng hợp, nên không cần file `.env`.
+- Validation: `npm run check` đạt 17 unit và 12 contract tests, Playwright đạt 1 E2E. Suite Docker đạt 9 kiểm chứng sandbox và 1 test dừng/khởi động worker. Mỗi bài queued hoặc claim hết hạn có đúng một bộ verdict C1/C2. Bốn unit tests worker cũng đạt trong Node 22 với mạng tắt.
+- Bàn giao: Chạy `DB_PATH=/path/to/leetkob.db MODEL_OFF=1 node src/worker.js` sau khi API đã khởi tạo schema PA3. Test restart dùng tệp SQLite theo contract với giao dịch tạo job, ghép Docker và checker thật ở chế độ offline. Hành trình HTTP thực tế sẽ được kiểm khi schema/API của Luồng 1 được ghép.
