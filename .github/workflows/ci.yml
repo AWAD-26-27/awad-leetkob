@@ -5,7 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
-    tags: [pa2]
+    tags: [pa2, pa3]
 
 permissions:
   contents: read
@@ -40,3 +40,22 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser test
         run: npm run e2e
+
+  sandbox-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Build C++ sandbox
+        run: docker build -t leetkob-cpp-sandbox:latest sandbox
+      - name: Verify the nine sandbox controls
+        run: node --test --test-reporter=spec test/sandbox.test.js
+      - name: Install worker dependencies
+        run: npm ci
+      - name: Verify worker restart and exactly-once judging
+        env:
+          MODEL_OFF: '1'
+        run: node --test --test-reporter=spec test/worker.test.js

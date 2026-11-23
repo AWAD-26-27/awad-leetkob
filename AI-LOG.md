@@ -199,6 +199,14 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Bỏ cách đánh dấu `judged` trước khi ghi verdict vì UI có thể đọc trạng thái cuối khi queue còn thiếu dòng. Giữ demo public ở hàng đợi TA theo rubric, để contract Publish hiện hữu tiếp tục áp dụng cho luồng hiện hữu.
 - Validation: GitHub trả `main` tại `56684dc` khớp nền nhánh. Python đọc được JSON mẫu, kiểm evidence khớp chính xác source và xác nhận ví dụ C++ biên dịch, trả mã 0 với output rỗng. `npm run check` đạt 5 unit và 12 contract tests. `npm run e2e` với Chromium cục bộ đạt 1 test. Các check ứng dụng chạy bộ test hiện hữu.
 
+## 2026-11-23 — Tú — Dựng sandbox C++ PA3
+
+- Tool: Codex, Git, Docker 29.9.2, Node.js, npm, Playwright và Gitleaks 8.30.1.
+- Changed: Thêm `sandbox/Dockerfile`, entrypoint `sandbox/run.sh` và `src/sandbox.js`. Build bằng `docker build -t leetkob-cpp-sandbox:latest sandbox`. Worker gọi `runSandbox({ code, testCases })` với `testCases` là mảng `{ input, expectedOutput }`. Mỗi test dùng container mới để biên dịch và chạy C++17. Sandbox nhận source và input qua stdin, kiểm output trên host và trả verdict đầu tiên thất bại cùng số thứ tự test. Lỗi Docker reject để worker có thể retry.
+- Rejected: Không bind mount mã nguồn hay đưa expected output vào container. Docker client có thể tự thêm proxy từ cấu hình người dùng, nên runner ghi đè các biến proxy bằng giá trị rỗng. Compiler và chương trình dùng môi trường sạch.
+- Validation: Build Docker đạt. Smoke test cục bộ đạt `Accepted` với nhiều test, source UTF-8 và stdin lớn, cùng `WA`, `CE`, `RE`, `OLE`, `TLE` theo CPU và wall-clock, và `MLE`. Xác nhận wall timeout xóa container và không còn container test sau khi chạy. Kiểm cấu hình network, UID, host mounts, CPU và cgroup RAM/swap/PID. Container không nhận hai canary Gemini và proxy giả. `npm run check` đạt 5 unit và 12 contract tests. Playwright đạt 1 E2E.
+- Secrets: Gitleaks `--redact=100` báo 0 findings trên snapshot làm việc và 22 commit thuộc các ref đã fetch. Smoke test dùng dữ liệu tổng hợp. Bộ chín fixture sandbox trên CI, worker và Azure deploy nằm ở bước tích hợp sau.
+
 ## 2026-11-23 — Nam Anh — Checker, guardrails và eval PA3
 
 - Tool: Codex, Git/GitHub CLI, Node.js 22, Tree-sitter WASM, Docker, G++ và Playwright.
@@ -206,3 +214,18 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Dò chuỗi đơn thuần có thể phạt nhầm comment, chuỗi và hàm trùng tên. Dùng cây cú pháp và kiểm kết quả trên các ca trap/disguised. Giữ output của lần offline ở các file có nhãn `offline`.
 - Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
 - Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
+
+## 2026-11-23 — Tú — Kiểm chứng sandbox trên CI
+
+- Tool: Codex, Node.js test runner, Docker và Git.
+- Changed: Thêm chín fixture C++ và chín test Docker. Thêm trigger `pa3` và job `sandbox-tests` trên Ubuntu/Node 22. Phân biệt wall deadline do runner với timeout do tiến trình.
+- Rejected: Dùng kiểm chứng giới hạn tiến trình có hiệu lực qua cgroup và canary tổng hợp cho secrets. Fixture mạng chỉ kiểm interface trong namespace của container. Fixture bộ nhớ đọc dữ liệu đã cấp phát bằng phép cộng để giữ hành vi ở mức tối ưu hóa của toolchain.
+- Validation: Job local `node --test --test-reporter=spec test/sandbox.test.js` đạt 9/9. CI trên GitHub cần chạy từ PR và tag nộp thực tế.
+
+## 2026-11-23 — Tú — Worker PA3 và kiểm tra restart
+
+- Tool: Codex, Git, Docker, Node.js 26 cục bộ, Node 22 trong container offline, npm và Playwright.
+- Changed: Thêm tiến trình `src/worker.js` chạy riêng với `DB_PATH`, claim job SQLite nguyên tử, gia hạn lease và dùng số lần claim để chặn lần chạy cũ ghi kết quả. Worker gọi sandbox, chỉ chạy checker với `Accepted`, rồi lưu toàn bộ kết quả trong một transaction. Lượt gọi model đặt chỗ theo hạn mức của lab. CI chạy kiểm tra restart cùng job sandbox.
+- Rejected: Tách thời gian chạy Docker/model ra khỏi transaction SQLite để API có thể tiếp tục ghi. Worker ưu tiên bảo toàn review của TA và chỉ lưu metadata model. Test chạy `MODEL_OFF=1` hoặc fake checker với dữ liệu tổng hợp, nên không cần file `.env`.
+- Validation: `npm run check` đạt 17 unit và 12 contract tests, Playwright đạt 1 E2E. Suite Docker đạt 9 kiểm chứng sandbox và 1 test dừng/khởi động worker. Mỗi bài queued hoặc claim hết hạn có đúng một bộ verdict C1/C2. Bốn unit tests worker cũng đạt trong Node 22 với mạng tắt.
+- Bàn giao: Chạy `DB_PATH=/path/to/leetkob.db MODEL_OFF=1 node src/worker.js` sau khi API đã khởi tạo schema PA3. Test restart dùng tệp SQLite theo contract với giao dịch tạo job, ghép Docker và checker thật ở chế độ offline. Hành trình HTTP thực tế sẽ được kiểm khi schema/API của Luồng 1 được ghép.
