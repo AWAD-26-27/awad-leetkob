@@ -1,42 +1,25 @@
-import { createRequire } from 'node:module';
-import treeSitter from '@vscode/tree-sitter-wasm';
+import { cppRules, declaredNames, parseCpp } from './cpp.js';
+import { createGeminiClient, judgeSemantic, sanitizeCode } from './model.js';
 
-const require = createRequire(import.meta.url);
-await treeSitter.Parser.init();
-const parser = new treeSitter.Parser();
-parser.setLanguage(
-  await treeSitter.Language.load(
-    require.resolve('@vscode/tree-sitter-wasm/wasm/tree-sitter-cpp.wasm'),
-  ),
-);
-
-function callName(node) {
-  if (!node) return '';
-  if (node.type === 'qualified_identifier') {
-    const scope = node.childForFieldName('scope');
-    const name = callName(node.childForFieldName('name'));
-    return scope ? `${scope.text}::${name}` : name;
-  }
-  if (node.type === 'template_function') return node.childForFieldName('name').text;
-  return node.text;
-}
-
-export async function evaluateSubmission({ constraints, code, options = {} }) {
-  const lines = code.split(/\r\n|\n|\r/);
-  const tree = parser.parse(lines.join('\n'));
+export async function evaluateSubmission({ statement, constraints, code, options = {} }) {
+  const originalLines = code.split(/\r\n|\n|\r/);
+  const normalized = originalLines.join('\n');
+  const modelOff = options.modelOff || process.env.MODEL_OFF === '1';
+  const callLogs = [];
+  const tree = parseCpp(normalized);
+  let verdicts;
+  let privateNames;
   try {
-    const calls = tree.rootNode.descendantsOfType('call_expression');
-    const verdicts = constraints.map(({ id, text }) => {
-      const names = [...text.matchAll(/`([^`]+)`/g)].map((match) => match[1]);
-      if (/^Do not call\b/i.test(text.trim()) && names.length) {
-        const call = calls.find((node) =>
-          names.includes(callName(node.childForFieldName('function'))),
-        );
-        const line = call ? call.startPosition.row + 1 : null;
+    const findBan = cppRules(tree.rootNode);
+    verdicts = constraints.map(({ id, text }) => {
+      const ban = /^(Do not use|Do not call)\b/i.exec(text.trim());
+      const names = new Set([...text.matchAll(/`([^`]+)`/g)].map((match) => match[1].trim()));
+      if (ban && names.size) {
+        const row = findBan(names, ban[1].toLowerCase() === 'do not call');
         return {
           constraint: id,
-          verdict: line ? 'violation' : 'pass',
-          evidence: line ? [{ line, text: lines[line - 1] }] : [],
+          verdict: row === undefined ? 'pass' : 'violation',
+          evidence: row === undefined ? [] : [{ line: row + 1, text: originalLines[row] }],
           source: 'hard_rule',
         };
       }
@@ -44,12 +27,42 @@ export async function evaluateSubmission({ constraints, code, options = {} }) {
         constraint: id,
         verdict: 'unsure',
         evidence: [],
-        source:
-          options.modelOff || process.env.MODEL_OFF === '1' ? 'model_off' : 'guardrail_fallback',
+        source: modelOff ? 'model_off' : 'guardrail_fallback',
       };
     });
-    return { verdicts, callLogs: [] };
+    if (!modelOff && verdicts.some(({ source }) => source !== 'hard_rule')) {
+      privateNames = declaredNames(tree.rootNode);
+    }
   } finally {
     tree.delete();
   }
+
+  if (modelOff || verdicts.every(({ source }) => source === 'hard_rule')) {
+    return { verdicts, callLogs };
+  }
+  const client = options.modelClient ?? createGeminiClient();
+  if (!client) return { verdicts, callLogs };
+
+  const sanitizedLines = sanitizeCode(normalized, privateNames).split('\n');
+  for (const [index, constraint] of constraints.entries()) {
+    if (verdicts[index].source === 'hard_rule') continue;
+    if (options.reserveModelCall) {
+      try {
+        if (!(await options.reserveModelCall({ constraintId: constraint.id }))) continue;
+      } catch {
+        continue;
+      }
+    }
+    const result = await judgeSemantic({
+      statement,
+      constraint,
+      sanitizedLines,
+      originalLines,
+      client,
+      options,
+    });
+    callLogs.push(result.log);
+    if (result.verdict) verdicts[index] = result.verdict;
+  }
+  return { verdicts, callLogs };
 }
