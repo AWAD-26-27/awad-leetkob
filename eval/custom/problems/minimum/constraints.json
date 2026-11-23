@@ -1,0 +1,8 @@
+[
+  { "id": "C1", "text": "Do not call `std::min`.", "deduction": 2 },
+  {
+    "id": "C2",
+    "text": "Compare the two input values at most once per execution. A call to the two-argument standard minimum counts as one comparison.",
+    "deduction": 3
+  }
+]

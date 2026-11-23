@@ -198,3 +198,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Thêm [contract tích hợp PA3](docs/contract/pa3-integration.md) với schema chung, quy tắc worker nhận lại job, giao diện checker/CLI, payload API, cấu hình Azure và fixture `MODEL_OFF=1`. Chốt một lần ghi kết quả hoàn chỉnh và giữ quyền review theo từng constraint.
 - Rejected: Bỏ cách đánh dấu `judged` trước khi ghi verdict vì UI có thể đọc trạng thái cuối khi queue còn thiếu dòng. Giữ demo public ở hàng đợi TA theo rubric, để contract Publish hiện hữu tiếp tục áp dụng cho luồng hiện hữu.
 - Validation: GitHub trả `main` tại `56684dc` khớp nền nhánh. Python đọc được JSON mẫu, kiểm evidence khớp chính xác source và xác nhận ví dụ C++ biên dịch, trả mã 0 với output rỗng. `npm run check` đạt 5 unit và 12 contract tests. `npm run e2e` với Chromium cục bộ đạt 1 test. Các check ứng dụng chạy bộ test hiện hữu.
+
+## 2026-11-23 — Nam Anh — Checker, guardrails và eval PA3
+
+- Tool: Codex, Git/GitHub CLI, Node.js 22, Tree-sitter WASM, Docker, G++ và Playwright.
+- Changed: Export `evaluateSubmission`, bàn giao [fixture C1/C2](test/fixtures/pa3-checker-handoff.json), phân tích ban-list trước, làm sạch input model, kiểm JSON/evidence và xử lý timeout. Thêm CLI, Dockerfile, dev set gốc và năm bài custom có nhãn/tag.
+- Rejected: Dò chuỗi đơn thuần có thể phạt nhầm comment, chuỗi và hàm trùng tên. Dùng cây cú pháp và kiểm kết quả trên các ca trap/disguised. Giữ output của lần offline ở các file có nhãn `offline`.
+- Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
+- Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
