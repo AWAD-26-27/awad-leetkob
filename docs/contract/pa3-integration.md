@@ -49,6 +49,7 @@ Luồng 3 export `async evaluateSubmission({ statement, constraints, code, optio
 | `SANDBOX_IMAGE` | Worker | Mặc định `leetkob-cpp-sandbox:latest`. |
 | `MODEL_OFF` | Worker và CLI | `1` cho chế độ offline. Demo có model thật dùng cấu hình provider đã xác minh. |
 | `GEMINI_API_KEY`, `GEMINI_MODEL` | Worker và CLI chạy thật | Chỉ nạp vào tiến trình cần gọi provider. Chốt model cho deployment sau lần inference thành công có request ID. |
+| `GEMINI_BILLING_TIER` | Checker khi chạy với Gemini | Dùng `free` cho project đã xác nhận Free Tier để ghi `costUsd: 0` theo bảng giá. Để trống khi chưa biết tier. Giới hạn chi phí ở cài đặt billing của provider. |
 | `MAX_MODEL_CALLS_PER_LAB` | Worker ở chế độ có model | Số nguyên dương. Chốt giá trị deploy từ quota và lượt gọi đo được. Cấu hình thiếu hoặc lỗi làm phần semantic trả `unsure` trước khi gửi request. |
 
 Chạy web và worker thành hai service riêng trên VM. Container compile/run C++ là ranh giới riêng với tiến trình worker, chỉ nhận source và dữ liệu test cần thiết. Container chạy non-root, cách ly mạng, giới hạn tài nguyên và chạy với môi trường sạch, không có secrets, host mounts hay Docker socket. Hạn mức theo lab của ứng dụng, trạng thái billing provider và cảnh báo chi phí Azure được xác nhận riêng.

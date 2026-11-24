@@ -215,6 +215,23 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
 - Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
 
+## 2026-11-24 — Nam Anh — Chi phí và cấu hình Gemini 3.8 cho PA3
+
+- Tool: Codex, Gemini API, Node 22, Docker và Playwright.
+- Changed: Checker ghi `costUsd: 0` cho lần gọi trên project được cấu hình `GEMINI_BILLING_TIER=free`. Unit tests xác nhận trường chi phí giữ `null` khi chưa khai báo tier, nhận `0` khi dùng free tier và xuống SQLite đúng giá trị. Sửa thứ tự đóng kết nối test worker để Windows xoá được DB tạm.
+- Model và budget: `gemini-3.8-flash`, ngân sách model của nhóm 0 USD trên project không liên kết billing. Worker dùng `MAX_MODEL_CALLS_PER_LAB=80`. Lab `sort-merge` có 80 bài Accepted × 1 constraint semantic × 1 lần gọi = 80 lượt, dự kiến 80 × 0 USD = 0 USD trong quota free tier. CLI dev set đặt cap 16 theo bài, đủ cho 47 cặp semantic của bộ công khai.
+- Rejected: Flash-Lite đã chạy thử, sau đó Nam Anh chọn Gemini 3.8. Giữ artifacts Flash-Lite ngoài repo để bằng chứng nộp bài khớp model triển khai. Khi Gemini 3.8 trả 503 liên tục, dừng ở synthetic probes và ghi nhận lỗi provider. [Bằng chứng probe](evidence/pa3-checker/gemini-3.8-probes.md)
+- Validation: `npm run check` đạt 17 unit và 12 contract tests. `npm run e2e` đạt 1 test. Docker `--network none` tạo predictions giống lần offline đã merge và call log rỗng. SHA-256 của `eval.mjs` và `labels.jsonl` khớp rubric. Ghi lệnh tái hiện và cấu hình handoff trong [checker guide](docs/checker.md#live-evaluation-and-budget). Predictions, báo cáo và call log của Gemini 3.8 sẽ có sau khi inference hoạt động.
+
+## 2026-11-24 — Nam Anh — Chạy dev set thật và chốt budget PA3
+
+- Tool: Codex, Google Cloud Console, AI Studio, Gemini API, Node 22 và Docker.
+- Changed: Tạo project thử Gemini 3.8 với key giới hạn vào Gemini API và xác minh project không còn liên kết billing trước khi gọi. Thử lần lượt 3.8, 3.7, 3.6 và 3.5. Thêm khoảng cách 4 giây giữa các lần gửi CLI để giảm burst và ghi latency từ lúc gửi request. [Lịch sử probe](evidence/pa3-checker/gemini-3.8-probes.md)
+- Rejected: Gemini 3.8 và 3.7 trả 503 trên cả hai project. Gemini 3.6 chỉ trả lời 5 trong 10 request đầu của dev set, còn alias 3.5 Flash báo model 3.6. Chạy bằng `gemini-3.5-flash-lite` trên project LeeTKOB PA2 đã xác nhận Free Tier. Giữ nguyên kết quả sai của model theo scorer gốc.
+- Chi phí: Lượt chạy thật gửi 47 request semantic × 0 USD = 0 USD. Model trả 30 request ID, 26,452 prompt tokens và 3,089 completion tokens. 17 lượt 503 thiếu metadata nên để `null`. Ngân sách model của nhóm là 0 USD với billing không liên kết. Lab `sort-merge`: 80 bài Accepted × 1 constraint semantic × 1 lượt = 80 request. Trong quota Free Tier, 80 × 0 USD = 0 USD dự kiến. Cap worker là 80 lượt theo lab, bao gồm lượt lỗi.
+- Validation: Kiểm đủ 102 prediction và 47 cặp semantic, evidence trùng dòng gốc, prompt đã làm sạch và 30 request ID duy nhất. Scorer trả 1 với 1 wrongful deduction, recall 75.7% và unsure 16.7%. Worker cục bộ qua Docker lưu semantic `pass`, request ID và chi phí 0 USD vào SQLite, rồi chặn lượt thứ 81. `npm run check`, Playwright, Docker model-off và bài test restart worker trên Linux đều đạt.
+- Evidence: [Lệnh tái hiện và cấu hình worker](docs/checker.md#live-evaluation-and-budget), [predictions](evidence/pa3-checker/live/predictions.jsonl), [eval report](evidence/pa3-checker/live/eval.json) và [call log](evidence/pa3-checker/live/calls.jsonl).
+
 ## 2026-11-23 — Tú — Kiểm chứng sandbox trên CI
 
 - Tool: Codex, Node.js test runner, Docker và Git.
@@ -546,3 +563,10 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Ảnh chụp Điểm sinh viên sau công bố: `e2e_browser_student_published.png`
   - Video quay màn hình toàn bộ phiên kiểm thử: `e2e_full_workflow_walkthrough.mp4`
 
+## 2026-11-24 — Copilot — Merge main vào feat/e2e-app
+
+- Tool/model: Copilot coding agent; Git and npm.
+- Task: Merge the repository default branch `main` and resolve README and permissions conflicts.
+- Changed: Kept the PA3 application and project context in `README.md`, incorporating the relevant PA3 checker evidence. Kept the PA3 Free-tier project in `docs/permissions.md` and the existing boundary against sending student code. Explicitly retained the authorization for synthetic checks and public dev-set runs; unit, contract and CI tests remain offline.
+- Rejected: Did not retain the stale PA2 project and setup content from the conflicting README/permissions sections. Did not reformat unrelated frontend files.
+- Validation: `npm ci` succeeded with zero reported vulnerabilities. `npm run check` passed ESLint but stopped at Prettier warnings in five unmodified student component files. `npm test` passed 82/82 and `npm run contract` passed 58/58. `git diff --cached --check` passed; `README.md` and `docs/permissions.md` contain no conflict markers.

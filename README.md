@@ -74,6 +74,19 @@ Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real cr
 
 **Paid spending limit: USD 0.** The dedicated **LeeTKOB PA3** project is configured in **Free tier with no billing account linked**. Its server key inherits that project status. Automated unit and contract tests use deterministic mock fixtures and make zero external network or model calls. See [model/budget documentation](docs/model-budget.md).
 
+## PA3 checker
+
+The shared `evaluateSubmission` API, C1/C2 worker fixture, offline CLI/Docker commands and eval evidence are in the [checker guide](docs/checker.md). The documented worker settings select `gemini-3.5-flash-lite` and a cumulative cap of 80 attempts per lab. For `sort-merge`, 80 Accepted submissions × 1 semantic constraint × 1 attempt = 80 requests. At free-tier rates and within quota, 80 × USD 0 = **USD 0 projected provider cost**. The team's model budget is USD 0 on the existing unbilled LeeTKOB project.
+
+The live checker log records request ID, model, prompt and completion tokens, latency and per-attempt cost. The [reproduction commands and worker settings](docs/checker.md#live-evaluation-and-budget) give the locations for the predictions, eval report and call log. Gemini 3.8 and 3.7 returned HTTP 503. Gemini 3.6 timed out on five of its first ten dev-set calls, so the checker uses 3.5 Flash-Lite. [Provider checks](evidence/pa3-checker/gemini-3.8-probes.md)
+
+The live run wrote all 102 predictions and attempted 47 semantic calls at USD 0 per call. Google returned 30 request IDs and 17 HTTP 503s. The official scorer measured **1 wrongful deduction, 75.7% recall and 16.7% unsure**. [Predictions](evidence/pa3-checker/live/predictions.jsonl) · [Eval report](evidence/pa3-checker/live/eval.json) · [Sanitized call log](evidence/pa3-checker/live/calls.jsonl)
+
+```sh
+MODEL_OFF=1 node src/checker/cli.js eval/dev /tmp/leetkob-predictions.jsonl
+docker build -f checker.Dockerfile -t leetkob-checker:pa3 .
+```
+
 ## Submission
 
 Due **25 November 2026, 22:00 (Asia/Saigon)**.
