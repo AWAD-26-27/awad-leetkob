@@ -53,16 +53,37 @@ The scorer includes semantic constraints in its recall and unsure thresholds. Of
 
 ## Live evaluation and budget
 
-The proposed model is `gemini-3.8-flash` on the previously provisioned free-tier project. Live inference and the approved dataset/model combination are pending. The worker integration is verified against the shared fixture. Deployment configuration and real prediction, report and call log artifacts depend on a successful authorized run.
+PA3 uses Google Gemini `gemini-3.5-flash-lite`. The team's model budget is **USD 0** on the existing LeeTKOB PA2 project, confirmed as Free tier in AI Studio on 24 November 2026. The project has no Cloud Billing account linked. Google lists text input and output, including thinking tokens, as free within quota. Provider quotas are shared across labs and can stop requests before the application cap. [Project and provider checks](../evidence/pa3-checker/gemini-3.8-probes.md) · [Pricing](https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite) · [Rate limits](https://aistudio.google.com/docs/rate-limits)
 
-Once usage is approved, set `GEMINI_API_KEY` and the approved `GEMINI_MODEL` in an ignored `.env`. Start with the public dev set and use an explicit positive request cap per problem. For example, `MAX_MODEL_CALLS_PER_LAB=16` accommodates the largest dev problem's 8 solutions × 2 semantic constraints. Omit `MODEL_OFF` for that run.
+For the `sort-merge` demo lab, 80 Accepted submissions × 1 semantic constraint × 1 attempt per constraint = **80 requests**. At free-tier rates, 80 requests × USD 0 = **USD 0 projected provider cost** within quota. The worker transactionally reserves from a cumulative **80-request cap per lab** before each request. Failed or interrupted attempts consume reservations, and two semantic constraints per submission can exhaust the cap after 40 Accepted submissions. Once the cap is reached, the semantic verdict becomes `unsure` before any provider request.
+
+Set these in the worker's private environment. Keep `MODEL_OFF=1` until a smoke request succeeds, then unset it in the worker service and restart. Use `sort-merge/s01.cpp` with `sort-merge/C2` as the compliant semantic smoke case. Check that the job is `done`, the submission is `judged`, and the TA queue has the C1 hard-rule verdict and C2 model verdict. The C2 call log in SQLite should have a provider request ID, model, token counts, latency and `cost_usd = 0`. Supply the API key privately to the worker process.
+
+A local worker smoke used real Docker judging and synthetic C++. With the test lab initialized to 79 reservations, the first submission received `Accepted`, a C1 hard-rule `violation`, and a C2 semantic `pass`. SQLite stored request `L4wFa6ilE-Xt2roPyaqNWQ` with model `gemini-3.5-flash-lite`, 184 prompt tokens, 88 completion tokens, 1,280 ms and USD 0. The second Accepted submission reached the cap and got C2 `unsure` with no further log entry. The counter stayed at 80.
+
+| Variable | Worker value |
+| --- | --- |
+| `GEMINI_MODEL` | `gemini-3.5-flash-lite` |
+| `GEMINI_BILLING_TIER` | `free` for the verified free-tier project |
+| `MAX_MODEL_CALLS_PER_LAB` | `80` |
+| `GEMINI_API_KEY` | Approved free-tier LeeTKOB project key in the private worker environment |
+
+`GEMINI_BILLING_TIER=free` records `costUsd: 0` for each attempt. The number comes from the free-tier rates. The flag declares the project's billing tier for the log. The provider's billing settings control paid usage. Leave the flag unset when the tier is unknown and the checker records `costUsd: null`. Provider-supplied request IDs and token counts are recorded when present. Deployment logs retain metadata, and the public dev-set CLI can also record sanitized prompts for the rubric.
+
+On 24 November 2026 both the existing free-tier project and the new unbilled project returned HTTP 503 for Gemini 3.8 and 3.7. Gemini 3.6 served a synthetic verdict, then missed the 20-second deadline on five of its first ten dev-set requests. Requests to Gemini 3.5 Flash were served by Gemini 3.6. The final eval uses Gemini 3.5 Flash-Lite. [Provider checks](../evidence/pa3-checker/gemini-3.8-probes.md)
+
+Put the private project key in an ignored `.env`. The following public dev-set command reserves up to 16 calls per problem, which covers the 47 semantic pairs. It starts requests at least four seconds apart to limit request bursts and measures provider response time after the pacing delay. Unset `MODEL_OFF` in the shell and in `.env` for that run. The scorer prints all three rubric metrics and writes the JSON report under `evidence/pa3-checker/live/`.
 
 ```sh
-mkdir -p /tmp/leetkob-live
-MAX_MODEL_CALLS_PER_LAB=16 CHECKER_CAPTURE_PROMPT=1 CHECKER_CALL_LOG=/tmp/leetkob-live/dev.calls.jsonl \
-  node --env-file=.env src/checker/cli.js eval/dev /tmp/leetkob-live/dev.predictions.jsonl
-node eval/dev/eval.mjs --data eval/dev --predictions /tmp/leetkob-live/dev.predictions.jsonl \
-  --json /tmp/leetkob-live/dev.eval.json
+mkdir -p evidence/pa3-checker/live
+GEMINI_MODEL=gemini-3.5-flash-lite GEMINI_BILLING_TIER=free MAX_MODEL_CALLS_PER_LAB=16 \
+  CHECKER_MODEL_INTERVAL_MS=4000 CHECKER_CAPTURE_PROMPT=1 \
+  CHECKER_CALL_LOG=evidence/pa3-checker/live/calls.jsonl \
+  node --env-file=.env src/checker/cli.js eval/dev evidence/pa3-checker/live/predictions.jsonl
+node eval/dev/eval.mjs --data eval/dev --predictions evidence/pa3-checker/live/predictions.jsonl \
+  --json evidence/pa3-checker/live/eval.json
 ```
 
-For an 80-submission `sort-merge` lab, 80 Accepted submissions × 1 semantic constraint × 1 attempt yields at most **80 calls**. A lab with two semantic constraints needs up to 160. At free-tier rates and within quota, 80 × USD 0 per call = **USD 0 projected provider cost**. Use observed token totals and the selected model's input/output rates for any paid estimate. Throughput, actual tokens and actual per-lab cost await live measurement. [Free-tier setup](model-budget.md)
+The 24 November run produced [102 predictions](../evidence/pa3-checker/live/predictions.jsonl), the [official scorer report](../evidence/pa3-checker/live/eval.json) and a [sanitized call log](../evidence/pa3-checker/live/calls.jsonl). It took 230.5 seconds and attempted exactly 47 semantic calls. Google returned 30 successful verdict responses with unique request IDs, 26,452 prompt tokens and 3,089 completion tokens in total. The other 17 responses were HTTP 503, so their request IDs and token counts are `null` and their predictions are `unsure`. Median recorded call latency was 1,329 ms. All attempts logged USD 0 at the free-tier rates.
+
+The original scorer returned exit code 1 with **1 wrongful deduction**, **75.7% recall (28/37)** and **16.7% unsure (17/102)**. The wrongful prediction was a model verdict. The model-off run kept all 55 ban-list pairs correct with zero wrongful deductions and an empty call log.

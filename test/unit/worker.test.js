@@ -9,7 +9,6 @@ test('an expired attempt cannot commit over a restarted worker or replace a TA r
   const { db, path, enqueue, verdicts } = workerDatabase(t);
   const id = enqueue();
   const second = openQueueDatabase(path);
-  t.after(() => second.close());
   let time = Date.now();
   const started = Promise.withResolvers();
   const result = Promise.withResolvers();
@@ -41,6 +40,7 @@ test('an expired attempt cannot commit over a restarted worker or replace a TA r
     assert.equal(await restarted.runOnce(), true);
     db.exec("UPDATE constraint_verdicts SET review_status = 'confirmed' WHERE constraint_id = 1");
   } finally {
+    second.close();
     result.resolve({
       verdicts: checkerFixture.expected.verdicts.map((verdict) => ({
         ...verdict,
@@ -126,6 +126,7 @@ test('model calls reserve the lab quota atomically and only persist operational 
             providerRequestId: 'synthetic-request',
             model: 'test-fixture',
             status: 'ok',
+            costUsd: 0,
             prompt: 'synthetic prompt fixture',
           },
         ],
@@ -140,5 +141,6 @@ test('model calls reserve the lab quota atomically and only persist operational 
   assert.equal(logs.length, 1);
   assert.equal(logs[0].attempt, 1);
   assert.equal(logs[0].provider_request_id, 'synthetic-request');
+  assert.equal(logs[0].cost_usd, 0);
   assert.ok(!JSON.stringify(logs).includes('synthetic prompt fixture'));
 });
