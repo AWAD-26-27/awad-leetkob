@@ -13,19 +13,17 @@ export function SubmissionRow({ sub }) {
     'tr',
     {
       key: sub.id,
-      className: 'animate-fade-in',
       style: {
-        borderBottom: '1px solid var(--color-border)',
-        transition: 'background-color 0.15s ease',
+        borderBottom: '1px solid #f1f5f9',
       },
     },
     h(
       'td',
       {
         style: {
-          padding: '12px 14px',
-          fontFamily: 'var(--font-mono)',
-          fontWeight: '700',
+          padding: '10px 12px',
+          fontFamily: 'monospace',
+          fontWeight: '600',
           color: '#2563eb',
         },
       },
@@ -33,85 +31,73 @@ export function SubmissionRow({ sub }) {
     ),
     h(
       'td',
-      { style: { padding: '12px 14px' } },
+      { style: { padding: '10px 12px' } },
       h(
         Badge,
         {
           variant:
-            sub.status === 'judged'
-              ? 'success'
-              : sub.status === 'judging'
-                ? 'info'
-                : 'warning',
-          style: { fontWeight: '700' },
+            sub.status === 'judged' ? 'success' : sub.status === 'judging' ? 'info' : 'warning',
+          style: { fontWeight: '600' },
         },
         sub.status.toUpperCase(),
       ),
     ),
     h(
       'td',
-      { style: { padding: '12px 14px' } },
+      { style: { padding: '10px 12px' } },
       isJudged
         ? h(
             Badge,
             {
               variant: verdictVariant,
-              style: { fontWeight: '700', padding: '4px 10px' },
+              style: { fontWeight: '600', padding: '3px 8px' },
             },
-            isAccepted ? `✓ ${sub.judgeVerdict}` : sub.judgeVerdict || 'PENDING',
+            isAccepted ? sub.judgeVerdict : sub.judgeVerdict || 'PENDING',
           )
         : h(
             'span',
             {
               style: {
-                color: '#f59e0b',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
+                color: '#d97706',
+                fontWeight: '500',
+                fontSize: '12px',
               },
             },
-            '⏳ Evaluating…',
+            'Đang chấm...',
           ),
     ),
     h(
       'td',
       {
         style: {
-          padding: '12px 14px',
-          color: 'var(--color-text-secondary)',
-          fontSize: '12.5px',
-          fontFamily: 'var(--font-mono)',
+          padding: '10px 12px',
+          color: '#64748b',
+          fontSize: '12px',
         },
       },
       formatTime(sub.createdAt || sub.created_at || Date.now()),
     ),
     h(
       'td',
-      { style: { padding: '12px 14px' } },
+      { style: { padding: '10px 12px' } },
       sub.publishedAt
         ? h(
             'span',
-            { style: { color: 'var(--color-success)', fontWeight: '700' } },
-            sub.grade !== undefined ? `${sub.grade} pts` : '✓ Released',
+            { style: { color: '#059669', fontWeight: '600', fontSize: '13px' } },
+            sub.grade !== undefined ? `${sub.grade} điểm` : 'Đã công bố',
           )
         : h(
             'span',
             {
               style: {
                 color: '#64748b',
-                fontSize: '12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontWeight: '500',
+                fontSize: '11.5px',
                 background: '#f1f5f9',
-                padding: '3px 8px',
-                borderRadius: '6px',
-                width: 'fit-content',
+                padding: '2px 8px',
+                borderRadius: '4px',
               },
             },
-            '🔒 Hidden until TA publishes',
+            'Chờ công bố (Hidden until TA publishes)',
           ),
     ),
   );

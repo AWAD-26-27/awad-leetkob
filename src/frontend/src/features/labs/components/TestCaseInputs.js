@@ -20,9 +20,9 @@ export function TestCaseInputs({ testCases, onAdd, onRemove, onUpdate }) {
         {
           style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' },
         },
-        'Test Cases (Grading IO)',
+        'Bộ dữ liệu kiểm thử (Test Cases)',
       ),
-      h(Button, { variant: 'ghost', size: 'sm', onClick: onAdd }, '+ Add Test Case'),
+      h(Button, { variant: 'ghost', size: 'sm', onClick: onAdd }, '+ Thêm Test Case'),
     ),
     testCases.map((tc, idx) =>
       h(
@@ -38,12 +38,12 @@ export function TestCaseInputs({ testCases, onAdd, onRemove, onUpdate }) {
           },
         },
         h(Input, {
-          placeholder: 'Standard Input',
+          placeholder: 'Dữ liệu đầu vào (Input)',
           value: tc.input,
           onChange: (e) => onUpdate(idx, 'input', e.target.value),
         }),
         h(Input, {
-          placeholder: 'Expected Output',
+          placeholder: 'Kết quả kỳ vọng (Output)',
           value: tc.output,
           onChange: (e) => onUpdate(idx, 'output', e.target.value),
         }),

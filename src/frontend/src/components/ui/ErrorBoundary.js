@@ -26,7 +26,11 @@ export function ErrorBoundary({ children, fallback = null }) {
         },
       },
       h('div', { style: { fontSize: '40px', marginBottom: '16px' } }, '⚠️'),
-      h('h3', { style: { margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold' } }, 'Đã xảy ra sự cố hiển thị'),
+      h(
+        'h3',
+        { style: { margin: '0 0 8px 0', fontSize: '18px', fontWeight: 'bold' } },
+        'Đã xảy ra sự cố hiển thị',
+      ),
       h(
         'p',
         { style: { color: '#94a3b8', fontSize: '14px', marginBottom: '24px', lineHeight: '1.5' } },

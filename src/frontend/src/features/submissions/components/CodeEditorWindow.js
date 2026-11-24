@@ -3,10 +3,10 @@ import { EditorHeader } from './EditorHeader.js';
 import { EditorLineGutter } from './EditorLineGutter.js';
 import { useCodeDraft } from '../hooks/useCodeDraft.js';
 
-const SAMPLE_CPP_CODE = `#include <iostream>
-#include <vector>
+const DEFAULT_STARTER_CODE = `#include <iostream>
 
 int main() {
+    // Viết giải thuật C++ của bạn tại đây
     int a, b;
     if (std::cin >> a >> b) {
         std::cout << (a + b) << "\\n";
@@ -15,28 +15,9 @@ int main() {
 }
 `;
 
-const TEMPLATES = {
-  default: SAMPLE_CPP_CODE,
-  dynamicArray: `// Solution without <vector> (complies with C1 constraint)
-#include <iostream>
-
-int main() {
-    int n;
-    if (std::cin >> n) {
-        int* arr = new int[n];
-        for (int i = 0; i < n; ++i) std::cin >> arr[i];
-        for (int i = 0; i < n; ++i) std::cout << arr[i] << " ";
-        std::cout << "\\n";
-        delete[] arr; // No memory leak (C2)
-    }
-    return 0;
-}
-`,
-};
-
 export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) {
   const textareaRef = useRef(null);
-  const { draft, saveCode, lastSaved, resetDraft } = useCodeDraft(labId, SAMPLE_CPP_CODE);
+  const { draft, saveCode, lastSaved } = useCodeDraft(labId, DEFAULT_STARTER_CODE);
   const codeRef = useRef(draft);
   const [lineCount, setLineCount] = useState(14);
   const [copied, setCopied] = useState(false);
@@ -66,8 +47,8 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
       const val = ta.value;
-      ta.value = val.substring(0, start) + '  ' + val.substring(end);
-      ta.selectionStart = ta.selectionEnd = start + 2;
+      ta.value = val.substring(0, start) + '    ' + val.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 4;
       codeRef.current = ta.value;
       saveCode(ta.value);
     } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -90,12 +71,12 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
     }
   };
 
-  const handleLoadTemplate = (key) => {
-    if (TEMPLATES[key] && textareaRef.current) {
-      textareaRef.current.value = TEMPLATES[key];
-      codeRef.current = TEMPLATES[key];
-      saveCode(TEMPLATES[key]);
-      const lines = (TEMPLATES[key].match(/\n/g) || []).length + 1;
+  const handleReset = () => {
+    if (textareaRef.current) {
+      textareaRef.current.value = DEFAULT_STARTER_CODE;
+      codeRef.current = DEFAULT_STARTER_CODE;
+      saveCode(DEFAULT_STARTER_CODE);
+      const lines = (DEFAULT_STARTER_CODE.match(/\n/g) || []).length + 1;
       setLineCount(Math.max(lines, 14));
     }
   };
@@ -105,20 +86,19 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
   return h(
     'div',
     {
-      className: 'code-editor-container animate-fade-in',
+      className: 'code-editor-container',
       style: {
-        backgroundColor: '#0b0f19',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid rgba(255, 255, 255, 0.12)',
-        boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+        backgroundColor: '#0f172a',
+        borderRadius: '8px',
+        border: '1px solid #334155',
         overflow: 'hidden',
-        marginBottom: '24px',
+        marginBottom: '20px',
       },
     },
     h(EditorHeader, {
       onCopy: handleCopy,
       copied,
-      onLoadTemplate: handleLoadTemplate,
+      onReset: handleReset,
       onSubmit: handleSubmit,
       submitting,
     }),
@@ -128,9 +108,9 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
         style: {
           display: 'flex',
           minHeight: '280px',
-          fontFamily: 'var(--font-mono)',
+          fontFamily: 'monospace',
           fontSize: '13.5px',
-          lineHeight: '1.65',
+          lineHeight: '1.6',
           position: 'relative',
         },
       },
@@ -150,13 +130,13 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
           border: 'none',
           outline: 'none',
           resize: 'vertical',
-          fontFamily: 'var(--font-mono)',
+          fontFamily: 'monospace',
           fontSize: '13.5px',
-          lineHeight: '1.65',
+          lineHeight: '1.6',
           whiteSpace: 'pre',
-          overflowWrap: 'normal',
-          overflowX: 'auto',
-          caretColor: '#38bdf8',
+          tabSize: 4,
+          minHeight: '280px',
+          boxSizing: 'border-box',
         },
       }),
     ),
@@ -167,26 +147,18 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '6px 16px',
-          backgroundColor: 'rgba(255, 255, 255, 0.03)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          padding: '8px 16px',
+          backgroundColor: '#090d16',
+          borderTop: '1px solid #1e293b',
           fontSize: '12px',
-          color: '#94a3b8',
+          color: '#64748b',
         },
       },
+      h('span', null, 'Phím tắt: Ctrl + Enter để nộp bài'),
       h(
         'span',
         null,
-        lastSaved ? `✓ Đã lưu nháp (${lastSaved})` : '• Tự động lưu nháp (LocalStorage)',
-      ),
-      h(
-        'span',
-        null,
-        'Phím tắt: ',
-        h('code', { style: { color: '#38bdf8' } }, 'Tab'),
-        ' thụt lề • ',
-        h('code', { style: { color: '#38bdf8' } }, 'Ctrl + Enter'),
-        ' nộp bài',
+        lastSaved ? `Đã lưu nháp lúc ${lastSaved.toLocaleTimeString()}` : 'Tự động lưu nháp',
       ),
     ),
   );

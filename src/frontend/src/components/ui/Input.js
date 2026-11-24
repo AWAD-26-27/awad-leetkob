@@ -16,6 +16,34 @@ export function Input({
   style = {},
   ...props
 }) {
+  const inputProps = {
+    id,
+    name: props.name || id,
+    type,
+    className,
+    onChange,
+    onInput,
+    placeholder,
+    disabled,
+    style: {
+      fontFamily: 'var(--font-sans)',
+      fontSize: '0.98rem',
+      padding: '0.62rem 0.95rem',
+      borderRadius: 'var(--radius-sm)',
+      border: error ? '1px solid var(--danger)' : '1px solid var(--card-border)',
+      outline: 'none',
+      background: disabled ? '#f1f5f9' : '#ffffff',
+      color: 'var(--text-main)',
+      transition: 'border-color 0.15s ease',
+      ...style,
+    },
+    ...props,
+  };
+
+  if (value !== undefined) {
+    inputProps.value = value ?? '';
+  }
+
   return h(
     'div',
     { style: { display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' } },
@@ -29,29 +57,7 @@ export function Input({
         label,
         required && h('span', { style: { color: 'var(--danger)', marginLeft: '4px' } }, '*'),
       ),
-    h('input', {
-      id,
-      type,
-      className,
-      value: value ?? '',
-      onChange,
-      onInput,
-      placeholder,
-      disabled,
-      style: {
-        fontFamily: 'var(--font-sans)',
-        fontSize: '0.98rem',
-        padding: '0.62rem 0.95rem',
-        borderRadius: 'var(--radius-sm)',
-        border: error ? '1px solid var(--danger)' : '1px solid var(--card-border)',
-        outline: 'none',
-        background: disabled ? '#f1f5f9' : '#ffffff',
-        color: 'var(--text-main)',
-        transition: 'border-color 0.15s ease',
-        ...style,
-      },
-      ...props,
-    }),
+    h('input', inputProps),
     error
       ? h('span', { style: { fontSize: '0.85rem', color: 'var(--danger)' } }, error)
       : helperText &&

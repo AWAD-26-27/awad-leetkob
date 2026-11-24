@@ -1,4 +1,5 @@
 import { h } from '../../../lib/react.js';
+import { UserDropdownHeader } from './UserDropdownHeader.js';
 
 export function UserDropdownMenu({
   user,
@@ -30,6 +31,7 @@ export function UserDropdownMenu({
     'div',
     {
       className: 'animate-fade-in',
+      onClick: (e) => e?.stopPropagation?.(),
       style: {
         position: 'absolute',
         top: 'calc(100% + 8px)',
@@ -43,98 +45,40 @@ export function UserDropdownMenu({
         zIndex: 1000,
       },
     },
-    // User Profile Header
-    h(
-      'div',
-      {
-        style: {
-          padding: '14px 16px',
-          borderBottom: '1px solid #f1f5f9',
-          backgroundColor: '#f8fafc',
-        },
-      },
-      h('div', { style: { fontWeight: '700', fontSize: '14px', color: '#0f172a' } }, safeName),
-      h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, `@${user?.username || ''}`),
-      h(
-        'div',
-        { style: { marginTop: '6px', display: 'flex', gap: '6px' } },
-        h(
-          'span',
-          {
-            style: {
-              fontSize: '11px',
-              padding: '2px 7px',
-              borderRadius: '4px',
-              fontWeight: '600',
-              color: roleColor,
-              backgroundColor: roleBadgeBg,
-              border: `1px solid ${roleColor}33`,
-            },
-          },
-          roleLabel,
-        ),
-        user?.classId &&
-          h(
-            'span',
-            {
-              style: {
-                fontSize: '11px',
-                padding: '2px 7px',
-                borderRadius: '4px',
-                fontWeight: '500',
-                color: '#475569',
-                backgroundColor: '#ffffff',
-                border: '1px solid #e2e8f0',
-              },
-            },
-            `Lớp ${user.classId}`,
-          ),
-      ),
-    ),
-    // Menu Actions
+    // User Profile Header Card
+    h(UserDropdownHeader, { user, safeName, roleLabel, roleColor, roleBadgeBg }),
+    // Menu Actions: Profile, Setting, Docs
     h(
       'div',
       { style: { padding: '6px' }, role: 'menu' },
-      h(
-        'button',
-        {
-          type: 'button',
-          role: 'menuitem',
-          style: itemStyle,
-          onClick: () => {
-            onClose();
-            if (onOpenProfile) onOpenProfile('profile');
-          },
+      menuBtn(
+        'user-dropdown-profile-btn',
+        itemStyle,
+        () => {
+          onClose();
+          onOpenProfile?.('profile');
         },
-        h('span', { style: { fontSize: '15px' } }, '👤'),
-        'Xem hồ sơ tài khoản',
+        '👤',
+        'Hồ sơ cá nhân (Profile)',
       ),
-      h(
-        'button',
-        {
-          type: 'button',
-          role: 'menuitem',
-          style: itemStyle,
-          onClick: () => {
-            onClose();
-            if (onOpenProfile) onOpenProfile('security');
-          },
+      menuBtn(
+        'user-dropdown-settings-btn',
+        itemStyle,
+        () => {
+          onClose();
+          onOpenProfile?.('settings');
         },
-        h('span', { style: { fontSize: '15px' } }, '🔑'),
-        'Đổi mật khẩu',
+        '⚙️',
+        'Cài đặt tài khoản (Setting)',
       ),
-      h(
-        'button',
-        {
-          type: 'button',
-          role: 'menuitem',
-          style: itemStyle,
-          onClick: () => {
-            onClose();
-            if (typeof window !== 'undefined') window.open('/api/docs', '_blank');
-          },
+      menuBtn(
+        'user-dropdown-docs-btn',
+        itemStyle,
+        () => {
+          onClose();
+          window.open?.('/api/docs', '_blank');
         },
-        h('span', { style: { fontSize: '15px' } }, '📖'),
+        '📖',
         'Tài liệu API (Docs)',
       ),
     ),
@@ -144,19 +88,25 @@ export function UserDropdownMenu({
     h(
       'div',
       { style: { padding: '6px' } },
-      h(
-        'button',
-        {
-          type: 'button',
-          style: { ...itemStyle, fontWeight: '600', color: '#dc2626' },
-          onClick: () => {
-            onClose();
-            if (onLogout) onLogout();
-          },
+      menuBtn(
+        'user-dropdown-logout-btn',
+        { ...itemStyle, fontWeight: '600', color: '#dc2626' },
+        () => {
+          onClose();
+          onLogout?.();
         },
-        h('span', { style: { fontSize: '15px' } }, '🚪'),
-        'Đăng xuất',
+        '🚪',
+        'Đăng xuất (Logout)',
       ),
     ),
+  );
+}
+
+function menuBtn(id, style, onClick, icon, text) {
+  return h(
+    'button',
+    { type: 'button', id, role: 'menuitem', style, onClick },
+    h('span', { style: { fontSize: '15px' } }, icon),
+    text,
   );
 }

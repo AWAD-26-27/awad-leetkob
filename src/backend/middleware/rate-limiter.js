@@ -39,7 +39,12 @@ export function createRateLimiter(options = {}) {
       const oldest = recent[0];
       const retryAfterSeconds = Math.ceil((oldest + windowMs - now) / 1000);
       res.setHeader('Retry-After', String(retryAfterSeconds));
-      problem(res, 429, 'rate-limited', `Too many requests. Please try again in ${retryAfterSeconds} seconds.`);
+      problem(
+        res,
+        429,
+        'rate-limited',
+        `Too many requests. Please try again in ${retryAfterSeconds} seconds.`,
+      );
       return false;
     }
 

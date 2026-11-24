@@ -66,11 +66,7 @@ export function AssignStudentForm({
         const classNote = s.classId
           ? `[Đang ở: ${s.className || `Class ${s.classId}`}]`
           : '[Chưa có lớp]';
-        return h(
-          'option',
-          { key: s.id, value: s.id },
-          `${s.name} (@${s.username}) ${classNote}`,
-        );
+        return h('option', { key: s.id, value: s.id }, `${s.name} (@${s.username}) ${classNote}`);
       }),
     ),
     h(

@@ -1,8 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createElement as h, evalComponent, resetComponentState } from '../../src/frontend/src/lib/react.js';
+import {
+  createElement as h,
+  evalComponent,
+  resetComponentState,
+} from '../../src/frontend/src/lib/react.js';
 import { EmptyState } from '../../src/frontend/src/components/ui/EmptyState.js';
-import { SkeletonLine, SkeletonCard, SkeletonTable } from '../../src/frontend/src/components/ui/Skeleton.js';
+import {
+  SkeletonLine,
+  SkeletonCard,
+  SkeletonTable,
+} from '../../src/frontend/src/components/ui/Skeleton.js';
 import { OfflineBanner } from '../../src/frontend/src/components/ui/OfflineBanner.js';
 import { ErrorBoundary } from '../../src/frontend/src/components/ui/ErrorBoundary.js';
 

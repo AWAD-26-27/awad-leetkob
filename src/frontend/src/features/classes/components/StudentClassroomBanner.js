@@ -1,21 +1,64 @@
-import { h, useState } from '../../../lib/react.js';
-import { Card } from '../../../components/ui/index.js';
+import { h, useState, useEffect } from '../../../lib/react.js';
+import { Card, Spinner } from '../../../components/ui/index.js';
 import { useMyClass } from '../hooks/index.js';
 import { ClassStudentTable } from './ClassStudentTable.js';
+import { api } from '../../../lib/apiClient.js';
+import { formatTime } from '../../../utils/formatTime.js';
 
 export function StudentClassroomBanner({ classId }) {
   const [showRoster, setShowRoster] = useState(false);
+  const [showAnnouncements, setShowAnnouncements] = useState(false);
+  const [announcements, setAnnouncements] = useState([]);
   const { classroom, loading } = useMyClass(classId);
+
+  useEffect(() => {
+    if (classId) {
+      api
+        .get(`/api/classes/${classId}/announcements`)
+        .then((res) => {
+          if (res?.items) setAnnouncements(res.items);
+        })
+        .catch(() => {});
+    }
+  }, [classId]);
 
   if (!classId) return null;
 
-  const className = classroom?.name || `Class ${classId}`;
+  if (loading && !classroom) {
+    return h(
+      Card,
+      {
+        style: {
+          marginBottom: '20px',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '8px',
+          padding: '24px 20px',
+        },
+      },
+      h(Spinner, { center: true, size: 20, label: 'Đang tải thông tin lớp học...' }),
+    );
+  }
+
+  const className = classroom?.name || `Lớp #${classId}`;
   const teachers = classroom?.teachers || [];
   const teacherText =
     teachers.length > 0
       ? teachers.map((t) => `${t.name} (@${t.username})`).join(', ')
-      : 'Đang cập nhật';
-  const studentCount = classroom?.studentCount ?? (classroom?.students ? classroom.students.length : 0);
+      : 'Chưa phân công';
+  const studentCount =
+    classroom?.studentCount ?? (classroom?.students ? classroom.students.length : 0);
+
+  const btnStyle = {
+    padding: '4px 10px',
+    fontSize: '12px',
+    fontWeight: '500',
+    borderRadius: '4px',
+    border: '1px solid #cbd5e1',
+    backgroundColor: '#ffffff',
+    color: '#334155',
+    cursor: 'pointer',
+  };
 
   return h(
     Card,
@@ -24,7 +67,7 @@ export function StudentClassroomBanner({ classId }) {
         marginBottom: '20px',
         backgroundColor: '#f8fafc',
         border: '1px solid #e2e8f0',
-        borderRadius: '12px',
+        borderRadius: '8px',
         padding: '16px 20px',
       },
     },
@@ -41,89 +84,115 @@ export function StudentClassroomBanner({ classId }) {
       },
       h(
         'div',
-        { style: { display: 'flex', alignItems: 'center', gap: '12px' } },
+        null,
         h(
           'div',
-          {
-            style: {
-              width: '42px',
-              height: '42px',
-              borderRadius: '10px',
-              backgroundColor: '#eff6ff',
-              color: '#2563eb',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '20px',
-              border: '1px solid #bfdbfe',
-            },
-          },
-          '🏫',
+          { style: { fontSize: '16px', fontWeight: '700', color: '#0f172a' } },
+          `Lớp học: ${className}`,
         ),
         h(
           'div',
-          null,
-          h(
-            'div',
-            { style: { fontSize: '16px', fontWeight: '800', color: '#0f172a' } },
-            `Lớp Học Của Bạn: ${className}`,
-          ),
-          h(
-            'div',
-            { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } },
-            h('span', { style: { fontWeight: '600', color: '#334155' } }, 'Giảng viên phụ trách: '),
-            teacherText,
-          ),
+          { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } },
+          h('span', { style: { fontWeight: '500', color: '#334155' } }, 'Giảng viên phụ trách: '),
+          teacherText,
         ),
       ),
       h(
         'div',
-        { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+        { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } },
         h(
           'span',
           {
             style: {
-              fontSize: '12.5px',
-              fontWeight: '700',
+              fontSize: '12px',
+              fontWeight: '500',
               padding: '4px 10px',
-              borderRadius: '6px',
-              background: '#ecfdf5',
-              color: '#065f46',
-              border: '1px solid #a7f3d0',
+              borderRadius: '4px',
+              background: '#ffffff',
+              color: '#334155',
+              border: '1px solid #cbd5e1',
             },
           },
-          `👥 Sĩ số: ${studentCount} Sinh viên`,
+          `Sĩ số: ${studentCount} sinh viên`,
         ),
-        classroom?.students &&
-          classroom.students.length > 0 &&
+        announcements.length > 0 &&
           h(
             'button',
             {
               type: 'button',
-              onClick: () => setShowRoster(!showRoster),
-              style: {
-                padding: '5px 10px',
-                fontSize: '12px',
-                fontWeight: '600',
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                backgroundColor: '#ffffff',
-                color: '#475569',
-                cursor: 'pointer',
-              },
+              onClick: () => setShowAnnouncements(!showAnnouncements),
+              style: btnStyle,
             },
-            showRoster ? '▲ Ẩn danh sách bạn cùng lớp' : '👥 Xem bạn cùng lớp',
+            showAnnouncements ? 'Ẩn thông báo' : `Thông báo (${announcements.length})`,
+          ),
+        classroom?.students &&
+          classroom.students.length > 0 &&
+          h(
+            'button',
+            { type: 'button', onClick: () => setShowRoster(!showRoster), style: btnStyle },
+            showRoster ? 'Ẩn danh sách lớp' : 'Danh sách sinh viên',
           ),
       ),
     ),
+    showAnnouncements &&
+      announcements.length > 0 &&
+      h(
+        'div',
+        {
+          style: {
+            marginTop: '14px',
+            borderTop: '1px solid #e2e8f0',
+            paddingTop: '12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+          },
+        },
+        announcements.map((a) =>
+          h(
+            'div',
+            {
+              key: a.id,
+              style: {
+                padding: '10px 12px',
+                borderRadius: '6px',
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+              },
+            },
+            h(
+              'div',
+              {
+                style: {
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '2px',
+                },
+              },
+              h(
+                'div',
+                { style: { fontWeight: '600', fontSize: '13px', color: '#0f172a' } },
+                a.title,
+              ),
+              h('div', { style: { fontSize: '11px', color: '#64748b' } }, formatTime(a.createdAt)),
+            ),
+            h(
+              'div',
+              { style: { fontSize: '12.5px', color: '#334155', whiteSpace: 'pre-wrap' } },
+              a.content,
+            ),
+          ),
+        ),
+      ),
     showRoster &&
       classroom?.students &&
       h(
         'div',
-        { style: { marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '14px' } },
+        { style: { marginTop: '14px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' } },
         h(ClassStudentTable, {
           classStudents: classroom.students,
-          onRemove: null, // Students cannot remove classmates
+          onRemove: null,
         }),
       ),
   );

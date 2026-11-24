@@ -18,15 +18,15 @@ export function Textarea({
     'div',
     { style: { display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '12px' } },
     label &&
-    h(
-      'label',
-      {
-        htmlFor: id,
-        style: { fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-secondary)' },
-      },
-      label,
-      required && h('span', { style: { color: 'var(--danger)', marginLeft: '4px' } }, '*'),
-    ),
+      h(
+        'label',
+        {
+          htmlFor: id,
+          style: { fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-secondary)' },
+        },
+        label,
+        required && h('span', { style: { color: 'var(--danger)', marginLeft: '4px' } }, '*'),
+      ),
     h('textarea', {
       id,
       value: value ?? '',
@@ -52,6 +52,6 @@ export function Textarea({
     error
       ? h('span', { style: { fontSize: '0.85rem', color: 'var(--danger)' } }, error)
       : helperText &&
-      h('span', { style: { fontSize: '0.85rem', color: 'var(--text-muted)' } }, helperText),
+          h('span', { style: { fontSize: '0.85rem', color: 'var(--text-muted)' } }, helperText),
   );
 }

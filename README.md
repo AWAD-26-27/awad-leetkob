@@ -11,7 +11,7 @@ See [PHAN_CONG_PA3.md](../PHAN_CONG_PA3.md) for team ownership and [PA3_HANDOFF.
 - **C++ Sandbox:** Containerized Docker sandbox (`sandbox/Dockerfile`) executing student C++ code with strict limits on CPU, memory (cgroups), wall-clock time, network isolation (`--network none`), and non-root execution.
 - **AST Checker & Guardrails:** Tree-sitter WASM parser (`src/checker/cpp.js`) enforcing hard ban-rules, recursion checks, and sanitized LLM prompts with exact code evidence. See [Checker Guide](docs/checker.md).
 - **Worker Pipeline:** Resilient background worker (`src/worker.js`) executing sandbox jobs, claiming SQLite leases atomically, handling process crash recovery, and falling back gracefully offline. See [Handoff Worker Guide](docs/handoff-worker.md).
-- **Frontend Architecture:** Feature-driven modular frontend under `src/frontend/` following [docs/frontend-architecture.md](docs/frontend-architecture.md), featuring an enterprise SaaS Admin portal, SVG icon system, teacher lab editor, and student IDE.
+- **Frontend Architecture:** Feature-driven modular frontend under `src/frontend/` following [docs/frontend-architecture.md](docs/frontend-architecture.md), featuring an enterprise SaaS Admin portal, multi-class Teacher Portal with 4-tab workspace and dedicated lab gradebook, and student IDE with class announcements.
 - **API Documentation:** Interactive Scalar API Reference at `/api/docs` and OpenAPI 3.1.0 document at `/api/openapi.json`.
 
 ## Install and Run
@@ -28,8 +28,8 @@ npm start
 
 Open [http://localhost:3007](http://localhost:3007) in your browser:
 - Log in as **Admin** (`admin` / `password123`) to manage classes and user accounts.
-- Log in as **Teacher** (`ta_a` / `password123`) to author labs, review AST violations, and publish grades.
-- Log in as **Student** (`student_1` / `password123`) to read lab assignments and submit C++ solutions.
+- Log in as **Teacher** (`ta_a` / `password123`) to manage assigned classes, post announcements, author labs, inspect student submission gradebooks, review AST violations, and publish grades.
+- Log in as **Student** (`student_1` / `password123`) to view classroom announcements, read lab assignments and submit C++ solutions.
 
 `core.autocrlf=false` preserves repository LF line endings on Windows for consistent formatting across local and Linux CI environments.
 
@@ -62,7 +62,7 @@ For browser testing, install Playwright Chromium once via `npx playwright instal
 
 [CI](.github/workflows/ci.yml) runs on PRs into `main`, pushes to `main`, and tags matching `pa3`; jobs use Node 22 on `ubuntu-latest`.
 
-**Current Test Status:** The automated suite runs **59 unit tests** and **58 contract tests** (**117 automated tests passing 100%**). All RFC 7807 problem details, role boundaries, idempotent publish retries, and student privacy invariants are rigorously verified.
+**Current Test Status:** The automated suite runs **64 unit tests** and **58 contract tests** (**122 automated tests passing 100%**). All RFC 7807 problem details, role boundaries, idempotent publish retries, and student privacy invariants are rigorously verified.
 
 ## Assistant and Security Rules
 

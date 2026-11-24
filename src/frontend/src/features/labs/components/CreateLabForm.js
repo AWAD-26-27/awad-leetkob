@@ -5,14 +5,12 @@ import { useToast } from '../../../providers/ToastProvider.js';
 import { TestCaseInputs } from './TestCaseInputs.js';
 import { ConstraintInputs } from './ConstraintInputs.js';
 
-export function CreateLabForm({ onSuccess }) {
+export function CreateLabForm({ onSuccess, defaultClassId }) {
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [statement, setStatement] = useState('');
   const [testCases, setTestCases] = useState([{ input: '', output: '' }]);
-  const [constraints, setConstraints] = useState([
-    { code: 'C1', text: '', deduction: 2.0 },
-  ]);
+  const [constraints, setConstraints] = useState([{ code: 'C1', text: '', deduction: 2.0 }]);
   const [submitting, setSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -44,7 +42,8 @@ export function CreateLabForm({ onSuccess }) {
 
     setSubmitting(true);
     try {
-      await createLab({
+      const res = await createLab({
+        classId: defaultClassId,
         title,
         statement,
         statementMd: statement,
@@ -65,7 +64,7 @@ export function CreateLabForm({ onSuccess }) {
       setTitle('');
       setStatement('');
       setIsOpen(false);
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(res);
     } catch (err) {
       toast.error(err.detail || err.message || 'Failed to create lab');
     } finally {
@@ -84,7 +83,7 @@ export function CreateLabForm({ onSuccess }) {
           size: 'sm',
           onClick: () => setIsOpen(true),
         },
-        '+ Create New Lab',
+        '+ Tạo bài thực hành mới',
       ),
     );
   }
@@ -92,22 +91,22 @@ export function CreateLabForm({ onSuccess }) {
   return h(
     Card,
     {
-      title: 'Create New Laboratory Assignment',
+      title: 'Tạo Bài Thực Hành Mới',
       style: { marginBottom: '24px' },
     },
     h(
       'form',
       { onSubmit: handleSubmit, style: { display: 'flex', flexDirection: 'column', gap: '16px' } },
       h(Input, {
-        label: 'Lab Title',
-        placeholder: 'e.g. Lab 3: Array Sorting & Unique Elements',
+        label: 'Tiêu đề bài thực hành',
+        placeholder: 'vd: Lab 3: Sắp xếp mảng và tìm phần tử',
         value: title,
         onChange: (e) => setTitle(e.target.value),
         required: true,
       }),
       h(Textarea, {
-        label: 'Problem Statement (Markdown)',
-        placeholder: 'Write the problem specification, input/output format, and constraints...',
+        label: 'Đề bài & Yêu cầu (Markdown)',
+        placeholder: 'Mô tả chi tiết yêu cầu bài toán, định dạng dữ liệu vào/ra...',
         rows: 4,
         value: statement,
         onChange: (e) => setStatement(e.target.value),
@@ -128,11 +127,11 @@ export function CreateLabForm({ onSuccess }) {
       h(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' } },
-        h(Button, { variant: 'secondary', size: 'sm', onClick: () => setIsOpen(false) }, 'Cancel'),
+        h(Button, { variant: 'secondary', size: 'sm', onClick: () => setIsOpen(false) }, 'Hủy'),
         h(
           Button,
           { variant: 'primary', size: 'sm', type: 'submit', loading: submitting },
-          'Create Lab Assignment',
+          'Tạo bài thực hành',
         ),
       ),
     ),

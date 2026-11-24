@@ -93,7 +93,10 @@ export function AdminHeader({ onRefresh, loading }) {
             border: '1px solid #cbd5e1',
           },
         },
-        h(RefreshIcon, { size: 13, style: { animation: loading ? 'spin 1s linear infinite' : 'none' } }),
+        h(RefreshIcon, {
+          size: 13,
+          style: { animation: loading ? 'spin 1s linear infinite' : 'none' },
+        }),
         loading ? 'Đang tải...' : 'Làm mới',
       ),
     ),

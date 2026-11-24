@@ -9,6 +9,7 @@ export function createLabRouter(db, authMiddleware) {
 
   router.get('/api/labs', authMiddleware, controller.list);
   router.get('/api/labs/:labId', authMiddleware, controller.get);
+  router.get('/api/labs/:labId/grades', authMiddleware, controller.getClassGrades);
   router.post('/api/labs', authMiddleware, controller.create);
   router.put('/api/labs/:labId', authMiddleware, controller.update);
   router.patch('/api/labs/:labId', authMiddleware, controller.update);

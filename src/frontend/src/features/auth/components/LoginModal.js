@@ -1,20 +1,20 @@
-import { h, useState, useEffect } from '../../../lib/react.js';
+import { h, useState, useEffect, useRef } from '../../../lib/react.js';
 import { Button, Input } from '../../../components/ui/index.js';
 import { useAuth } from '../../../providers/AuthProvider.js';
 import { useToast } from '../../../providers/ToastProvider.js';
 import { LoginDemoQuickFill } from './LoginDemoQuickFill.js';
 
 export function LoginModal({ isOpen, onClose }) {
-  const { login } = useAuth();
+  const { login, savedAccounts, loginWithSavedAccount, forgetSavedAccount } = useAuth();
   const { toast } = useToast();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const usernameRef = useRef('');
+  const passwordRef = useRef('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setUsername('');
-      setPassword('');
+      usernameRef.current = '';
+      passwordRef.current = '';
       setLoading(false);
       return;
     }
@@ -29,15 +29,29 @@ export function LoginModal({ isOpen, onClose }) {
 
   const handleSubmit = async (e) => {
     if (e?.preventDefault) e.preventDefault();
-    if (!username.trim() || !password) {
+    const form = e?.target;
+    const doc = typeof document !== 'undefined' ? document : null;
+    const username = (
+      usernameRef.current ||
+      form?.username?.value ||
+      doc?.getElementById('login-username')?.value ||
+      ''
+    ).trim();
+    const password =
+      passwordRef.current ||
+      form?.password?.value ||
+      doc?.getElementById('login-password')?.value ||
+      '';
+
+    if (!username || !password) {
       toast.error('Vui lòng nhập tên đăng nhập và mật khẩu');
       return;
     }
 
     setLoading(true);
     try {
-      await login(username.trim(), password);
-      toast.success(`Đăng nhập thành công với tài khoản ${username.trim()}!`);
+      await login(username, password);
+      toast.success(`Đăng nhập thành công với tài khoản ${username}!`);
       if (onClose) onClose();
     } catch (err) {
       toast.error(err.detail || err.message || 'Đăng nhập thất bại: sai username hoặc password');
@@ -46,9 +60,14 @@ export function LoginModal({ isOpen, onClose }) {
     }
   };
 
-  const handleQuickFill = (user, pass = 'password123') => {
-    setUsername(user);
-    setPassword(pass);
+  const handleDirectLogin = (account) => {
+    try {
+      loginWithSavedAccount(account);
+      toast.success(`Đăng nhập thành công với tài khoản ${account.name || account.username}!`);
+      if (onClose) onClose();
+    } catch {
+      toast.error('Không thể đăng nhập vào tài khoản này');
+    }
   };
 
   return h(
@@ -71,7 +90,6 @@ export function LoginModal({ isOpen, onClose }) {
     h(
       'div',
       {
-        className: 'animate-fade-in',
         style: {
           backgroundColor: '#ffffff',
           borderRadius: '12px',
@@ -98,8 +116,16 @@ export function LoginModal({ isOpen, onClose }) {
         h(
           'div',
           null,
-          h('div', { style: { fontWeight: '700', fontSize: '18px', color: '#0f172a' } }, 'Đăng nhập tài khoản'),
-          h('div', { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } }, 'Hệ thống LeeTKOB'),
+          h(
+            'div',
+            { style: { fontWeight: '700', fontSize: '18px', color: '#0f172a' } },
+            'Đăng nhập tài khoản',
+          ),
+          h(
+            'div',
+            { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } },
+            'Hệ thống LeeTKOB',
+          ),
         ),
         h(
           'button',
@@ -127,23 +153,26 @@ export function LoginModal({ isOpen, onClose }) {
           style: { padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px' },
         },
         h(Input, {
+          id: 'login-username',
+          name: 'username',
           label: 'Tên đăng nhập',
           placeholder: 'admin, ta_a, student_1...',
-          value: username,
-          onChange: (e) => setUsername(e.target.value),
+          defaultValue: usernameRef.current,
+          onChange: (e) => (usernameRef.current = e.target.value),
+          onInput: (e) => (usernameRef.current = e.target.value),
           required: true,
         }),
         h(Input, {
+          id: 'login-password',
+          name: 'password',
           type: 'password',
           label: 'Mật khẩu',
-          placeholder: 'Mật khẩu mặc định: password123',
-          value: password,
-          onChange: (e) => setPassword(e.target.value),
+          placeholder: 'Nhập mật khẩu...',
+          defaultValue: passwordRef.current,
+          onChange: (e) => (passwordRef.current = e.target.value),
+          onInput: (e) => (passwordRef.current = e.target.value),
           required: true,
         }),
-
-        // Quick Demo Fill Pills
-        h(LoginDemoQuickFill, { onSelectUser: handleQuickFill }),
 
         // Action Submit Button
         h(
@@ -162,6 +191,13 @@ export function LoginModal({ isOpen, onClose }) {
           },
           'Đăng nhập',
         ),
+
+        // Quick Login: Accounts previously authenticated with password
+        h(LoginDemoQuickFill, {
+          savedAccounts,
+          onDirectLogin: handleDirectLogin,
+          onRemoveAccount: forgetSavedAccount,
+        }),
       ),
     ),
   );

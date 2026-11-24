@@ -133,7 +133,9 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash TEXT NOT NULL,
   role TEXT NOT NULL CHECK (role IN ('admin','ta','student')),
   class_id INTEGER REFERENCES classes(id),
-  token TEXT UNIQUE
+  token TEXT UNIQUE,
+  avatar TEXT,
+  phone TEXT
 );
 
 CREATE TABLE IF NOT EXISTS labs (
@@ -228,9 +230,22 @@ CREATE TABLE IF NOT EXISTS enrollments (
   user_id INTEGER NOT NULL REFERENCES users(id),
   PRIMARY KEY (class_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS class_announcements (
+  id INTEGER PRIMARY KEY,
+  class_id INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+  author_id INTEGER NOT NULL REFERENCES users(id),
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 `;
 
-export function initDatabase(db, { seed = true, seedLegacyLabs = true, seedUnassigned = false } = {}) {
+export function initDatabase(
+  db,
+  { seed = true, seedLegacyLabs = true, seedUnassigned = false } = {},
+) {
   db.exec('PRAGMA busy_timeout = 5000;');
   db.exec('PRAGMA foreign_keys = ON;');
   try {
@@ -240,6 +255,12 @@ export function initDatabase(db, { seed = true, seedLegacyLabs = true, seedUnass
     // In-memory ignores or falls back
   }
   db.exec(SCHEMA);
+  try {
+    db.exec('ALTER TABLE users ADD COLUMN avatar TEXT;');
+  } catch {}
+  try {
+    db.exec('ALTER TABLE users ADD COLUMN phone TEXT;');
+  } catch {}
 
   if (seed) {
     const insertClass = db.prepare('INSERT OR IGNORE INTO classes (id, name) VALUES (?, ?)');
@@ -250,27 +271,11 @@ export function initDatabase(db, { seed = true, seedLegacyLabs = true, seedUnass
     );
     for (const u of USERS) {
       const classId = seedUnassigned ? null : u.classId;
-      insertUser.run(
-        u.id,
-        u.username,
-        u.name,
-        hashPassword(u.password),
-        u.role,
-        classId,
-        u.token,
-      );
+      insertUser.run(u.id, u.username, u.name, hashPassword(u.password), u.role, classId, u.token);
     }
     for (const u of LEGACY_USERS) {
       const classId = seedUnassigned ? null : u.classId;
-      insertUser.run(
-        u.id,
-        u.username,
-        u.name,
-        hashPassword(u.password),
-        u.role,
-        classId,
-        u.token,
-      );
+      insertUser.run(u.id, u.username, u.name, hashPassword(u.password), u.role, classId, u.token);
     }
 
     if (!seedUnassigned) {

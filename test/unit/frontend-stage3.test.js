@@ -128,11 +128,12 @@ test('Frontend Stage 3 - ClassStudentTable renders students and handles empty st
     { id: 4, name: 'Student One', username: 'student_1' },
     { id: 5, name: 'Student Two', username: 'student_2' },
   ];
-  const populatedTree = evalComponent(h(ClassStudentTable, { classStudents: students, onRemove: () => {} }));
+  const populatedTree = evalComponent(
+    h(ClassStudentTable, { classStudents: students, onRemove: () => {} }),
+  );
   const populatedStr = JSON.stringify(populatedTree);
   assert.match(populatedStr, /Student One/);
   assert.match(populatedStr, /@student_1/);
   assert.match(populatedStr, /Student Two/);
   assert.match(populatedStr, /Xóa khỏi lớp/);
 });
-

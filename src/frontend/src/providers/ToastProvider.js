@@ -49,7 +49,7 @@ export function ToastProvider({ children }) {
           'div',
           {
             key: t.id,
-            role: 'status',
+            role: 'alert',
             id: 'statusMessage',
             className: `badge badge-${t.type === 'error' ? 'danger' : t.type === 'success' ? 'success' : 'primary'}`,
             style: {

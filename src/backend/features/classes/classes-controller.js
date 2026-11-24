@@ -1,4 +1,5 @@
 import { sendJson, problem } from '../../middleware/rfc7807.js';
+import { isStaff } from '../../middleware/isolation.js';
 
 export function createClassesController(classesModel) {
   return {
@@ -19,8 +20,14 @@ export function createClassesController(classesModel) {
       }
 
       let students = undefined;
-      // Admin or the teacher of this class gets the roster in the class object
-      if (req.user.role === 'admin' || (req.user.role === 'ta' && Number(req.user.classId) === Number(classId))) {
+      // Admin, staff or enrolled student of this class gets the roster in the class object
+      if (
+        req.user.role === 'admin' ||
+        isStaff(req.user, classId) ||
+        (req.user.role === 'student' &&
+          (Number(req.user.classId) === classId ||
+            classesModel.isStudentEnrolled(classId, req.user.id)))
+      ) {
         students = classesModel.getClassStudents(classId);
       }
 
@@ -30,6 +37,39 @@ export function createClassesController(classesModel) {
           ...(students !== undefined ? { students } : {}),
         },
       });
+    },
+
+    myClasses(req, res) {
+      if (req.user.role === 'admin') {
+        const items = classesModel.listClasses();
+        return sendJson(res, 200, { items });
+      }
+      if (req.user.role === 'ta') {
+        const items = classesModel.getTeacherClasses(req.user.id);
+        return sendJson(res, 200, { items });
+      }
+      if (req.user.role === 'student') {
+        const items = classesModel.getStudentClasses(req.user.id);
+        return sendJson(res, 200, { items });
+      }
+      return problem(res, 403, 'forbidden', 'Only staff or students can view assigned classes');
+    },
+
+    getMySubmissions(req, res) {
+      const classId = Number(req.params.classId);
+      if (!classId || isNaN(classId)) {
+        return problem(res, 400, 'invalid-body', 'Invalid class ID');
+      }
+      const isEnrolled =
+        classesModel.isStudentEnrolled(classId, req.user.id) ||
+        (req.user.role === 'student' && Number(req.user.classId) === classId);
+      if (req.user.role !== 'admin' && !isEnrolled && !isStaff(req.user, classId)) {
+        return problem(res, 403, 'forbidden', 'You are not enrolled in this class');
+      }
+      const studentId =
+        req.user.role === 'student' ? req.user.id : Number(req.query?.studentId) || req.user.id;
+      const items = classesModel.getStudentSubmissionsByClass(classId, studentId);
+      return sendJson(res, 200, { items });
     },
 
     myClass(req, res) {
@@ -103,7 +143,12 @@ export function createClassesController(classesModel) {
 
     removeTeacher(req, res) {
       if (req.user.role !== 'admin') {
-        return problem(res, 403, 'forbidden', 'Only administrators can remove teachers from classes');
+        return problem(
+          res,
+          403,
+          'forbidden',
+          'Only administrators can remove teachers from classes',
+        );
       }
 
       const classId = Number(req.params.classId);
@@ -136,7 +181,14 @@ export function createClassesController(classesModel) {
         return problem(res, 400, 'invalid-body', 'Invalid class ID');
       }
 
-      if (Number(req.user.classId) !== classId) {
+      if (
+        !isStaff(req.user, classId) &&
+        !(
+          req.user.role === 'student' &&
+          (Number(req.user.classId) === classId ||
+            classesModel.isStudentEnrolled(classId, req.user.id))
+        )
+      ) {
         return problem(res, 403, 'forbidden', 'Access denied to this class labs');
       }
 
@@ -155,8 +207,21 @@ export function createClassesController(classesModel) {
         return problem(res, 400, 'invalid-body', 'Invalid class ID');
       }
 
-      if (req.user.role !== 'admin' && (req.user.role !== 'ta' || Number(req.user.classId) !== Number(classId))) {
-        return problem(res, 403, 'forbidden', 'You do not have permission to view students of this class');
+      if (
+        req.user.role !== 'admin' &&
+        !isStaff(req.user, classId) &&
+        !(
+          req.user.role === 'student' &&
+          (Number(req.user.classId) === classId ||
+            classesModel.isStudentEnrolled(classId, req.user.id))
+        )
+      ) {
+        return problem(
+          res,
+          403,
+          'forbidden',
+          'You do not have permission to view students of this class',
+        );
       }
 
       const cls = classesModel.getClassById(classId);
@@ -174,9 +239,13 @@ export function createClassesController(classesModel) {
         return problem(res, 400, 'invalid-body', 'Invalid class ID');
       }
 
-      // Teacher can assign student to their own class, admin can assign to any class
-      if (req.user.role !== 'admin' && (req.user.role !== 'ta' || Number(req.user.classId) !== Number(classId))) {
-        return problem(res, 403, 'forbidden', 'Only the class teacher or administrator can assign students');
+      if (req.user.role !== 'admin' && !isStaff(req.user, classId)) {
+        return problem(
+          res,
+          403,
+          'forbidden',
+          'Only the class teacher or administrator can assign students',
+        );
       }
 
       const cls = classesModel.getClassById(classId);
@@ -206,8 +275,13 @@ export function createClassesController(classesModel) {
         return problem(res, 400, 'invalid-body', 'Valid class ID and student ID are required');
       }
 
-      if (req.user.role !== 'admin' && (req.user.role !== 'ta' || Number(req.user.classId) !== Number(classId))) {
-        return problem(res, 403, 'forbidden', 'Only the class teacher or administrator can remove students');
+      if (req.user.role !== 'admin' && !isStaff(req.user, classId)) {
+        return problem(
+          res,
+          403,
+          'forbidden',
+          'Only the class teacher or administrator can remove students',
+        );
       }
 
       const cls = classesModel.getClassById(classId);
@@ -223,6 +297,60 @@ export function createClassesController(classesModel) {
       } catch (err) {
         return problem(res, 400, 'invalid-body', err.message);
       }
+    },
+
+    getAnnouncements(req, res) {
+      const classId = Number(req.params.classId);
+      if (!classId || isNaN(classId)) {
+        return problem(res, 400, 'invalid-body', 'Invalid class ID');
+      }
+
+      if (
+        req.user.role !== 'admin' &&
+        !isStaff(req.user, classId) &&
+        !(
+          req.user.role === 'student' &&
+          (Number(req.user.classId) === classId ||
+            classesModel.isStudentEnrolled(classId, req.user.id))
+        )
+      ) {
+        return problem(res, 403, 'forbidden', 'Access denied to class announcements');
+      }
+
+      const cls = classesModel.getClassById(classId);
+      if (!cls) {
+        return problem(res, 404, 'not-found', `Class #${classId} not found`);
+      }
+
+      const items = classesModel.listAnnouncements(classId);
+      return sendJson(res, 200, { items });
+    },
+
+    createAnnouncement(req, res) {
+      const classId = Number(req.params.classId);
+      if (!classId || isNaN(classId)) {
+        return problem(res, 400, 'invalid-body', 'Invalid class ID');
+      }
+
+      if (req.user.role !== 'admin' && !isStaff(req.user, classId)) {
+        return problem(res, 403, 'forbidden', 'Only class teachers can post announcements');
+      }
+
+      const { title, content } = req.body || {};
+      if (!title || typeof title !== 'string' || !title.trim()) {
+        return problem(res, 400, 'invalid-body', 'Announcement title is required');
+      }
+      if (!content || typeof content !== 'string' || !content.trim()) {
+        return problem(res, 400, 'invalid-body', 'Announcement content is required');
+      }
+
+      const created = classesModel.createAnnouncement(
+        classId,
+        req.user.id,
+        title.trim(),
+        content.trim(),
+      );
+      return sendJson(res, 201, { announcement: created });
     },
 
     allStudents(req, res) {

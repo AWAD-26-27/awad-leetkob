@@ -17,6 +17,7 @@ export function UserMenu({
   useEffect(() => {
     if (!isOpen) return;
     const handleOutsideClick = (e) => {
+      if (!document.contains(e.target)) return;
       if (!e.target.closest('#user-menu-dropdown-container')) {
         setIsOpen(false);
       }
@@ -24,9 +25,12 @@ export function UserMenu({
     const handleEsc = (e) => {
       if (e.key === 'Escape') setIsOpen(false);
     };
-    document.addEventListener('click', handleOutsideClick);
+    const timer = setTimeout(() => {
+      document.addEventListener('click', handleOutsideClick);
+    }, 10);
     window.addEventListener('keydown', handleEsc);
     return () => {
+      clearTimeout(timer);
       document.removeEventListener('click', handleOutsideClick);
       window.removeEventListener('keydown', handleEsc);
     };
@@ -81,6 +85,8 @@ export function UserMenu({
   }
 
   const safeName = (user && user.name) || 'User';
+  const isImageAvatar =
+    user?.avatar && (user.avatar.startsWith('http') || user.avatar.startsWith('data:image'));
 
   return h(
     'div',
@@ -92,10 +98,14 @@ export function UserMenu({
       'button',
       {
         type: 'button',
+        id: 'user-menu-button',
         'aria-haspopup': 'menu',
         'aria-expanded': isOpen,
         'aria-label': 'Menu tài khoản người dùng',
-        onClick: () => setIsOpen(!isOpen),
+        onClick: (e) => {
+          if (e && e.stopPropagation) e.stopPropagation();
+          setIsOpen(!isOpen);
+        },
         style: {
           display: 'flex',
           alignItems: 'center',
@@ -122,10 +132,17 @@ export function UserMenu({
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: '700',
-            fontSize: '13.5px',
+            fontSize: isImageAvatar ? '12px' : '14px',
+            overflow: 'hidden',
           },
         },
-        safeName.charAt(0).toUpperCase(),
+        isImageAvatar
+          ? h('img', {
+              src: user.avatar,
+              alt: safeName,
+              style: { width: '100%', height: '100%', objectFit: 'cover' },
+            })
+          : user?.avatar || safeName.charAt(0).toUpperCase(),
       ),
       h(
         'div',

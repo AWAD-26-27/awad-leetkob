@@ -11,6 +11,8 @@ export function createAuthRouter(db, authMiddleware) {
   router.post('/api/login', loginLimiter, controller.login);
   router.post('/api/logout', controller.logout);
   router.post('/api/users/change-password', authMiddleware, controller.changePassword);
+  router.put('/api/users/profile', authMiddleware, controller.updateProfile);
+  router.patch('/api/users/profile', authMiddleware, controller.updateProfile);
   router.get('/api/users', authMiddleware, controller.listUsers);
   router.post('/api/users', authMiddleware, controller.createUser);
 

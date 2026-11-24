@@ -19,7 +19,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT or Token
-      description: Bearer token xác thực người dùng (Ví dụ: "tok-admin", "tok-ta-a", "tok-student-1").
+      description: 'Bearer token xác thực người dùng (Ví dụ: "tok-admin", "tok-ta-a", "tok-student-1").'
 
   schemas:
     ProblemDetails:
@@ -74,14 +74,14 @@ components:
           example: 1
         title:
           type: string
-          example: "Lab 1: Merge Sort"
+          example: 'Lab 1: Merge Sort'
         statement:
           type: string
           example: Implement merge sort without using std::sort.
         publishedAt:
           type: string
           nullable: true
-          example: "2026-11-24 10:00:00"
+          example: '2026-11-24 10:00:00'
 
     Submission:
       type: object
@@ -131,7 +131,7 @@ components:
                 example: 2
               text:
                 type: string
-                example: "int main() { return std::min(0, 1); }"
+                example: 'int main() { return std::min(0, 1); }'
         source:
           type: string
           example: hard_rule
@@ -162,7 +162,7 @@ paths:
                     example: healthy
                   timestamp:
                     type: string
-                    example: "2026-11-24T11:00:00.000Z"
+                    example: '2026-11-24T11:00:00.000Z'
                   uptimeSeconds:
                     type: number
                     example: 3600
@@ -550,6 +550,71 @@ paths:
         '200':
           description: Thông tin lớp học của người dùng
 
+  /api/my-classes:
+    get:
+      summary: Lấy danh mục các lớp học do Giảng viên phụ trách (Hỗ trợ quản lý nhiều lớp)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách các lớp học của giảng viên
+        '403':
+          description: Chỉ Giảng viên hoặc Quản trị viên mới có quyền
+
+  /api/classes/{classId}/announcements:
+    get:
+      summary: Lấy danh sách thông báo của lớp học
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách thông báo của lớp học
+        '403':
+          description: Không có quyền truy cập lớp học này
+    post:
+      summary: Đăng thông báo mới cho sinh viên trong lớp
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+              properties:
+                title:
+                  type: string
+                  example: Nhắc nhở hạn nộp bài Lab 1
+                content:
+                  type: string
+                  example: Hạn chót là 23h59 Chủ nhật tuần này.
+      responses:
+        '201':
+          description: Đã tạo thông báo thành công
+        '403':
+          description: Chỉ giảng viên của lớp mới có quyền đăng thông báo
+
   /api/labs:
     get:
       summary: Lấy danh sách bài thực hành (Phân đoạn theo lớp)
@@ -588,7 +653,7 @@ paths:
               properties:
                 title:
                   type: string
-                  example: "Lab 2: Recursion"
+                  example: 'Lab 2: Recursion'
                 statement:
                   type: string
                   example: Compute factorial iteratively.
@@ -666,7 +731,7 @@ paths:
               properties:
                 code:
                   type: string
-                  example: "int main() { return 0; }"
+                  example: 'int main() { return 0; }'
       responses:
         '202':
           description: Đã nhận bài nộp và xếp hàng chấm (Atomic Queued)
@@ -830,6 +895,25 @@ paths:
       responses:
         '200':
           description: Scalar HTML Documentation
+
+  /api/labs/{labId}/grades:
+    get:
+      summary: Lấy bảng điểm và số lần nộp bài của toàn bộ sinh viên trong lớp đối với bài Lab này
+      tags:
+        - Labs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bảng điểm và danh sách sinh viên cùng số lần submit
+        '404':
+          description: Không tìm thấy bài lab hoặc không có quyền truy cập
 
   /api/labs/{labId}/publish:
     post:

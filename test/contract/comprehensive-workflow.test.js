@@ -9,7 +9,11 @@ beforeEach(async () => {
 afterEach(() => app?.close());
 
 function assertProblem(res, expectedStatus, expectedSlug) {
-  assert.equal(res.status, expectedStatus, `Expected HTTP status ${expectedStatus}, got ${res.status}`);
+  assert.equal(
+    res.status,
+    expectedStatus,
+    `Expected HTTP status ${expectedStatus}, got ${res.status}`,
+  );
   assert.match(
     res.type || '',
     /^application\/problem\+json/,
@@ -268,10 +272,22 @@ test('Workflow 4 & 5: Submission Queuing, Worker Execution & Strict Privacy Inva
   assert.equal(stuCheck.body.judgeVerdict, 'Accepted');
 
   // Ensure internal violation details are completely hidden from student
-  assert.equal(stuCheck.body.verdicts, undefined, 'Student must not see internal verdicts before publish');
-  assert.equal(stuCheck.body.evidence, undefined, 'Student must not see violation evidence before publish');
+  assert.equal(
+    stuCheck.body.verdicts,
+    undefined,
+    'Student must not see internal verdicts before publish',
+  );
+  assert.equal(
+    stuCheck.body.evidence,
+    undefined,
+    'Student must not see violation evidence before publish',
+  );
   assert.equal(stuCheck.body.deduction, undefined, 'Student must not see deduction before publish');
-  assert.equal(stuCheck.body.reviewStatus, undefined, 'Student must not see review status before publish');
+  assert.equal(
+    stuCheck.body.reviewStatus,
+    undefined,
+    'Student must not see review status before publish',
+  );
   assert.equal(JSON.stringify(stuCheck.body).includes('while(x--)'), false);
   assert.equal(JSON.stringify(stuCheck.body).includes('violation'), false);
 
@@ -307,7 +323,9 @@ test('Workflow 6 & 7: TA Review Queue Adjudication, Conflict On Pending Reviews 
   // Simulate worker: verdict marked pending review
   const cRow = app.db.prepare('SELECT id FROM constraints WHERE lab_id = ?').get(labId);
   app.db.exec('BEGIN IMMEDIATE');
-  app.db.prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?").run(subId);
+  app.db
+    .prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?")
+    .run(subId);
   app.db
     .prepare(
       `INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
@@ -323,9 +341,11 @@ test('Workflow 6 & 7: TA Review Queue Adjudication, Conflict On Pending Reviews 
   assert.equal(app.publishedAt(labId), null, 'Lab must not be marked as published');
 
   // 6.2 TA Alice confirms the violation deduction
-  const reviewRes = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c1-no-recursion/review`, {
-    decision: 'confirm',
-  });
+  const reviewRes = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c1-no-recursion/review`, {
+      decision: 'confirm',
+    });
   assert.equal(reviewRes.status, 200);
   assert.equal(reviewRes.body.reviewStatus, 'confirmed');
 
@@ -355,7 +375,11 @@ test('Workflow 6 & 7: TA Review Queue Adjudication, Conflict On Pending Reviews 
   // 6.6 Idempotent retry: Publishing again does not move the timestamp
   const retryPublish = await app.as('ta_a').post(`/api/labs/${labId}/publish`, {});
   assert.equal(retryPublish.status, 200);
-  assert.equal(retryPublish.body.publishedAt, firstTimestamp, 'Idempotent publish must not change timestamp');
+  assert.equal(
+    retryPublish.body.publishedAt,
+    firstTimestamp,
+    'Idempotent publish must not change timestamp',
+  );
   assert.equal(app.publishedAt(labId), firstTimestamp);
 });
 
@@ -364,14 +388,16 @@ test('Workflow 6 & 7: TA Review Queue Adjudication, Conflict On Pending Reviews 
 // =============================================================================
 test('Workflow 8: Malformed JSON, Mass Assignment Protection & Negative Boundaries', async () => {
   // 8.1 Malformed JSON body in POST request returns 400 invalid-body without crashing
-  const rawFetch = await fetch(`http://localhost:${app.db ? 3007 : 3007}`, {
+  await fetch(`http://localhost:${app.db ? 3007 : 3007}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: '{"invalid": json...',
   }).catch(() => null);
 
   // 8.2 Mass Assignment Protection: Student cannot inject role: 'admin' or arbitrary classId
-  const rLogin = await app.as(null).post('/api/login', { username: 'student_1', password: 'password123' });
+  const rLogin = await app
+    .as(null)
+    .post('/api/login', { username: 'student_1', password: 'password123' });
   assert.equal(rLogin.status, 200);
   const stuToken = rLogin.body.token;
 
@@ -384,7 +410,9 @@ test('Workflow 8: Malformed JSON, Mass Assignment Protection & Negative Boundari
   });
 
   // Verify student role and classId in database remain untouched
-  const stuDb = app.db.prepare("SELECT role, class_id FROM users WHERE username = 'student_1'").get();
+  const stuDb = app.db
+    .prepare("SELECT role, class_id FROM users WHERE username = 'student_1'")
+    .get();
   assert.equal(stuDb.role, 'student', 'Student role must not be escalated via mass assignment');
   assert.equal(stuDb.class_id, 1, 'Student class must not be modified arbitrarily');
 

@@ -4,7 +4,7 @@ import { parseHash, formatHash } from '../../src/frontend/src/routes/Router.js';
 import { open } from '../../src/db.js';
 import { createApp } from '../../src/backend/app.js';
 
-test('Client-side Hash Router - parseHash and formatHash bidirectional mapping', (t) => {
+test('Client-side Hash Router - parseHash and formatHash bidirectional mapping', () => {
   // 1. Root & empty hashes
   assert.deepEqual(parseHash(''), { path: '/', params: {} });
   assert.deepEqual(parseHash('#'), { path: '/', params: {} });
@@ -66,16 +66,19 @@ test('Backend Route Remapping & Aliases verification', async (t) => {
     assert.equal(res.body.status, 'healthy');
   });
 
-  await t.test('GET /docs and GET /openapi.json aliases return documentation and spec', async () => {
-    const docsRes = await request('/docs');
-    assert.equal(docsRes.status, 200);
-    assert.match(docsRes.body, /@scalar\/api-reference/i);
+  await t.test(
+    'GET /docs and GET /openapi.json aliases return documentation and spec',
+    async () => {
+      const docsRes = await request('/docs');
+      assert.equal(docsRes.status, 200);
+      assert.match(docsRes.body, /@scalar\/api-reference/i);
 
-    const specRes = await request('/openapi.json');
-    assert.equal(specRes.status, 200);
-    assert.equal(specRes.body.openapi, '3.1.0');
-    assert.ok(specRes.body.paths['/api/classes/{classId}']);
-  });
+      const specRes = await request('/openapi.json');
+      assert.equal(specRes.status, 200);
+      assert.equal(specRes.body.openapi, '3.1.0');
+      assert.ok(specRes.body.paths['/api/classes/{classId}']);
+    },
+  );
 
   await t.test('Direct SPA navigation to /labs or /admin returns index HTML', async () => {
     const labsSpa = await request('/labs');

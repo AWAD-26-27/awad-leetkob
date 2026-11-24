@@ -30,7 +30,11 @@ export function ClassStudentRoster({ classId, className, onRosterChange }) {
         h(
           'div',
           null,
-          h('div', { style: { fontWeight: '700', fontSize: '14px', color: '#92400e' } }, 'Chưa Phân Công Lớp Học'),
+          h(
+            'div',
+            { style: { fontWeight: '700', fontSize: '14px', color: '#92400e' } },
+            'Chưa Phân Công Lớp Học',
+          ),
           h(
             'div',
             { style: { fontSize: '13px', color: '#b45309' } },

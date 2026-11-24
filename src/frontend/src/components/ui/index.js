@@ -7,3 +7,4 @@ export { OfflineBanner } from './OfflineBanner.js';
 export { SkeletonLine, SkeletonCard, SkeletonTable } from './Skeleton.js';
 export { EmptyState } from './EmptyState.js';
 export { ErrorBoundary } from './ErrorBoundary.js';
+export { Spinner } from '../feedback/Spinner.js';

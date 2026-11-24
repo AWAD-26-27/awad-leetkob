@@ -193,10 +193,12 @@ test('Authentication and Account Management: login, logout, password change, and
   assertProblem(badPwRes, 400, 'invalid-credentials');
 
   // 5. Change password with valid credentials -> 200
-  const goodPwRes = await app.as({ token: loginRes.body.token }).post('/api/users/change-password', {
-    currentPassword: 'password123',
-    newPassword: 'newSecretPassword123',
-  });
+  const goodPwRes = await app
+    .as({ token: loginRes.body.token })
+    .post('/api/users/change-password', {
+      currentPassword: 'password123',
+      newPassword: 'newSecretPassword123',
+    });
   assert.equal(goodPwRes.status, 200);
   assert.ok(goodPwRes.body.message);
 

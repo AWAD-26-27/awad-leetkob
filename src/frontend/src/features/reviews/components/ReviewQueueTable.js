@@ -37,17 +37,17 @@ export function ReviewQueueTable({ queue = [], onReview, setE2eStatusText }) {
   if (queue.length === 0) {
     return h(
       Card,
-      { title: 'TA Constraint Review Queue' },
+      { title: 'Hàng Đợi Xét Duyệt Bài Nộp' },
       h(EmptyState, {
-        title: 'Queue is empty',
-        description: 'All pending submissions and constraints for this lab have been reviewed.',
+        title: 'Hàng đợi trống',
+        description: 'Tất cả bài nộp và quy tắc ràng buộc của bài thực hành này đã được xét duyệt.',
       }),
     );
   }
 
   return h(
     Card,
-    { title: 'Hàng Đợi Xét Duyệt Ràng Buộc (TA Review Queue)' },
+    { title: 'Hàng Đợi Xét Duyệt Bài Nộp' },
     h(QueueMetricsHeader, {
       queue,
       pendingCount,

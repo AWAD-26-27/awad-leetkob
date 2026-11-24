@@ -45,11 +45,7 @@ export function LabTestCasesView({ tests }) {
             `Test Case #${t.ordinal || idx + 1}:`,
           ),
           h('div', null, `Input: ${inputVal}`),
-          h(
-            'div',
-            { style: { color: '#10b981', marginTop: '2px' } },
-            `Expected: ${expectedVal}`,
-          ),
+          h('div', { style: { color: '#10b981', marginTop: '2px' } }, `Expected: ${expectedVal}`),
         );
       }),
     ),

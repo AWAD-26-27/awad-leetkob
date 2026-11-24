@@ -1,10 +1,12 @@
 import { h } from '../../../lib/react.js';
 import { Button, Badge } from '../../../components/ui/index.js';
 
-export function ProfileDetailsTab({ user, roleColor, onLogout, onGoToPassword }) {
+export function ProfileDetailsTab({ user, roleColor, onLogout, onGoToSettings }) {
   const safeName = (user && user.name) || 'User';
   const safeUsername = (user && user.username) || '';
   const safeRole = (user && user.role) || 'guest';
+  const isImageAvatar =
+    user?.avatar && (user.avatar.startsWith('http') || user.avatar.startsWith('data:image'));
 
   return h(
     'div',
@@ -26,8 +28,8 @@ export function ProfileDetailsTab({ user, roleColor, onLogout, onGoToPassword })
         'div',
         {
           style: {
-            width: '52px',
-            height: '52px',
+            width: '56px',
+            height: '56px',
             borderRadius: '50%',
             backgroundColor: roleColor,
             color: '#ffffff',
@@ -35,58 +37,122 @@ export function ProfileDetailsTab({ user, roleColor, onLogout, onGoToPassword })
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: '800',
-            fontSize: '20px',
+            fontSize: isImageAvatar ? '14px' : '24px',
+            overflow: 'hidden',
+            flexShrink: 0,
             boxShadow: `0 0 0 4px ${roleColor}25`,
           },
         },
-        safeName.charAt(0).toUpperCase(),
+        isImageAvatar
+          ? h('img', {
+              src: user.avatar,
+              alt: safeName,
+              style: { width: '100%', height: '100%', objectFit: 'cover' },
+            })
+          : user?.avatar || safeName.charAt(0).toUpperCase(),
       ),
       h(
         'div',
-        null,
-        h('div', { style: { fontSize: '16px', fontWeight: '800', color: '#0f172a' } }, safeName),
-        h('div', { style: { fontSize: '13px', color: '#64748b', fontFamily: 'var(--font-mono)' } }, `@${safeUsername}`),
+        { style: { overflow: 'hidden', flex: 1 } },
+        h('div', { style: { fontSize: '17px', fontWeight: '800', color: '#0f172a' } }, safeName),
         h(
           'div',
-          { style: { display: 'flex', gap: '8px', marginTop: '6px' } },
-          h(Badge, { variant: safeRole === 'admin' ? 'info' : safeRole === 'ta' ? 'warning' : 'success' }, safeRole.toUpperCase()),
+          { style: { fontSize: '13px', color: '#64748b', fontFamily: 'var(--font-mono)' } },
+          `@${safeUsername}`,
+        ),
+        h(
+          'div',
+          { style: { display: 'flex', gap: '8px', marginTop: '6px', flexWrap: 'wrap' } },
+          h(
+            Badge,
+            { variant: safeRole === 'admin' ? 'info' : safeRole === 'ta' ? 'warning' : 'success' },
+            safeRole.toUpperCase(),
+          ),
           h(Badge, { variant: 'neutral' }, user?.classId ? `Class ${user.classId}` : 'All Classes'),
+        ),
+      ),
+    ),
+    // Details summary table
+    h(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          padding: '14px',
+          backgroundColor: '#ffffff',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid #e2e8f0',
+          fontSize: '13px',
+        },
+      },
+      h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid #f1f5f9',
+            paddingBottom: '6px',
+          },
+        },
+        h('span', { style: { color: '#64748b' } }, '📞 Số điện thoại:'),
+        h(
+          'span',
+          { style: { fontWeight: '600', color: user?.phone ? '#0f172a' : '#94a3b8' } },
+          user?.phone || 'Chưa cập nhật',
+        ),
+      ),
+      h(
+        'div',
+        {
+          style: {
+            display: 'flex',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid #f1f5f9',
+            paddingBottom: '6px',
+          },
+        },
+        h('span', { style: { color: '#64748b' } }, '🏷️ Vai trò:'),
+        h(
+          'span',
+          { style: { fontWeight: '600', color: '#0f172a' } },
+          safeRole === 'admin' ? 'Quản trị viên' : safeRole === 'ta' ? 'Giảng viên' : 'Sinh viên',
+        ),
+      ),
+      h(
+        'div',
+        { style: { display: 'flex', justifyContent: 'space-between' } },
+        h('span', { style: { color: '#64748b' } }, '🔑 Active Token:'),
+        h(
+          'span',
+          { style: { fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#2563eb' } },
+          user?.token || 'N/A',
         ),
       ),
     ),
     h(
       'div',
-      {
-        style: {
-          padding: '12px 14px',
-          backgroundColor: '#0b0f19',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-        },
-      },
-      h('div', { style: { fontSize: '11px', color: '#94a3b8', marginBottom: '4px' } }, 'Active Bearer Token:'),
-      h('div', { style: { fontFamily: 'var(--font-mono)', fontSize: '12px', color: '#38bdf8' } }, user?.token || 'No token'),
-    ),
-    h(
-      'div',
       { style: { display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '4px' } },
-      onGoToPassword &&
+      onGoToSettings &&
         h(
           Button,
           {
-            variant: 'secondary',
+            variant: 'primary',
             size: 'sm',
-            onClick: onGoToPassword,
+            onClick: onGoToSettings,
             style: {
               width: '100%',
-              padding: '9px',
+              padding: '10px',
               fontWeight: '600',
-              color: '#2563eb',
-              borderColor: '#bfdbfe',
-              backgroundColor: '#eff6ff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
             },
           },
-          '🔑 Chuyển sang đổi mật khẩu',
+          '⚙️ Cài Đặt & Chỉnh Sửa Thông Tin',
         ),
       h(
         Button,
@@ -96,7 +162,7 @@ export function ProfileDetailsTab({ user, roleColor, onLogout, onGoToPassword })
           onClick: onLogout,
           style: { width: '100%', padding: '9px' },
         },
-        'Đăng xuất',
+        '🚪 Đăng xuất',
       ),
     ),
   );

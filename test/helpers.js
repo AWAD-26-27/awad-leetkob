@@ -33,6 +33,8 @@ export async function startApp(customDb, options = {}) {
     return {
       get: (path) => call('GET', path),
       post: (path, body) => call('POST', path, body),
+      put: (path, body) => call('PUT', path, body),
+      patch: (path, body) => call('PATCH', path, body),
       delete: (path) => call('DELETE', path),
     };
   }
@@ -44,3 +46,5 @@ export async function startApp(customDb, options = {}) {
 
   return { db, as, base, publishedAt, close: () => new Promise((r) => server.close(r)) };
 }
+
+export const openTestApp = startApp;

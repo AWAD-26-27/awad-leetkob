@@ -1,11 +1,12 @@
 import { h } from '../../../lib/react.js';
+import { Spinner } from '../../../components/ui/index.js';
 
 export function AdminDirectoryTab({ usersList, loadingUsers }) {
   if (loadingUsers) {
     return h(
       'div',
-      { style: { textAlign: 'center', padding: '20px', color: '#64748b' } },
-      'Đang tải danh sách...',
+      { style: { textAlign: 'center', padding: '24px' } },
+      h(Spinner, { center: true, size: 24, label: 'Đang tải danh sách người dùng...' }),
     );
   }
 

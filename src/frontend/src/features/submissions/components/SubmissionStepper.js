@@ -4,11 +4,11 @@ import { Badge } from '../../../components/ui/index.js';
 export function SubmissionStepper({ submission }) {
   if (!submission) return null;
 
-  const currentStatus = submission.status; // 'queued' | 'judging' | 'judged'
+  const currentStatus = submission.status;
   const steps = [
-    { key: 'queued', icon: '📥', label: '1. Đã xếp hàng', desc: 'Atomic 202 Queued' },
-    { key: 'judging', icon: '⚙️', label: '2. Đang chấm', desc: 'Sandbox & AST evaluation' },
-    { key: 'judged', icon: '🏁', label: '3. Hoàn tất', desc: 'Verdict & score finalized' },
+    { key: 'queued', label: '1. Tiếp nhận', desc: 'Đã nhận bài vào hàng đợi' },
+    { key: 'judging', label: '2. Đang chấm', desc: 'Biên dịch và chạy kiểm thử' },
+    { key: 'judged', label: '3. Hoàn tất', desc: 'Đã ghi nhận kết quả' },
   ];
 
   const getStepIndex = (status) => {
@@ -24,17 +24,14 @@ export function SubmissionStepper({ submission }) {
   return h(
     'div',
     {
-      className: 'animate-fade-in',
       style: {
-        padding: '18px 22px',
-        backgroundColor: 'var(--color-surface)',
-        border: '1px solid var(--color-border)',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-sm)',
-        marginBottom: '24px',
+        padding: '16px 20px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '8px',
+        marginBottom: '20px',
       },
     },
-    // Top summary header
     h(
       'div',
       {
@@ -42,7 +39,7 @@ export function SubmissionStepper({ submission }) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '14px',
+          marginBottom: '12px',
         },
       },
       h(
@@ -50,8 +47,8 @@ export function SubmissionStepper({ submission }) {
         { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
         h(
           'span',
-          { style: { fontSize: '15px', fontWeight: '800', letterSpacing: '-0.01em' } },
-          `Submission #${submission.id}`,
+          { style: { fontSize: '14px', fontWeight: '700', color: '#0f172a' } },
+          `Bài nộp #${submission.id}`,
         ),
         h(
           Badge,
@@ -74,93 +71,71 @@ export function SubmissionStepper({ submission }) {
               submission.judgeVerdict === 'Accepted' || submission.judgeVerdict === 'AC'
                 ? 'success'
                 : 'danger',
-            style: { fontWeight: '700', fontSize: '12px', padding: '4px 10px' },
+            style: { fontWeight: '600', fontSize: '12px', padding: '3px 8px' },
           },
-          `Verdict: ${submission.judgeVerdict}`,
+          `Kết quả: ${submission.judgeVerdict}`,
         ),
     ),
-
-    // Animated continuous progress bar line
     h(
       'div',
       {
         style: {
-          height: '6px',
+          height: '4px',
           width: '100%',
-          backgroundColor: '#e2e8f0',
-          borderRadius: '9999px',
+          backgroundColor: '#f1f5f9',
+          borderRadius: '2px',
           overflow: 'hidden',
-          marginBottom: '16px',
+          marginBottom: '14px',
         },
       },
       h('div', {
         style: {
           height: '100%',
           width: `${progressPercent}%`,
-          background: 'linear-gradient(90deg, #3b82f6 0%, #10b981 100%)',
-          borderRadius: '9999px',
-          transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+          backgroundColor: '#2563eb',
+          borderRadius: '2px',
+          transition: 'width 0.3s ease',
         },
       }),
     ),
-
-    // Progress Bar Steps Cards
     h(
       'div',
       { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' } },
       steps.map((s, idx) => {
         const isDone = idx < currentIndex;
         const isCurrent = idx === currentIndex;
-        const borderColor = isCurrent
-          ? 'var(--color-primary)'
-          : isDone
-            ? 'var(--color-success)'
-            : 'var(--color-border)';
-        const bgColor = isCurrent
-          ? 'rgba(37, 99, 235, 0.06)'
-          : isDone
-            ? 'rgba(16, 185, 129, 0.06)'
-            : 'transparent';
+        const borderColor = isCurrent ? '#2563eb' : isDone ? '#10b981' : '#e2e8f0';
+        const bgColor = isCurrent ? '#eff6ff' : isDone ? '#f0fdf4' : '#ffffff';
 
         return h(
           'div',
           {
             key: s.key,
             style: {
-              padding: '12px 14px',
-              borderRadius: 'var(--radius-md)',
-              border: `1.5px solid ${borderColor}`,
+              padding: '10px 12px',
+              borderRadius: '6px',
+              border: `1px solid ${borderColor}`,
               backgroundColor: bgColor,
-              transition: 'all 0.2s ease',
             },
           },
           h(
             'div',
             {
               style: {
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontWeight: isCurrent || isDone ? '700' : '600',
-                fontSize: '13px',
-                color: isCurrent
-                  ? 'var(--color-primary)'
-                  : isDone
-                    ? 'var(--color-success)'
-                    : 'var(--color-text-secondary)',
+                fontWeight: isCurrent || isDone ? '600' : '500',
+                fontSize: '12.5px',
+                color: isCurrent ? '#1d4ed8' : isDone ? '#047857' : '#64748b',
               },
             },
-            h('span', { style: { fontSize: '15px' } }, s.icon),
             s.label,
           ),
           h(
             'div',
             {
               style: {
-                fontSize: '11.5px',
-                color: 'var(--color-text-muted)',
-                marginTop: '4px',
-                paddingLeft: '23px',
+                fontSize: '11px',
+                color: '#64748b',
+                marginTop: '2px',
               },
             },
             s.desc,

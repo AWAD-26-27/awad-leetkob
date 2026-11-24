@@ -29,6 +29,19 @@ export function createSubmissionModel(db) {
   `);
 
   return {
+    isStudentEnrolled(classId, studentId) {
+      const row = db
+        .prepare(
+          `
+        SELECT 1 FROM enrollments WHERE class_id = ? AND user_id = ?
+        UNION
+        SELECT 1 FROM users WHERE id = ? AND class_id = ? AND role = 'student'
+      `,
+        )
+        .get(classId, studentId, studentId, classId);
+      return Boolean(row);
+    },
+
     createQueuedSubmission({ labId, studentId, code }) {
       return createSubmissionTransaction(db, { labId, studentId, code });
     },

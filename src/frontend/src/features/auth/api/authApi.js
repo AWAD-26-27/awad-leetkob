@@ -16,6 +16,10 @@ export async function changePasswordApi(currentPassword, newPassword) {
   return api.post('/api/users/change-password', { currentPassword, newPassword });
 }
 
+export async function updateProfileApi(payload) {
+  return api.put('/api/users/profile', payload);
+}
+
 export async function fetchUsersList() {
   return api.get('/api/users');
 }

@@ -110,12 +110,18 @@ export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusTex
         isPublished
           ? h(
               Badge,
-              { variant: 'success', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
+              {
+                variant: 'success',
+                style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' },
+              },
               '✓ Đã công bố điểm (Published)',
             )
           : h(
               Badge,
-              { variant: 'warning', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
+              {
+                variant: 'warning',
+                style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' },
+              },
               '⏳ Đang chấm & Xét duyệt',
             ),
       ),
@@ -141,7 +147,11 @@ export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusTex
           { style: { fontWeight: '700', fontSize: '14px', color: '#0f172a' } },
           '✏️ Chỉnh Sửa Bài Thực Hành (Chỉ Giảng Viên Phụ Trách Lớp)',
         ),
-        h('label', { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } }, 'Tiêu đề bài lab:'),
+        h(
+          'label',
+          { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } },
+          'Tiêu đề bài lab:',
+        ),
         h('input', {
           type: 'text',
           value: editTitle,
@@ -156,7 +166,11 @@ export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusTex
           },
           placeholder: 'Nhập tiêu đề bài lab...',
         }),
-        h('label', { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } }, 'Nội dung đề bài (Markdown):'),
+        h(
+          'label',
+          { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } },
+          'Nội dung đề bài (Markdown):',
+        ),
         h('textarea', {
           rows: 6,
           value: editStatement,
@@ -177,7 +191,12 @@ export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusTex
           { style: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' } },
           h(
             Button,
-            { type: 'button', variant: 'secondary', size: 'sm', onClick: () => setIsEditing(false) },
+            {
+              type: 'button',
+              variant: 'secondary',
+              size: 'sm',
+              onClick: () => setIsEditing(false),
+            },
             'Hủy',
           ),
           h(
@@ -227,12 +246,13 @@ export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusTex
             border: 'none',
             fontSize: '13px',
             fontWeight: activeTab === 'constraints' ? '700' : '500',
-            backgroundColor: activeTab === 'constraints' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+            backgroundColor:
+              activeTab === 'constraints' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
             color: activeTab === 'constraints' ? '#2563eb' : '#64748b',
             cursor: 'pointer',
           },
         },
-        `⚡ Ràng buộc kỹ thuật (${lab.constraints ? lab.constraints.length : 0})`,
+        `⚡ Ràng buộc bài tập (${lab.constraints ? lab.constraints.length : 0})`,
       ),
       (lab.tests || lab.testCases) &&
         h(

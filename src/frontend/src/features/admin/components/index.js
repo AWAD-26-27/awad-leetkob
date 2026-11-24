@@ -3,5 +3,8 @@ export * from './ClassItemRow.js';
 export * from './ClassManagementCard.js';
 export * from './UserCreationCard.js';
 export * from './UserDirectoryTable.js';
+export * from './UserClassesModal.js';
+export * from './UserDirectoryFilterBar.js';
+export * from './UserTableRow.js';
 export * from './AdminDashboard.js';
 export * from './AdminIcons.js';

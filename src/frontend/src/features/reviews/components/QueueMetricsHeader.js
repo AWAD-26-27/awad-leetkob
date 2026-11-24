@@ -84,11 +84,7 @@ export function QueueMetricsHeader({ queue, pendingCount, violationsCount, revie
           borderRadius: 'var(--radius-md)',
         },
       },
-      h(
-        'div',
-        { style: { fontSize: '11px', color: '#065f46', fontWeight: '600' } },
-        '✅ ĐÃ DUYỆT',
-      ),
+      h('div', { style: { fontSize: '11px', color: '#065f46', fontWeight: '600' } }, '✅ ĐÃ DUYỆT'),
       h(
         'div',
         { style: { fontSize: '20px', fontWeight: '800', color: '#059669', marginTop: '2px' } },

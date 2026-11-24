@@ -76,11 +76,7 @@ test('Admin Role: can create teacher and student accounts, create class, and ass
   assertProblem(rDup, 409, 'conflict');
 
   // 5. Non-admin cannot create class -> 403
-  assertProblem(
-    await app.as('ta_a').post('/api/classes', { name: 'Class C' }),
-    403,
-    'forbidden',
-  );
+  assertProblem(await app.as('ta_a').post('/api/classes', { name: 'Class C' }), 403, 'forbidden');
 
   // 6. Admin creates new class -> 201
   const rClass = await app.as('admin').post('/api/classes', { name: 'Class C' });
@@ -167,7 +163,10 @@ test('Teacher Role: can assign and remove student from their own class; other te
   // 6. Verify student is no longer in Class 1
   const rAfter = await app.as('ta_a').get('/api/classes/1/students');
   assert.equal(rAfter.status, 200);
-  assert.equal(rAfter.body.items.some((s) => s.id === studentId), false);
+  assert.equal(
+    rAfter.body.items.some((s) => s.id === studentId),
+    false,
+  );
 });
 
 test('Classroom API Enhancements: GET /api/classes/:classId and GET /api/my-class', async () => {
@@ -199,12 +198,19 @@ test('Classroom API Enhancements: GET /api/classes/:classId and GET /api/my-clas
   assert.equal(rReassign.status, 200);
 
   const rClass1Students = await app.as('admin').get('/api/classes/1/students');
-  assert.equal(rClass1Students.body.items.some((s) => s.id === 4), false, 'student_1 must not be in Class 1');
+  assert.equal(
+    rClass1Students.body.items.some((s) => s.id === 4),
+    false,
+    'student_1 must not be in Class 1',
+  );
 
   const rClass2Students = await app.as('admin').get('/api/classes/2/students');
-  assert.equal(rClass2Students.body.items.some((s) => s.id === 4), true, 'student_1 must now be in Class 2');
+  assert.equal(
+    rClass2Students.body.items.some((s) => s.id === 4),
+    true,
+    'student_1 must now be in Class 2',
+  );
 
   const rStudent1Updated = await app.as('student_1').get('/api/my-class');
   assert.equal(rStudent1Updated.body.class.name, 'Class B');
 });
-

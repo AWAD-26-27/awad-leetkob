@@ -17,10 +17,12 @@ export function LabSelector({ labs = [], activeLabId, onSelectLab }) {
     h(
       'span',
       { style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' } },
-      'Select Lab:',
+      'Chọn bài Lab:',
     ),
     labs.map((lab) => {
       const isActive = lab.id === activeLabId;
+      const labTitle = lab.title || 'Untitled';
+      const label = /^lab\s*\d+/i.test(labTitle) ? labTitle : `Lab ${lab.id}: ${labTitle}`;
       return h(
         'button',
         {
@@ -34,7 +36,7 @@ export function LabSelector({ labs = [], activeLabId, onSelectLab }) {
             fontSize: '12px',
           },
         },
-        `Lab ${lab.id}: ${lab.title || 'Untitled'}`,
+        label,
       );
     }),
   );

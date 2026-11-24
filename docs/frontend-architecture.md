@@ -32,7 +32,9 @@ src/frontend/
 │   │   ├── classes/        # Class management, student rosters, enrollment
 │   │   ├── labs/           # Lab creation, lab selection, lab criteria
 │   │   ├── reviews/        # TA review queue, constraint evaluation, publish
-│   │   └── submissions/    # Student code editor, submission stepper, submission history
+│   │   ├── submissions/    # Student code editor, submission stepper, submission history
+│   │   ├── student/        # Student portal: multi-class directory, workspace 3 tabs, labs & submission history
+│   │   └── teacher/        # Teacher portal: multi-class dashboard, workspace 4 tabs, lab gradebook
 │   ├── hooks/              # Global, domain-agnostic custom React hooks (e.g. useDebounce)
 │   ├── lib/                # Pre-configured library clients and runtime wrappers
 │   │   ├── apiClient.js    # Centralized HTTP client (fetch wrapper with RFC 7807 handling)
@@ -183,6 +185,19 @@ Use this checklist to bring remaining features into compliance with this standar
   - [x] Add `features/labs/components/index.js`.
   - [x] Added inline lab editing (title, statement) via `PUT /api/labs/:labId` in `LabDetailsCard.js` for assigned teachers.
   - [x] Decompose `CreateLabForm.js` and `LabDetailsCard.js` under 200 lines limit.
+- [x] **`features/teacher/`**:
+  - [x] Create Teacher Portal feature module (`features/teacher/api/`, `components/`, `index.js`).
+  - [x] Multi-class management dashboard (`TeacherDashboard.js`): displays class summary cards, student & lab counts.
+  - [x] Class workspace container (`TeacherClassWorkspace.js`) with 4 distinct tabs:
+    - [x] `ClassOverviewTab.js`: General class information, teacher name, statistics.
+    - [x] `ClassAnnouncementsTab.js`: Class announcement creation form and timeline list.
+    - [x] `TeacherClassRosterTab.js`: Read-only student roster table with search filter; strictly no add/delete student controls.
+    - [x] `TeacherClassLabsTab.js`: Class labs list with create lab button and navigation to lab detail page.
+  - [x] Dedicated Lab Detail Page (`TeacherLabDetailPage.js`):
+    - [x] `LabClassGradesTable.js`: Displays all students in class, submission count, status, score, AST deductions, and review status.
+    - [x] `LabStatementAndRules.js`: Statement markdown, test cases, and AST constraints.
+    - [x] Integrated `ReviewQueueTable`: Confirm/overturn AST decisions and publish grades gate.
+  - [x] Strictly adhere to component file length limit: all files under 200 lines.
 - [x] **`src/routes/`**:
   - [x] Create `src/routes/AppRoutes.js`, `GuestLandingCard.js`, and remove inline route switching from `App.js`.
-  - [x] Role-based routing: Admin views dedicated SaaS Admin Dashboard; Teachers view Class Labs; unassigned teachers receive an alert callout banner directing them to contact Admin.
+  - [x] Role-based routing: Admin views dedicated SaaS Admin Dashboard; Teachers view Teacher Portal (`TeacherPortal.js`); Students view classroom banner with announcements and published labs.

@@ -20,9 +20,9 @@ export function ConstraintInputs({ constraints, onAdd, onRemove, onUpdate }) {
         {
           style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' },
         },
-        'LLM Constraint Rules',
+        'Quy tắc ràng buộc (Constraint Rules)',
       ),
-      h(Button, { variant: 'ghost', size: 'sm', onClick: onAdd }, '+ Add Constraint'),
+      h(Button, { variant: 'ghost', size: 'sm', onClick: onAdd }, '+ Thêm ràng buộc'),
     ),
     constraints.map((c, idx) =>
       h(
@@ -38,18 +38,18 @@ export function ConstraintInputs({ constraints, onAdd, onRemove, onUpdate }) {
           },
         },
         h(Input, {
-          placeholder: 'Code (C1)',
+          placeholder: 'Mã (C1)',
           value: c.code,
           onChange: (e) => onUpdate(idx, 'code', e.target.value),
         }),
         h(Input, {
-          placeholder: 'Constraint description (e.g. No recursion)',
+          placeholder: 'Mô tả quy tắc (vd: Không dùng recursion)',
           value: c.text,
           onChange: (e) => onUpdate(idx, 'text', e.target.value),
         }),
         h(Input, {
           type: 'number',
-          placeholder: 'Penalty pts',
+          placeholder: 'Điểm trừ',
           value: c.deduction,
           onChange: (e) => onUpdate(idx, 'deduction', e.target.value),
         }),

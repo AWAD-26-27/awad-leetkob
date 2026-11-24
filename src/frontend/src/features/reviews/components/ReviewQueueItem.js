@@ -10,10 +10,8 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
     item.evidence &&
     (Array.isArray(item.evidence) ? item.evidence.length > 0 : Boolean(item.evidence));
   const confirmBtnName = `Confirm ${studentName}`;
-  const isConfirming =
-    processingId === `${item.id}-${item.constraintCode || 'legacy'}-confirm`;
-  const isOverturning =
-    processingId === `${item.id}-${item.constraintCode || 'legacy'}-overturn`;
+  const isConfirming = processingId === `${item.id}-${item.constraintCode || 'legacy'}-confirm`;
+  const isOverturning = processingId === `${item.id}-${item.constraintCode || 'legacy'}-overturn`;
 
   return h(
     'li',
@@ -71,7 +69,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
           : h(
               Badge,
               { variant: 'warning', style: { fontWeight: '700', padding: '5px 12px' } },
-              '⏳ Pending Review',
+              '⏳ Chờ xét duyệt',
             ),
       ),
     ),
@@ -106,7 +104,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
               justifyContent: 'space-between',
             },
           },
-          h('span', null, '📍 Bằng chứng vi phạm phát hiện (AST / LLM Evidence):'),
+          h('span', null, '📍 Bằng chứng vi phạm phát hiện:'),
           h(
             'span',
             {
@@ -118,7 +116,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
                 borderRadius: '4px',
               },
             },
-            'Confidence: High',
+            'Phát hiện tự động',
           ),
         ),
         Array.isArray(item.evidence)
@@ -181,7 +179,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
               padding: '6px 16px',
             },
           },
-          'Overturn (False Positive)',
+          'Bỏ qua vi phạm (Overturn)',
         ),
       ),
   );

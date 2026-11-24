@@ -7,7 +7,8 @@ import { randomUUID } from 'node:crypto';
 export function applySecurityHeaders(req, res) {
   // 1. Request ID Tracing (Correlation ID)
   const incomingId = req.headers['x-request-id'];
-  const reqId = typeof incomingId === 'string' && incomingId.trim() ? incomingId.trim() : randomUUID();
+  const reqId =
+    typeof incomingId === 'string' && incomingId.trim() ? incomingId.trim() : randomUUID();
   req.id = reqId;
   res.setHeader('X-Request-Id', reqId);
 

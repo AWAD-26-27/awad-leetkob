@@ -71,7 +71,14 @@ export function LandingFeatures() {
           ),
           h(
             'h4',
-            { style: { fontSize: '16.5px', fontWeight: '700', color: '#0f172a', margin: '0 0 8px 0' } },
+            {
+              style: {
+                fontSize: '16.5px',
+                fontWeight: '700',
+                color: '#0f172a',
+                margin: '0 0 8px 0',
+              },
+            },
             f.title,
           ),
           h(

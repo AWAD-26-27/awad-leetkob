@@ -9,7 +9,11 @@ beforeEach(async () => {
 afterEach(() => app?.close());
 
 function assertProblem(res, expectedStatus, expectedSlug) {
-  assert.equal(res.status, expectedStatus, `Expected HTTP status ${expectedStatus}, got ${res.status}`);
+  assert.equal(
+    res.status,
+    expectedStatus,
+    `Expected HTTP status ${expectedStatus}, got ${res.status}`,
+  );
   assert.match(
     res.type || '',
     /^application\/problem\+json/,
@@ -53,7 +57,10 @@ test('Workflow 9: Multi-Attempt Submission Lifecycle, Progress Tracking & Gradin
   const id1 = sub1.body.id;
 
   // Simulate worker: WA recorded, constraints are NOT evaluated
-  app.db.prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'WA', judge_detail = ? WHERE id = ?")
+  app.db
+    .prepare(
+      "UPDATE submissions SET status = 'judged', judge_verdict = 'WA', judge_detail = ? WHERE id = ?",
+    )
     .run(JSON.stringify({ testIndex: 1 }), id1);
 
   // Queue must have 0 items because non-Accepted submissions do not invoke constraint checking
@@ -68,20 +75,32 @@ test('Workflow 9: Multi-Attempt Submission Lifecycle, Progress Tracking & Gradin
   assert.equal(sub2.status, 202);
   const id2 = sub2.body.id;
 
-  const cRows = app.db.prepare('SELECT id, code FROM constraints WHERE lab_id = ? ORDER BY id').all(labId);
+  const cRows = app.db
+    .prepare('SELECT id, code FROM constraints WHERE lab_id = ? ORDER BY id')
+    .all(labId);
   const c1Id = cRows.find((c) => c.code === 'c1-no-rec').id;
   const c2Id = cRows.find((c) => c.code === 'c2-space-opt').id;
 
   app.db.exec('BEGIN IMMEDIATE');
-  app.db.prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?").run(id2);
-  app.db.prepare(`
+  app.db
+    .prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?")
+    .run(id2);
+  app.db
+    .prepare(
+      `
     INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
     VALUES (?, ?, 'violation', '[{"line":1,"code":"solve(i-1, j-1)"}]', 'hard_rule', 'pending')
-  `).run(id2, c1Id);
-  app.db.prepare(`
+  `,
+    )
+    .run(id2, c1Id);
+  app.db
+    .prepare(
+      `
     INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
     VALUES (?, ?, 'unsure', '[{"line":1,"reason":"complex memory access"}]', 'model', 'pending')
-  `).run(id2, c2Id);
+  `,
+    )
+    .run(id2, c2Id);
   app.db.exec('COMMIT');
 
   // Review queue now shows 2 pending items for Attempt 2
@@ -101,9 +120,11 @@ test('Workflow 9: Multi-Attempt Submission Lifecycle, Progress Tracking & Gradin
   assert.equal(revC1.status, 200);
   assert.equal(revC1.body.reviewStatus, 'confirmed');
 
-  const revC2 = await app.as('ta_a').post(`/api/submissions/${id2}/constraints/c2-space-opt/review`, {
-    decision: 'overturn',
-  });
+  const revC2 = await app
+    .as('ta_a')
+    .post(`/api/submissions/${id2}/constraints/c2-space-opt/review`, {
+      decision: 'overturn',
+    });
   assert.equal(revC2.status, 200);
   assert.equal(revC2.body.reviewStatus, 'overturned');
 
@@ -115,15 +136,25 @@ test('Workflow 9: Multi-Attempt Submission Lifecycle, Progress Tracking & Gradin
   const id3 = sub3.body.id;
 
   app.db.exec('BEGIN IMMEDIATE');
-  app.db.prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?").run(id3);
-  app.db.prepare(`
+  app.db
+    .prepare("UPDATE submissions SET status = 'judged', judge_verdict = 'Accepted' WHERE id = ?")
+    .run(id3);
+  app.db
+    .prepare(
+      `
     INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
     VALUES (?, ?, 'pass', '[]', 'hard_rule', 'pending')
-  `).run(id3, c1Id);
-  app.db.prepare(`
+  `,
+    )
+    .run(id3, c1Id);
+  app.db
+    .prepare(
+      `
     INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
     VALUES (?, ?, 'pass', '[]', 'hard_rule', 'pending')
-  `).run(id3, c2Id);
+  `,
+    )
+    .run(id3, c2Id);
   app.db.exec('COMMIT');
 
   // 9.5 Student queries their submission history: should see all 3 submissions
@@ -156,54 +187,74 @@ test('Workflow 10: Granular Constraint Adjudication, Overturning & Invalid Revie
   });
   const labId = labRes.body.id;
 
-  const subRes = await app.as('student_1').post(`/api/labs/${labId}/submissions`, { code: 'int x = 0;' });
+  const subRes = await app
+    .as('student_1')
+    .post(`/api/labs/${labId}/submissions`, { code: 'int x = 0;' });
   const subId = subRes.body.id;
 
   const cRow = app.db.prepare('SELECT id FROM constraints WHERE lab_id = ?').get(labId);
-  app.db.prepare(`
+  app.db
+    .prepare(
+      `
     INSERT INTO constraint_verdicts (submission_id, constraint_id, verdict, evidence_json, source, review_status)
     VALUES (?, ?, 'violation', '[]', 'hard_rule', 'pending')
-  `).run(subId, cRow.id);
+  `,
+    )
+    .run(subId, cRow.id);
 
   // 10.1 Invalid decision value returns 400 Problem Details
-  const badDecision = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
-    decision: 'invalid-verdict-choice',
-  });
+  const badDecision = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
+      decision: 'invalid-verdict-choice',
+    });
   assertProblem(badDecision, 400, 'invalid-body');
 
   // 10.2 Missing decision field returns 400 Problem Details
-  const missingDecision = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {});
+  const missingDecision = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {});
   assertProblem(missingDecision, 400, 'invalid-body');
 
   // 10.3 Non-existent constraint code returns 404 Problem Details
-  const ghostConstraint = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c999-ghost/review`, {
-    decision: 'confirm',
-  });
+  const ghostConstraint = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c999-ghost/review`, {
+      decision: 'confirm',
+    });
   assertProblem(ghostConstraint, 404, 'not-found');
 
   // 10.4 Student attempts to review submission -> 403 Forbidden
-  const studentAttempt = await app.as('student_1').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
-    decision: 'overturn',
-  });
+  const studentAttempt = await app
+    .as('student_1')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
+      decision: 'overturn',
+    });
   assertProblem(studentAttempt, 403, 'forbidden');
 
   // 10.5 TA of Class 2 (Bob) attempts to review Class 1 submission -> 404 Not Found (cross-tenant concealment)
-  const crossTaAttempt = await app.as('ta_b').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
-    decision: 'confirm',
-  });
+  const crossTaAttempt = await app
+    .as('ta_b')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
+      decision: 'confirm',
+    });
   assertProblem(crossTaAttempt, 404, 'not-found');
 
   // 10.6 Valid adjudication: TA confirms constraint
-  const confirmRes = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
-    decision: 'confirm',
-  });
+  const confirmRes = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
+      decision: 'confirm',
+    });
   assert.equal(confirmRes.status, 200);
   assert.equal(confirmRes.body.reviewStatus, 'confirmed');
 
   // 10.7 Re-review: TA can change mind from confirm to overturn
-  const overturnRes = await app.as('ta_a').post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
-    decision: 'overturn',
-  });
+  const overturnRes = await app
+    .as('ta_a')
+    .post(`/api/submissions/${subId}/constraints/c1-unique/review`, {
+      decision: 'overturn',
+    });
   assert.equal(overturnRes.status, 200);
   assert.equal(overturnRes.body.reviewStatus, 'overturned');
 
@@ -257,7 +308,11 @@ test('Workflow 11: Cross-Student Privacy, Tenant Isolation & Source Code Protect
   const stu1View = await app.as('student_1').get(`/api/submissions/${sub1Id}`);
   assert.equal(stu1View.status, 200);
   assert.equal(stu1View.body.id, sub1Id);
-  assert.equal(stu1View.body.sourceCode, undefined, 'Student projection must never echo raw sourceCode');
+  assert.equal(
+    stu1View.body.sourceCode,
+    undefined,
+    'Student projection must never echo raw sourceCode',
+  );
   assert.equal(stu1View.body.studentId, undefined, 'Student projection must omit studentId');
 
   // 11.4 Staff (TA Alice) inspects Student 1's submission: receives full operational metadata
@@ -358,9 +413,7 @@ Cho một dãy số nguyên gồm $N$ phần tử:
       { input: '5\n10 22 9 33 21', expectedOutput: '3' },
       { input: '6\n50 3 10 7 40 80', expectedOutput: '4' },
     ],
-    constraints: [
-      { code: 'c1-no-std-sort', text: 'Nghiêm cấm dùng std::sort', deduction: 25 },
-    ],
+    constraints: [{ code: 'c1-no-std-sort', text: 'Nghiêm cấm dùng std::sort', deduction: 25 }],
   });
   assert.equal(labRes.status, 201);
   const labId = labRes.body.id;

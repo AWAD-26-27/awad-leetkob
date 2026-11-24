@@ -297,4 +297,252 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Contract tests: 58/58 contract tests pass (`node --test test/contract/*.test.js`).
   - Browser verification: Dùng browser subagent kiểm tra trực tiếp giao diện Admin tại `http://localhost:3007` qua 2 tab "Quản lý Lớp học" và "Quản lý Người dùng". Kết quả giao diện hiển thị sắc nét, chuyên nghiệp, không còn emoji hay "AI vibe". Ảnh chụp màn hình: `admin_tab_classes.png` và `admin_tab_users.png`.
 
+## 2026-11-24 — Security & Auth Engineer — Khắc phục lỗi rò rỉ thông tin Quick Login, Tái thiết kế cơ chế Remembered Accounts
+
+- Context:
+  - Khắc phục lỗ hổng bảo mật đặc biệt nghiêm trọng: Trước đây giao diện Quick Login và Landing Page hiển thị hardcoded tài khoản kèm mật khẩu `password123`, tự động điền mật khẩu vào form đăng nhập, tiềm ẩn nguy cơ rò rỉ thông tin và vi phạm nguyên tắc bảo mật.
+  - Người dùng yêu cầu:
+    1. Quick Login chỉ hiển thị các tài khoản đã từng đăng nhập bằng mật khẩu trên trình duyệt này.
+    2. Khi ấn vào tài khoản đã lưu, hệ thống đăng nhập thẳng trực tiếp vào phiên làm việc (1-click direct login).
+    3. Server và client tuyệt đối không gửi hoặc render username và password ra màn hình.
+- Changed:
+  - **Bảo mật Backend:**
+    - Trong `src/backend/features/auth/auth-controller.js`: Xóa bỏ trường `token` khỏi câu truy vấn `qAllUsers` (`SELECT id, username, name, role, class_id as classId FROM users`). Đảm bảo API `GET /api/users` không làm lộ session token của người dùng khác.
+  - **Cơ chế lưu trữ tài khoản an toàn (Client-Side Remembered Accounts):**
+    - Tạo module `src/frontend/src/features/auth/utils/savedAccounts.js`: Cung cấp các hàm `getSavedAccounts()`, `saveAccount()`, `removeSavedAccount()` lưu trữ trên `localStorage`.
+    - Quy tắc bất biến: Chỉ lưu metadata định danh công khai (`id`, `username`, `name`, `role`, `classId`) và session `token` sau khi xác thực mật khẩu thành công. Tuyệt đối **không bao giờ lưu mật khẩu** hay hash mật khẩu.
+    - Cập nhật `src/frontend/src/providers/AuthProvider.js`: Bổ sung `savedAccounts`, `loginWithSavedAccount(account)`, `forgetSavedAccount(username)`. Sau mỗi lần gọi `login(username, password)` thành công, tài khoản tự động được lưu vào danh sách tài khoản đã xác thực trên thiết bị.
+  - **Tái thiết kế giao diện Quick Login:**
+    - Cập nhật `src/frontend/src/features/auth/components/LoginDemoQuickFill.js`:
+      - Khi chưa có tài khoản nào đăng nhập trên thiết bị: Hiển thị thông báo sạch, không còn bất kỳ nút bấm tài khoản demo hay mật khẩu hardcoded nào.
+      - Khi đã có tài khoản từng đăng nhập: Hiển thị danh sách tài khoản kèm avatar, tên, username, vai trò, nút "Đăng nhập →" trực tiếp và nút `✕` để xóa tài khoản khỏi thiết bị.
+    - Cập nhật `src/frontend/src/features/auth/components/LoginModal.js`:
+      - Xóa bỏ placeholder lộ mật khẩu (`placeholder: 'Nhập mật khẩu...'`).
+      - Xóa bỏ hàm điền mật khẩu tự động `handleQuickFill`.
+      - Khi ấn vào tài khoản đã lưu, gọi ngay `loginWithSavedAccount(account)` để đăng nhập thẳng vào hệ thống mà không cần điền hay submit form.
+    - Cập nhật `src/frontend/src/routes/LandingDemoAccounts.js` và `LandingPage.js`:
+      - Nếu đã có tài khoản lưu: Hiển thị danh sách "Tài khoản đã đăng nhập gần đây" kèm nút đăng nhập tức thì.
+      - Nếu chưa có tài khoản: Hiển thị giới thiệu 3 vai trò hệ thống kèm nút "Đăng nhập tài khoản" mở modal đăng nhập chuẩn.
+- Validation:
+  - Bổ sung bộ kiểm thử `test/unit/saved-accounts-security.test.js`: Kiểm tra việc lưu trữ không bao giờ chứa mật khẩu, kiểm tra render UI không chứa `password123`, và kiểm tra `GET /api/users` không lộ token.
+  - Chạy toàn bộ test suites: **63 unit tests pass**, **58 contract tests pass** (**121 automated tests passing 100%**).
+  - Kiểm thử trực tiếp trên trình duyệt bằng browser subagent tại `http://localhost:3007`:
+    - Form đăng nhập ban đầu hoàn toàn sạch credentials: `quick_login_empty.png`.
+    - Sau khi đăng nhập bằng mật khẩu và đăng xuất, tài khoản Admin xuất hiện trong danh sách "Tài khoản đã đăng nhập trên thiết bị này": `quick_login_saved.png`.
+    - Nhấn "Đăng nhập →" giúp đăng nhập thẳng vào hệ thống tức thì: Video ghi hình kiểm chứng tại `quick_login_verification.mp4`.
+
+
+
+
+## 2026-11-24 — Full-Stack Engineer — Tái thiết kế Cổng Giảng Viên: Quản lý Đa Lớp, Không Gian Lớp Học 4 Thẻ & Trang Chi Tiết Bảng Điểm Từng Bài Lab
+
+- Context:
+  - Cập nhật trải nghiệm và nghiệp vụ Giảng viên theo yêu cầu:
+    1. Một giảng viên có thể phụ trách và quản lý nhiều lớp học đồng thời.
+    2. Giảng viên ấn vào một lớp học để truy cập không gian làm việc chuyên sâu với 4 thẻ:
+       - **Thông tin chung (Overview):** Tên lớp, mã lớp, danh sách giảng viên, thống kê sĩ số, số labs, số thông báo.
+       - **Thông báo (Announcements):** Giảng viên có quyền đăng thông báo cho lớp; sinh viên và giảng viên có thể đọc bảng tin này.
+       - **Danh sách lớp (Class Roster):** Giảng viên được xem danh sách sinh viên lớp mình (họ tên, username, mã SV, tìm kiếm, sĩ số), **tuyệt đối không được thêm/xóa sinh viên** khỏi lớp (việc phân công sinh viên do Admin quản trị tập trung).
+       - **Danh sách bài thực hành (Labs):** Tạo mới bài lab cho lớp, quản lý các bài lab và ấn vào từng bài lab để mở trang chi tiết riêng.
+    3. Mỗi bài lab có trang riêng biệt (Dedicated Lab Detail Page):
+       - Hiển thị đề bài Markdown, bộ test cases, các ràng buộc kỹ thuật AST kèm mức điểm trừ.
+       - Hỗ trợ chỉnh sửa đề bài và công bố điểm (Publish grades gate).
+       - **Bảng điểm và danh sách nộp bài toàn lớp (Class Grade Roster):** Liệt kê toàn bộ sinh viên trong lớp, số lần nộp bài (`số lần submit`), trạng thái mới nhất (`Accepted`, `WA`, `Chưa nộp`...), điểm số tương ứng (thang 10 trừ điểm khấu trừ AST), chi tiết vi phạm AST và trạng thái duyệt.
+       - Hàng đợi xét duyệt AST (Review Queue) để đối soát vi phạm, Confirm hoặc Overturn.
+- Changed:
+  - **Cơ sở dữ liệu & Backend:**
+    - `src/backend/db.js`: Bổ sung bảng `class_announcements (id, class_id, author_id, title, content, created_at)`.
+    - `src/backend/features/classes/classes-model.js`:
+      - Cập nhật `assignTeacher`: Không xóa các phân công lớp khác trong `class_staff`, cho phép 1 giảng viên phụ trách nhiều lớp.
+      - Cập nhật `removeTeacher`: Chỉ xóa quan hệ `(class_id, user_id)` cụ thể trong `class_staff`.
+      - Bổ sung `getTeacherClasses(teacherId)`: Lấy toàn bộ lớp học của giảng viên kèm sĩ số sinh viên, số lượng lab và số lượng thông báo.
+      - Bổ sung `listAnnouncements(classId)` và `createAnnouncement(classId, authorId, title, content)`.
+    - `src/backend/features/classes/classes-controller.js` & `router.js`:
+      - Thêm route `GET /api/my-classes`: Trả về danh sách lớp học của giảng viên.
+      - Thêm route `GET /api/classes/:classId/announcements` & `POST /api/classes/:classId/announcements`.
+      - Cập nhật kiểm tra phân quyền `isStaff` cho `getClassLabs`, `listStudents`, `getById`.
+    - `src/backend/features/labs/lab-controller.js` & `router.js`:
+      - Thêm route `GET /api/labs/:labId/grades`: Tính toán và trả về toàn bộ sinh viên trong lớp, số lần submit, trạng thái mới nhất, điểm số tự động, các khoản trừ điểm AST và trạng thái duyệt.
+      - Cập nhật `createLab`: Hỗ trợ truyền `classId` trong body để giảng viên tạo bài lab vào đúng lớp được chọn.
+    - `src/backend/middleware/auth.js` & `isolation.js`:
+      - Cập nhật `createAuthMiddleware`: Gán mảng `user.classIds` cho giảng viên chứa tất cả các lớp được phân công.
+      - Cập nhật `isStaff(user, classId)`: Xác nhận quyền hợp lệ nếu `classId` nằm trong `user.classIds`.
+  - **Giao diện Frontend (`src/frontend/src/features/teacher/`):**
+    - Module hóa hoàn toàn, tuân thủ nghiêm ngặt giới hạn dưới 200 dòng/file:
+      - `api/teacherApi.js` (22 lines): API client cho Teacher.
+      - `components/TeacherDashboard.js` (163 lines): Cổng danh mục lớp học của giảng viên.
+      - `components/TeacherClassWorkspace.js` (160 lines): Khung không gian lớp học với 4 thẻ.
+      - `components/ClassOverviewTab.js` (118 lines): Thẻ thông tin chung & thống kê.
+      - `components/ClassAnnouncementsTab.js` (113 lines): Thẻ bảng tin thông báo & form đăng thông báo.
+      - `components/TeacherClassRosterTab.js` (152 lines): Thẻ danh sách sinh viên chỉ xem (read-only), không có nút thêm/xóa.
+      - `components/TeacherClassLabsTab.js` (134 lines): Thẻ danh sách bài lab kèm nút tạo lab và điều hướng vào trang riêng.
+      - `components/TeacherLabDetailPage.js` (192 lines): Trang riêng của bài lab gồm Bảng điểm, Đề bài & Hàng đợi review AST.
+      - `components/LabClassGradesTable.js` (152 lines): Bảng điểm toàn bộ sinh viên trong lớp kèm số lần submit.
+      - `components/LabStatementAndRules.js` (120 lines): Trình bày đề bài, test cases và ràng buộc kỹ thuật AST.
+      - `components/TeacherPortal.js` (61 lines): Điều phối trạng thái chuyển view giữa Dashboard -> Workspace -> Lab Detail.
+    - `src/frontend/src/routes/AppRoutes.js` (122 lines): Định tuyến tự động `isTeacher` vào `TeacherPortal`.
+    - `src/frontend/src/features/classes/components/StudentClassroomBanner.js` (176 lines): Bổ sung hiển thị thông báo cho sinh viên trong lớp học.
+- Validation:
+  - Bổ sung bộ kiểm thử `test/unit/teacher-portal-multiclass.test.js`: Kiểm tra giảng viên đa lớp, đăng và đọc thông báo, tính điểm và thống kê số lần nộp bài của sinh viên trong lab.
+  - Chạy toàn bộ automated test suite: **64 unit tests** + **58 contract tests** (**122 tests total passing 100%**).
+
+## 2026-11-24 — Nam Anh — Nâng cấp Loading Spinner và Hoàn thiện Giao diện Sinh viên
+
+- Tool/model: Codex / Gemini assistant.
+- Task:
+  - Bổ sung hệ thống `Spinner` với hiệu ứng animation xoay mượt mà, hỗ trợ đa dạng kích thước (`size`), nhãn chú thích (`label`), chế độ căn giữa (`center`) hoặc hiển thị trong dòng (`inline`).
+  - Thay thế toàn bộ các trạng thái tải dạng text thô (`'Đang tải danh sách...'`, `'Đang tải bảng điểm...'`) trên toàn bộ website bằng component `Spinner`.
+  - Tích hợp Spinner vào `StudentClassroomBanner`, `ClassItemRow`, `AdminDirectoryTab`, `TeacherDashboard`, `TeacherClassWorkspace`, `TeacherClassRosterTab`, `TeacherClassLabsTab`, `LabClassGradesTable`.
+  - Khắc phục hiển thị nhãn bài lab trong `LabSelector` tránh lặp tiền tố (`Lab X: Lab Y`).
+  - Đồng bộ hoá logic phân giải `classId` trong `auth-controller.js` với `auth.js` (`COALESCE` với `enrollments` và `class_staff`).
+- Validation:
+  - Kiểm thử giao diện bằng Browser Subagent trên `http://localhost:3007`:
+    - Đăng nhập `student_1`: Banner lớp hiển thị chính xác `Class A`, Giảng viên `ta_a (@ta_a)`, Sĩ số `1 Sinh viên`, danh sách bạn học và thông báo từ giảng viên.
+    - Tiêu đề Lab hiển thị chuẩn xác `Lab 1: Merge sort`.
+  - Toàn bộ automated test suite: 122/122 tests passed (64 unit tests + 58 contract tests).
+
+## 2026-11-24 — Nam Anh — Sửa lỗi nhấp nháy (Flickering) khi nhập liệu trong Login Modal Dialog
+
+- Tool/model: Codex / Gemini assistant.
+- Task:
+  - Khắc phục triệt để lỗi rung nháy (flickering), nhảy giao diện (layout shift) và mất focus khi gõ phím vào ô nhập liệu trong hộp thoại đăng nhập (`LoginModal`).
+- Nguyên nhân gốc rễ (Root Cause):
+  - Trước đây, `LoginModal` sử dụng `useState` cho `username` và `password`. Mỗi ký tự gõ vào gọi `setState`, kích hoạt `scheduleUpdate()` và `updateDOM()`.
+  - Bộ render VDOM tự chế (`lib/react.js`) xoá trắng `container.innerHTML = ''` và dựng lại toàn bộ DOM trên mỗi render.
+  - Hộp thoại đăng nhập mang class `.animate-fade-in` (`keyframes fadeIn: opacity 0 -> 1; translateY(6px -> 0)`). Khi DOM bị dựng lại trên mỗi phím bấm, hiệu ứng fade-in & dịch chuyển 6px liên tục bị kích hoạt lại từ đầu, gây hiện tượng nhấp nháy, giật rung mạnh.
+  - Ngoài ra, `Input.js` trước đây luôn ép cứng `value: value ?? ''`, khiến các input không truyền `value` (uncontrolled) bị gán đè chuỗi rỗng trên mỗi lần render; và `updateDOM` chỉ phục hồi focus khi input có `id`.
+- Giải pháp triển khai:
+  - `src/frontend/src/features/auth/components/LoginModal.js`:
+    - Chuyển `usernameRef` và `passwordRef` sang sử dụng `useRef` và cơ chế input không kiểm soát (uncontrolled inputs). Khi gõ phím, giá trị được lưu trực tiếp vào ref/DOM mà không gọi `setState` hay kích hoạt re-render DOM toàn trang.
+    - Loại bỏ class `.animate-fade-in` trên khung modal để tránh re-trigger animation.
+    - Bổ sung `id` và `name` tường minh (`login-username`, `login-password`) cho các input.
+    - `handleSubmit` đọc giá trị an toàn từ ref, form event hoặc DOM fallback.
+  - `src/frontend/src/components/ui/Input.js`:
+    - Chỉ gán thuộc tính `value` cho thẻ `<input>` khi `value !== undefined`, cho phép hỗ trợ hoàn hảo cả 2 chế độ controlled và uncontrolled input (sử dụng `defaultValue`).
+  - `src/frontend/src/lib/react.js`:
+    - Nâng cấp `updateDOM`: Khi active element là `INPUT`/`TEXTAREA` chưa có `id`, tự động truy vấn tìm lại phần tử dựa trên thuộc tính `name` hoặc `placeholder` để bảo toàn vị trí con trỏ (selection range) và focus.
+- Validation:
+  - Chạy toàn bộ 122 automated tests: 64 unit tests + 58 contract tests đều PASS 100%.
+  - Kiểm thử trực quan trên Browser: Gõ ký tự mượt mà, không giật rung, không mất focus, đăng nhập thành công.
+
+## 2026-11-24 — Nam Anh — Nâng cấp Giao diện Sinh viên (Student Portal): Đa Lớp Học, Không Gian Lớp 3 Tab và Lịch Sử Nộp Bài Không Lưu Code
+
+- Tool/model: Codex / Gemini assistant.
+- Task:
+  - Tái cấu trúc toàn diện giao diện sinh viên:
+    - Mỗi sinh viên có danh sách các lớp đã tham gia (`StudentDashboard`).
+    - Khi sinh viên chọn một lớp, đi vào Không gian lớp học (`StudentClassWorkspace`) với 3 tabs:
+      1. `🏫 Thông Tin & Thông Báo`: Xem thông tin lớp, giảng viên phụ trách, sĩ số, danh sách bạn cùng lớp (read-only) và bảng tin thông báo.
+      2. `🧪 Bài Lab & Làm Bài`: Danh sách bài lab đã phát hành, xem đề bài, ràng buộc, làm bài trong trình soạn thảo code C++20 và nộp bài trực tiếp.
+      3. `📊 Lịch Sử Nộp Bài`: Tra cứu lịch sử nộp bài của sinh viên trong lớp học này. Tuyệt đối **không lưu hoặc hiển thị lại source code**, chỉ lưu và hiển thị kết quả biên dịch/judge (`judgeVerdict`), trạng thái (`status`), điểm số (`grade`) và thời gian nộp (`createdAt`).
+- Backend:
+  - `src/backend/features/classes/classes-model.js`:
+    - Bổ sung `getStudentClasses(studentId)`: Trả về toàn bộ lớp sinh viên tham gia kèm giảng viên, sĩ số, số bài lab và số thông báo.
+    - Bổ sung `isStudentEnrolled(classId, studentId)`: Kiểm tra quyền tham gia lớp của sinh viên.
+    - Bổ sung `getStudentSubmissionsByClass(classId, studentId)`: Truy vấn toàn bộ bài nộp của sinh viên trong lớp, tính điểm tự động trừ điểm vi phạm khi lab đã công bố, và tuyệt đối **không chọn `source_code`**.
+  - `src/backend/features/classes/classes-controller.js`:
+    - Cập nhật `myClasses`: Sinh viên gọi `GET /api/my-classes` nhận danh sách lớp đã tham gia.
+    - Bổ sung route `GET /api/classes/:classId/my-submissions`.
+    - Cập nhật `getById`, `getClassLabs`, `getAnnouncements`, `listStudents`: Cho phép sinh viên đã tham gia lớp truy cập thông tin của lớp mình.
+  - `src/backend/features/submissions/`:
+    - Cho phép sinh viên nộp bài và tra cứu bài nộp vào bất kỳ lớp nào mà sinh viên đã ghi danh.
+- Frontend:
+  - Tổ chức module `src/frontend/src/features/student/` tuân thủ nghiêm ngặt giới hạn dưới 200 dòng/file:
+    - `api/studentApi.js` (21 lines)
+    - `components/StudentDashboard.js` (151 lines)
+    - `components/StudentClassOverviewTab.js` (110 lines)
+    - `components/StudentClassLabsTab.js` (86 lines)
+    - `components/StudentClassSubmissionsTab.js` (129 lines)
+    - `components/StudentClassWorkspace.js` (150 lines)
+    - `components/StudentPortal.js` (45 lines)
+  - Cập nhật `src/frontend/src/routes/AppRoutes.js` (142 lines) điều hướng tự động sang `StudentPortal`.
+- Validation:
+  - Bổ sung bộ kiểm thử `test/unit/student-portal.test.js` kiểm tra toàn bộ luồng nghiệp vụ Backend.
+  - Chạy toàn bộ automated test suite: **65 unit tests** + **58 contract tests** (**123 tests total passing 100%**).
+  - Kiểm thử trực quan và chụp ảnh màn hình xác nhận toàn bộ 3 tabs và luồng nộp bài qua Browser subagent.
+
+## 2026-11-24 — Tường Huỳnh — Nâng cấp Header Dropdown Menu & Profile/Settings Modal
+
+- Tool/model: Antigravity / Gemini assistant.
+- Task:
+  - Nâng cấp menu dropdown ở header người dùng bao gồm 4 mục chuẩn hóa:
+    1. `👤 Hồ sơ cá nhân (Profile)`: Mở hộp thoại xem thông tin định danh người dùng.
+    2. `⚙️ Cài đặt tài khoản (Setting)`: Chỉnh sửa ảnh đại diện (avatar), họ và tên, số điện thoại và đổi mật khẩu.
+    3. `📖 Tài liệu API (Docs)`: Mở giao diện tài liệu tương tác Scalar API Reference (`/api/docs`).
+    4. `🚪 Đăng xuất (Logout)`: Đăng xuất an toàn khỏi phiên làm việc.
+- Backend:
+  - `src/backend/features/auth/auth-controller.js`: Cập nhật `updateProfile` hỗ trợ cập nhật linh hoạt `name`, `avatar`, `phone`, và đổi mật khẩu xác thực hash.
+- Frontend:
+  - Tách và tối ưu `src/frontend/src/features/auth/components/UserDropdownMenu.js` rút gọn từ 207 dòng xuống còn **125 dòng**, tuân thủ 100% giới hạn `< 200 dòng`.
+  - Bổ sung tab `UserSettingsTab.js` và form `UserSettingsPasswordForm.js`.
+- Validation:
+  - Bổ sung `test/unit/profile-and-settings.test.js` đạt 100% pass.
+
+## 2026-11-24 — Tường Huỳnh — Loại bỏ các yếu tố AI phô trương, Tái cấu trúc Cổng Sinh viên & Giảng viên chuẩn Academic
+
+- Tool/model: Antigravity / Gemini assistant.
+- Task:
+  - Loại bỏ hoàn toàn các yếu tố "AI vibe" phô trương, gaming hoặc phi học thuật trên toàn bộ trang sinh viên và giảng viên:
+    - Loại bỏ template code mẫu cheat `dynamicArray` hardcoded trong `CodeEditorWindow.js`, thay bằng starter code C++20 chuẩn mực.
+    - Gỡ bỏ traffic light dots (`🔴 🟡 🟢`), biểu tượng sấm chớp (`⚡`), nút "Nạp code mẫu" (`💡`) và tên lửa (`🚀`) khỏi `EditorHeader.js`.
+    - Đơn giản hóa `SubmissionStepper.js`: thay dải màu cầu vồng (rainbow gradient) và icon gaming bằng thanh tiến trình xanh học thuật chuyên nghiệp.
+    - Làm sạch `StudentDashboard.js`, `StudentClassCard.js`, `StudentClassWorkspace.js`, `StudentClassOverviewTab.js`, `StudentClassSubmissionsTab.js`, `StudentClassroomBanner.js`. Toàn bộ 100% component tuân thủ nghiêm ngặt trần 200 dòng code.
+- Validation:
+  - `npm run check`: 81 unit tests + 58 contract tests pass 100%.
+
+## 2026-11-24 — Tường Huỳnh — Bảng Quản trị Người dùng: Cột "Lớp học đã tham gia" chuyển ra cuối cùng kèm Modal "Xem thêm"
+
+- Tool/model: Antigravity / Gemini assistant.
+- Task:
+  - Vì người dùng (sinh viên, giảng viên) có thể tham gia nhiều lớp học, hiển thị toàn bộ danh sách lớp trực tiếp trên bảng chính gây vỡ layout và khó đọc.
+  - Chuyển cột "Lớp học đã tham gia" ra vị trí cột cuối cùng của bảng quản lý người dùng.
+  - Thay thế giá trị văn bản thô bằng nút bấm **"Xem thêm"**.
+  - Khi click "Xem thêm", mở hộp thoại Modal (`UserClassesModal.js`) hiển thị bảng chi tiết các lớp học người dùng đã tham gia bao gồm: Tên lớp, Vai trò, Ngày tham gia, và Trạng thái.
+- Implementation:
+  - Backend `src/backend/features/auth/auth-controller.js`: Bổ sung `qAdminClasses`, `qTeacherClasses`, `qStudentClasses` vào API `GET /api/users` để trả về danh sách `classes: [...]` kèm thông tin lớp đã tham gia mà không làm lộ session token hay hash mật khẩu.
+  - Frontend:
+    - `userClassesHelper.js` (41 dòng): Xử lý trích xuất danh sách lớp an toàn.
+    - `UserClassesTable.js` (136 dòng): Bảng hiển thị danh sách lớp trong modal.
+    - `UserClassesModal.js` (144 dòng): Dialog modal hiển thị khi bấm "Xem thêm".
+    - `UserDirectoryTable.js` (187 dòng): Đưa cột "Lớp học đã tham gia" về cột cuối cùng.
+    - `UserTableRow.js` (122 dòng) & `UserDirectoryFilterBar.js` (122 dòng).
+- Validation:
+  - Bổ sung `test/unit/admin-user-classes-modal.test.js` kiểm tra helper, rendering modal, empty state và cấu trúc cột cuối cùng.
+
+## 2026-11-24 — Tường Huỳnh — Kiểm thử Vòng đời Toàn diện (Full Class Lifecycle) & Khắc phục Lỗi Chấm điểm
+
+- Tool/model: Antigravity / Gemini assistant.
+- Task:
+  - Tự động hóa và kiểm chứng toàn bộ vòng đời lớp học:
+    1. Admin tạo lớp mới, tạo 1 giảng viên (`gv_nguyen`) và 3 sinh viên (`sv_an`, `sv_binh`, `sv_cuong`), gán vào lớp.
+    2. Giảng viên tạo 3 bài lab kèm bộ test case và ràng buộc AST cấm hàm.
+    3. 3 sinh viên nộp 9 bài giải thuật C++20 (trong đó `sv_binh` nộp code vi phạm `std::min` ở Lab 1).
+    4. Worker offline phân tích cú pháp AST Tree-sitter và phát hiện đúng vi phạm.
+    5. Giảng viên kiểm tra Review Queue, duyệt vi phạm của `sv_binh`, kiểm tra bảng điểm (sv_an: 10, sv_binh: 8, sv_cuong: 10), công bố điểm và sinh viên xem kết quả.
+- Lỗi phát hiện & Khắc phục:
+  - **Lỗi 1 (classes-model.js):** Hàm `getStudentSubmissionsByClass` truy vấn bảng `constraint_results` cũ (bảng không tồn tại) và tính thang 100. Đã sửa sang truy vấn `constraint_verdicts cv` và chuẩn hóa thang điểm 10 (`Math.max(0, 10 - deductionTotal)`) đồng bộ với `src/grades.js`.
+  - **Lỗi 2 (AST Ban List):** Regex trong `src/checker/index.js` yêu cầu tên hàm cấm phải bọc trong dấu backtick (ví dụ: `` `std::min` ``) để đưa vào AST ban list chính xác. Đã chuẩn hóa mô tả ràng buộc có backtick.
+- Validation:
+  - Tạo mới `test/unit/comprehensive-class-lifecycle.test.js` kiểm tra 100% thành công.
+  - Tổng số test: **82 unit tests + 58 contract tests = 140 tests passed 100%**.
+
+## 2026-11-24 — Browser Subagent — Kiểm chứng Trực quan Toàn diện trên Trình duyệt Thực tế (Chrome Live UI)
+
+- Tool/model: Chrome DevTools Protocol / Browser Subagent qua Antigravity.
+- Task:
+  - Chạy kịch bản người dùng thực tế trên trình duyệt Chrome tại `http://localhost:3007`:
+    1. Đăng nhập Admin $\rightarrow$ Tạo lớp "Lớp C++ Nâng Cao K23" (ID #3) $\rightarrow$ Tạo 1 GV (`gv_nguyen`), 3 SV (`sv_an`, `sv_binh`, `sv_cuong`) $\rightarrow$ Kiểm tra modal "Xem thêm" lớp học.
+    2. Đăng nhập `gv_nguyen` $\rightarrow$ Tạo 3 bài lab: Lab 1 (Basic Two Sum, cấm `std::min`), Lab 2 (Dynamic Vector, cấm `std::sort`), Lab 3 (Binary Tree, cấm `std::reverse`).
+    3. Đăng nhập lần lượt `sv_an`, `sv_binh`, `sv_cuong` $\rightarrow$ Nộp bài C++ vào cả 3 lab (`sv_binh` nộp code gọi `std::min` ở Lab 1).
+    4. Đăng nhập lại `gv_nguyen` $\rightarrow$ Kiểm tra Hàng đợi duyệt vi phạm, kiểm tra Bảng điểm lớp $\rightarrow$ Bấm nút "Publish grades" thành công.
+    5. Đăng nhập lại `sv_binh` $\rightarrow$ Xác nhận trạng thái "Đã công bố điểm".
+- Bằng chứng nghiệm thu (Artifacts):
+  - Ảnh chụp Admin Portal: `e2e_browser_admin_portal.png`
+  - Ảnh chụp 3 bài Lab Giảng viên: `e2e_browser_teacher_labs.png`
+  - Ảnh chụp Sinh viên nộp bài: `e2e_browser_student_view.png`
+  - Ảnh chụp Hàng đợi duyệt Review Queue: `e2e_browser_review_queue.png`
+  - Ảnh chụp Bảng điểm Grade Roster: `e2e_browser_grade_roster.png`
+  - Ảnh chụp Trạng thái Công bố điểm: `e2e_browser_published.png`
+  - Ảnh chụp Điểm sinh viên sau công bố: `e2e_browser_student_published.png`
+  - Video quay màn hình toàn bộ phiên kiểm thử: `e2e_full_workflow_walkthrough.mp4`
 

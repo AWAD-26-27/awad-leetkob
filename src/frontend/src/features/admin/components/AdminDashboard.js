@@ -54,7 +54,8 @@ export function AdminDashboard() {
             fontSize: '14px',
             fontWeight: activeAdminTab === 'classes' ? '600' : '500',
             border: 'none',
-            borderBottom: activeAdminTab === 'classes' ? '2px solid #2563eb' : '2px solid transparent',
+            borderBottom:
+              activeAdminTab === 'classes' ? '2px solid #2563eb' : '2px solid transparent',
             backgroundColor: 'transparent',
             color: activeAdminTab === 'classes' ? '#2563eb' : '#64748b',
             cursor: 'pointer',
@@ -92,7 +93,8 @@ export function AdminDashboard() {
             fontSize: '14px',
             fontWeight: activeAdminTab === 'users' ? '600' : '500',
             border: 'none',
-            borderBottom: activeAdminTab === 'users' ? '2px solid #2563eb' : '2px solid transparent',
+            borderBottom:
+              activeAdminTab === 'users' ? '2px solid #2563eb' : '2px solid transparent',
             backgroundColor: 'transparent',
             color: activeAdminTab === 'users' ? '#2563eb' : '#64748b',
             cursor: 'pointer',

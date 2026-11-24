@@ -51,11 +51,15 @@ src/frontend/
     │   │   ├── hooks/      # Polling hooks (useAutoPollSubmission)
     │   │   ├── types/      # JSDoc submission definitions
     │   │   └── index.js    # Public gateway
-    │   └── reviews/        # TA review queue, constraint evaluation, publish
-    │       ├── api/        # Review API endpoints
-    │       ├── components/ # ReviewQueueTable, ReviewQueueItem, metrics
-    │       ├── hooks/      # Queue hooks (useReviewQueue)
-    │       ├── types/      # JSDoc review definitions
+    │   ├── reviews/        # TA review queue, constraint evaluation, publish
+    │   │   ├── api/        # Review API endpoints
+    │   │   ├── components/ # ReviewQueueTable, ReviewQueueItem, metrics
+    │   │   ├── hooks/      # Queue hooks (useReviewQueue)
+    │   │   ├── types/      # JSDoc review definitions
+    │   │   └── index.js    # Public gateway
+    │   └── teacher/        # Teacher Portal: multi-class dashboard, 4-tab workspace, lab gradebook
+    │       ├── api/        # Teacher API endpoints (my-classes, announcements, grades)
+    │       ├── components/ # Dashboard, Workspace, 4 Tabs, LabDetailPage, GradesTable (< 200 lines)
     │       └── index.js    # Public gateway
     ├── hooks/              # Global custom React hooks (e.g. useDebounce)
     ├── lib/                # Pre-configured library wrappers (apiClient, react runtime)

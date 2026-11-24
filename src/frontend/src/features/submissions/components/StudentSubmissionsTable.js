@@ -3,50 +3,37 @@ import { Card } from '../../../components/ui/index.js';
 import { EmptyState } from '../../../components/feedback/index.js';
 import { SubmissionRow } from './SubmissionRow.js';
 
-/**
- * Strictly enforces Student FAQ Privacy Invariant:
- * Prior to publishing, only { id, status, judgeVerdict } are displayed.
- * Constraint verdicts, deductions, and LLM evidence snippets are NEVER shown.
- */
 export function StudentSubmissionsTable({ submissions = [] }) {
   if (submissions.length === 0) {
     return h(
       Card,
-      { title: 'Lịch Sử Bài Nộp (Your Submissions)' },
+      { title: 'Lịch sử bài nộp' },
       h(EmptyState, {
         title: 'Chưa có bài nộp nào',
         description:
-          'Nhập code C++ vào cửa sổ soạn thảo bên trên và bấm "Nộp bài giải" để bắt đầu chấm tự động.',
+          'Soạn thảo mã nguồn C++ ở cửa sổ bên trên và bấm "Nộp bài" để bắt đầu nộp bài.',
       }),
     );
   }
 
   return h(
     Card,
-    { title: 'Lịch Sử Bài Nộp (Your Submissions)' },
+    { title: 'Lịch sử bài nộp' },
     h(
       'div',
       {
         style: {
           padding: '10px 14px',
-          backgroundColor: 'rgba(59, 130, 246, 0.05)',
-          border: '1px solid rgba(59, 130, 246, 0.2)',
-          borderRadius: 'var(--radius-md)',
+          backgroundColor: '#f8fafc',
+          border: '1px solid #e2e8f0',
+          borderRadius: '6px',
           fontSize: '12px',
-          color: '#1e40af',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
+          color: '#334155',
           marginBottom: '14px',
         },
       },
-      h('span', { style: { fontSize: '15px' } }, '🔒'),
-      h(
-        'span',
-        null,
-        h('strong', null, 'Chính sách bảo mật (FAQ): '),
-        'Bằng chứng vi phạm AST và chi tiết điểm trừ được giữ bí mật cho đến khi Trợ giảng chính thức công bố điểm.',
-      ),
+      h('strong', null, 'Chính sách công bố điểm: '),
+      'Chi tiết kết quả và điểm số chính thức sẽ hiển thị sau khi Giảng viên hoàn tất xét duyệt.',
     ),
     h(
       'div',
@@ -68,20 +55,18 @@ export function StudentSubmissionsTable({ submissions = [] }) {
             'tr',
             {
               style: {
-                borderBottom: '1.5px solid var(--color-border)',
-                backgroundColor: 'var(--color-bg)',
-                color: 'var(--color-text-secondary)',
-                fontWeight: '700',
+                borderBottom: '1.5px solid #e2e8f0',
+                backgroundColor: '#f8fafc',
+                color: '#475569',
+                fontWeight: '600',
                 fontSize: '12px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.04em',
               },
             },
-            h('th', { style: { padding: '12px 14px' } }, 'Mã bài (#ID)'),
-            h('th', { style: { padding: '12px 14px' } }, 'Trạng thái'),
-            h('th', { style: { padding: '12px 14px' } }, 'Kết quả Judge'),
-            h('th', { style: { padding: '12px 14px' } }, 'Thời gian nộp'),
-            h('th', { style: { padding: '12px 14px' } }, 'Đánh giá Ràng buộc'),
+            h('th', { style: { padding: '10px 12px' } }, 'Mã bài'),
+            h('th', { style: { padding: '10px 12px' } }, 'Trạng thái'),
+            h('th', { style: { padding: '10px 12px' } }, 'Kết quả chấm'),
+            h('th', { style: { padding: '10px 12px' } }, 'Thời gian nộp'),
+            h('th', { style: { padding: '10px 12px' } }, 'Đánh giá & Điểm số'),
           ),
         ),
         h(

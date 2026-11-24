@@ -81,7 +81,10 @@ export function createApp(db) {
     req.query = Object.fromEntries(url.searchParams.entries());
 
     // 0.1 Health check probe
-    if (['GET', 'HEAD'].includes(req.method) && (pathname === '/api/health' || pathname === '/healthz' || pathname === '/health')) {
+    if (
+      ['GET', 'HEAD'].includes(req.method) &&
+      (pathname === '/api/health' || pathname === '/healthz' || pathname === '/health')
+    ) {
       const health = {
         status: 'healthy',
         timestamp: new Date().toISOString(),

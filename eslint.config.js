@@ -13,6 +13,8 @@ export default [
         clearTimeout: 'readonly',
         FormData: 'readonly',
         document: 'readonly',
+        window: 'readonly',
+        Buffer: 'readonly',
       },
     },
     rules: { 'no-unused-vars': 'error', 'no-undef': 'error' },

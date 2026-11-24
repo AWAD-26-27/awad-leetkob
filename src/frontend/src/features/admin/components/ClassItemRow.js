@@ -1,5 +1,5 @@
 import { h, useState, useEffect } from '../../../lib/react.js';
-import { Button } from '../../../components/ui/index.js';
+import { Button, Spinner } from '../../../components/ui/index.js';
 import { fetchClassStudents } from '../api/index.js';
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon, RefreshIcon } from './AdminIcons.js';
 
@@ -199,11 +199,7 @@ export function ClassItemRow({
             flexWrap: 'wrap',
           },
         },
-        h(
-          'span',
-          { style: { color: '#64748b', fontWeight: '500' } },
-          'Giảng viên phụ trách:',
-        ),
+        h('span', { style: { color: '#64748b', fontWeight: '500' } }, 'Giảng viên phụ trách:'),
         assignedTeacher
           ? h(
               'div',
@@ -324,7 +320,15 @@ export function ClassItemRow({
           },
           h(
             'div',
-            { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' } },
+            {
+              style: {
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '6px',
+              },
+            },
             h(
               'span',
               { style: { fontSize: '12.5px', fontWeight: '600', color: '#0f172a' } },
@@ -405,7 +409,12 @@ export function ClassItemRow({
                 size: 'sm',
                 variant: 'primary',
                 disabled: assigningStudent || !selectedStudentToAdd,
-                style: { display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px' },
+                style: {
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '12px',
+                },
               },
               h(PlusIcon, { size: 12 }),
               assigningStudent ? 'Đang thêm...' : 'Thêm SV',
@@ -451,7 +460,11 @@ export function ClassItemRow({
             ),
           ),
           loadingStudents
-            ? h('div', { style: { padding: '12px', color: '#64748b', fontSize: '12px', textAlign: 'center' } }, 'Đang tải danh sách...')
+            ? h(
+                'div',
+                { style: { padding: '16px', display: 'flex', justifyContent: 'center' } },
+                h(Spinner, { inline: true, size: 16, label: 'Đang tải danh sách sinh viên...' }),
+              )
             : students.length === 0
               ? h(
                   'div',
@@ -470,7 +483,14 @@ export function ClassItemRow({
                 )
               : h(
                   'div',
-                  { style: { overflowX: 'auto', backgroundColor: '#ffffff', borderRadius: '6px', border: '1px solid #e2e8f0' } },
+                  {
+                    style: {
+                      overflowX: 'auto',
+                      backgroundColor: '#ffffff',
+                      borderRadius: '6px',
+                      border: '1px solid #e2e8f0',
+                    },
+                  },
                   h(
                     'table',
                     { style: { width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' } },
@@ -479,11 +499,26 @@ export function ClassItemRow({
                       null,
                       h(
                         'tr',
-                        { style: { backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left', color: '#64748b' } },
+                        {
+                          style: {
+                            backgroundColor: '#f8fafc',
+                            borderBottom: '1px solid #e2e8f0',
+                            textAlign: 'left',
+                            color: '#64748b',
+                          },
+                        },
                         h('th', { style: { padding: '8px 12px', fontWeight: '600' } }, 'ID'),
                         h('th', { style: { padding: '8px 12px', fontWeight: '600' } }, 'Họ và tên'),
-                        h('th', { style: { padding: '8px 12px', fontWeight: '600' } }, 'Tên đăng nhập'),
-                        h('th', { style: { padding: '8px 12px', fontWeight: '600', textAlign: 'right' } }, 'Thao tác'),
+                        h(
+                          'th',
+                          { style: { padding: '8px 12px', fontWeight: '600' } },
+                          'Tên đăng nhập',
+                        ),
+                        h(
+                          'th',
+                          { style: { padding: '8px 12px', fontWeight: '600', textAlign: 'right' } },
+                          'Thao tác',
+                        ),
                       ),
                     ),
                     h(
@@ -493,9 +528,27 @@ export function ClassItemRow({
                         h(
                           'tr',
                           { key: stu.id, style: { borderBottom: '1px solid #f1f5f9' } },
-                          h('td', { style: { padding: '8px 12px', color: '#64748b' } }, `#${stu.id}`),
-                          h('td', { style: { padding: '8px 12px', color: '#0f172a', fontWeight: '500' } }, stu.name),
-                          h('td', { style: { padding: '8px 12px', fontFamily: 'monospace', color: '#475569' } }, `@${stu.username}`),
+                          h(
+                            'td',
+                            { style: { padding: '8px 12px', color: '#64748b' } },
+                            `#${stu.id}`,
+                          ),
+                          h(
+                            'td',
+                            { style: { padding: '8px 12px', color: '#0f172a', fontWeight: '500' } },
+                            stu.name,
+                          ),
+                          h(
+                            'td',
+                            {
+                              style: {
+                                padding: '8px 12px',
+                                fontFamily: 'monospace',
+                                color: '#475569',
+                              },
+                            },
+                            `@${stu.username}`,
+                          ),
                           h(
                             'td',
                             { style: { padding: '8px 12px', textAlign: 'right' } },

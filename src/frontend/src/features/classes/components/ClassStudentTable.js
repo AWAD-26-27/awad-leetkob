@@ -20,8 +20,16 @@ export function ClassStudentTable({ classStudents = [], onRemove }) {
         },
       },
       h('span', { style: { fontSize: '24px' } }, '📭'),
-      h('div', { style: { fontWeight: '600', color: '#475569' } }, 'Chưa có sinh viên nào trong lớp này'),
-      h('div', { style: { fontSize: '12px', color: '#94a3b8' } }, 'Sử dụng form trên để thêm sinh viên vào danh sách lớp.'),
+      h(
+        'div',
+        { style: { fontWeight: '600', color: '#475569' } },
+        'Chưa có sinh viên nào trong lớp này',
+      ),
+      h(
+        'div',
+        { style: { fontSize: '12px', color: '#94a3b8' } },
+        'Sử dụng form trên để thêm sinh viên vào danh sách lớp.',
+      ),
     );
   }
 
@@ -36,11 +44,42 @@ export function ClassStudentTable({ classStudents = [], onRemove }) {
         null,
         h(
           'tr',
-          { style: { backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' } },
-          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px', width: '70px' } }, 'ID'),
-          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px' } }, 'Họ và Tên'),
-          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px' } }, 'Username'),
-          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px', textAlign: 'right' } }, 'Thao tác'),
+          {
+            style: {
+              backgroundColor: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0',
+              textAlign: 'left',
+            },
+          },
+          h(
+            'th',
+            {
+              style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px', width: '70px' },
+            },
+            'ID',
+          ),
+          h(
+            'th',
+            { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px' } },
+            'Họ và Tên',
+          ),
+          h(
+            'th',
+            { style: { padding: '10px 14px', color: '#64748b', fontSize: '12.5px' } },
+            'Username',
+          ),
+          h(
+            'th',
+            {
+              style: {
+                padding: '10px 14px',
+                color: '#64748b',
+                fontSize: '12.5px',
+                textAlign: 'right',
+              },
+            },
+            'Thao tác',
+          ),
         ),
       ),
       h(
@@ -58,7 +97,14 @@ export function ClassStudentTable({ classStudents = [], onRemove }) {
             },
             h(
               'td',
-              { style: { padding: '11px 14px', fontWeight: '600', color: '#64748b', fontFamily: 'monospace' } },
+              {
+                style: {
+                  padding: '11px 14px',
+                  fontWeight: '600',
+                  color: '#64748b',
+                  fontFamily: 'monospace',
+                },
+              },
               `#${stu.id}`,
             ),
             h(
@@ -86,12 +132,23 @@ export function ClassStudentTable({ classStudents = [], onRemove }) {
                   },
                   stu.name ? stu.name.charAt(0).toUpperCase() : 'S',
                 ),
-                h('span', { style: { fontWeight: '600', color: '#0f172a' } }, stu.name || 'Sinh viên'),
+                h(
+                  'span',
+                  { style: { fontWeight: '600', color: '#0f172a' } },
+                  stu.name || 'Sinh viên',
+                ),
               ),
             ),
             h(
               'td',
-              { style: { padding: '11px 14px', fontFamily: 'monospace', color: '#475569', fontSize: '13px' } },
+              {
+                style: {
+                  padding: '11px 14px',
+                  fontFamily: 'monospace',
+                  color: '#475569',
+                  fontSize: '13px',
+                },
+              },
               `@${stu.username}`,
             ),
             h(

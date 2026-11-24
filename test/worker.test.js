@@ -55,46 +55,50 @@ function startWorker(path) {
   };
 }
 
-test('stopped worker recovers queued and expired jobs exactly once through Docker and checker', { skip: !dockerAvailable && 'Docker daemon is not running' }, async (t) => {
-  const { db, path, enqueue, verdicts } = workerDatabase(t);
-  const first = startWorker(path);
-  try {
-    await first.ready();
-  } finally {
-    await first.stop();
-  }
+test(
+  'stopped worker recovers queued and expired jobs exactly once through Docker and checker',
+  { skip: !dockerAvailable && 'Docker daemon is not running' },
+  async (t) => {
+    const { db, path, enqueue, verdicts } = workerDatabase(t);
+    const first = startWorker(path);
+    try {
+      await first.ready();
+    } finally {
+      await first.stop();
+    }
 
-  const queued = enqueue();
-  const expired = enqueue();
-  const state = db.prepare('SELECT status, judge_verdict FROM submissions WHERE id = ?');
-  assert.deepEqual({ ...state.get(queued) }, { status: 'queued', judge_verdict: null });
-  assert.deepEqual(verdicts(queued), []);
-  db.prepare("UPDATE submissions SET status = 'judging' WHERE id = ?").run(expired);
-  db.prepare(
-    `
+    const queued = enqueue();
+    const expired = enqueue();
+    const state = db.prepare('SELECT status, judge_verdict FROM submissions WHERE id = ?');
+    assert.deepEqual({ ...state.get(queued) }, { status: 'queued', judge_verdict: null });
+    assert.deepEqual(verdicts(queued), []);
+    db.prepare("UPDATE submissions SET status = 'judging' WHERE id = ?").run(expired);
+    db.prepare(
+      `
     UPDATE jobs SET status = 'processing', attempts = 1, locked_at = '2000-01-01T00:00:00Z'
     WHERE submission_id = ?
   `,
-  ).run(expired);
+    ).run(expired);
 
-  const second = startWorker(path);
-  try {
-    await second.ready();
-    await until(
-      () => state.get(expired).status === 'judged',
-      () => 'Timed out waiting for judging',
-    );
-    const job = db.prepare('SELECT status, attempts FROM jobs WHERE submission_id = ?');
-    for (const [id, attempts] of [
-      [queued, 1],
-      [expired, 2],
-    ]) {
-      assert.deepEqual({ ...state.get(id) }, { status: 'judged', judge_verdict: 'Accepted' });
-      assert.deepEqual({ ...job.get(id) }, { status: 'done', attempts });
-      assert.deepEqual(verdicts(id), checkerFixture.expected.verdicts);
+    const second = startWorker(path);
+    try {
+      await second.ready();
+      await until(
+        () => state.get(expired).status === 'judged',
+        () => 'Timed out waiting for judging',
+      );
+      const job = db.prepare('SELECT status, attempts FROM jobs WHERE submission_id = ?');
+      for (const [id, attempts] of [
+        [queued, 1],
+        [expired, 2],
+      ]) {
+        assert.deepEqual({ ...state.get(id) }, { status: 'judged', judge_verdict: 'Accepted' });
+        assert.deepEqual({ ...job.get(id) }, { status: 'done', attempts });
+        assert.deepEqual(verdicts(id), checkerFixture.expected.verdicts);
+      }
+      assert.equal(db.prepare('SELECT count(*) AS count FROM llm_call_logs').get().count, 0);
+    } finally {
+      await second.stop();
     }
-    assert.equal(db.prepare('SELECT count(*) AS count FROM llm_call_logs').get().count, 0);
-  } finally {
-    await second.stop();
-  }
-});
+  },
+);

@@ -121,4 +121,3 @@ export const REVIEW_STATUS_CONFIG = {
 export const POLL_INTERVAL_MS = 3000;
 export const TOAST_DURATION_MS = 3500;
 export const MIN_EDITOR_LINES = 14;
-

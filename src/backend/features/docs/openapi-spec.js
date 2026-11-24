@@ -21,7 +21,8 @@ export const openApiSpec = {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT or Token',
-        description: 'Bearer token xác thực người dùng (Ví dụ: "tok-admin", "tok-ta-a", "tok-student-1").',
+        description:
+          'Bearer token xác thực người dùng (Ví dụ: "tok-admin", "tok-ta-a", "tok-student-1").',
       },
     },
     schemas: {
@@ -59,6 +60,8 @@ export const openApiSpec = {
           name: { type: 'string', example: 'ta_a' },
           role: { type: 'string', enum: ['admin', 'ta', 'student'], example: 'ta' },
           classId: { type: 'integer', nullable: true, example: 1 },
+          avatar: { type: 'string', nullable: true, example: 'https://example.com/avatar.png' },
+          phone: { type: 'string', nullable: true, example: '0901234567' },
         },
       },
       Lab: {
@@ -105,7 +108,11 @@ export const openApiSpec = {
           },
           source: { type: 'string', example: 'hard_rule' },
           deduction: { type: 'number', example: 2 },
-          reviewStatus: { type: 'string', enum: ['pending', 'confirmed', 'overturned'], example: 'pending' },
+          reviewStatus: {
+            type: 'string',
+            enum: ['pending', 'confirmed', 'overturned'],
+            example: 'pending',
+          },
         },
       },
     },
@@ -116,7 +123,7 @@ export const openApiSpec = {
         summary: 'Kiểm tra sức khỏe hệ thống (Health Check Probe)',
         tags: ['System'],
         responses: {
-          '200': {
+          200: {
             description: 'Hệ thống hoạt động bình thường',
             content: {
               'application/json': {
@@ -161,7 +168,7 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Đăng nhập thành công',
             content: {
               'application/json': {
@@ -175,9 +182,13 @@ export const openApiSpec = {
               },
             },
           },
-          '401': {
+          401: {
             description: 'Thông tin đăng nhập không hợp lệ',
-            content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/ProblemDetails' } } },
+            content: {
+              'application/problem+json': {
+                schema: { $ref: '#/components/schemas/ProblemDetails' },
+              },
+            },
           },
         },
       },
@@ -188,7 +199,7 @@ export const openApiSpec = {
         tags: ['Auth'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': {
+          200: {
             description: 'Đăng xuất thành công',
             content: {
               'application/json': {
@@ -208,12 +219,58 @@ export const openApiSpec = {
         tags: ['Auth'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': {
+          200: {
             description: 'Thông tin tài khoản',
             content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
           },
-          '401': {
-            content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/ProblemDetails' } } },
+          401: {
+            content: {
+              'application/problem+json': {
+                schema: { $ref: '#/components/schemas/ProblemDetails' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/api/users/profile': {
+      put: {
+        summary: 'Cập nhật thông tin hồ sơ và cài đặt tài khoản',
+        tags: ['Auth'],
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  name: { type: 'string', example: 'Nguyễn Văn A' },
+                  avatar: {
+                    type: 'string',
+                    nullable: true,
+                    example: 'https://example.com/avatar.png',
+                  },
+                  phone: { type: 'string', nullable: true, example: '0901234567' },
+                  currentPassword: { type: 'string' },
+                  newPassword: { type: 'string' },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Cập nhật thông tin thành công',
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/User' } } },
+          },
+          400: {
+            description: 'Dữ liệu không hợp lệ',
+            content: {
+              'application/problem+json': {
+                schema: { $ref: '#/components/schemas/ProblemDetails' },
+              },
+            },
           },
         },
       },
@@ -239,19 +296,25 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': {
+          200: {
             description: 'Đổi mật khẩu thành công',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  properties: { message: { type: 'string', example: 'Password changed successfully' } },
+                  properties: {
+                    message: { type: 'string', example: 'Password changed successfully' },
+                  },
                 },
               },
             },
           },
-          '400': {
-            content: { 'application/problem+json': { schema: { $ref: '#/components/schemas/ProblemDetails' } } },
+          400: {
+            content: {
+              'application/problem+json': {
+                schema: { $ref: '#/components/schemas/ProblemDetails' },
+              },
+            },
           },
         },
       },
@@ -262,7 +325,7 @@ export const openApiSpec = {
         tags: ['Users & Admin'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': {
+          200: {
             description: 'Danh sách người dùng',
             content: {
               'application/json': {
@@ -275,7 +338,7 @@ export const openApiSpec = {
               },
             },
           },
-          '403': { description: 'Chỉ Admin mới có quyền truy cập' },
+          403: { description: 'Chỉ Admin mới có quyền truy cập' },
         },
       },
       post: {
@@ -301,10 +364,10 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '201': { description: 'Tài khoản được tạo thành công' },
-          '400': { description: 'Dữ liệu không hợp lệ' },
-          '403': { description: 'Không có quyền' },
-          '409': { description: 'Username đã tồn tại' },
+          201: { description: 'Tài khoản được tạo thành công' },
+          400: { description: 'Dữ liệu không hợp lệ' },
+          403: { description: 'Không có quyền' },
+          409: { description: 'Username đã tồn tại' },
         },
       },
     },
@@ -314,7 +377,7 @@ export const openApiSpec = {
         tags: ['Classes'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': { description: 'Danh sách lớp học' },
+          200: { description: 'Danh sách lớp học' },
         },
       },
       post: {
@@ -334,9 +397,9 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '201': { description: 'Lớp học được tạo thành công' },
-          '403': { description: 'Chỉ Admin có quyền' },
-          '409': { description: 'Tên lớp học đã tồn tại' },
+          201: { description: 'Lớp học được tạo thành công' },
+          403: { description: 'Chỉ Admin có quyền' },
+          409: { description: 'Tên lớp học đã tồn tại' },
         },
       },
     },
@@ -347,8 +410,8 @@ export const openApiSpec = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'classId', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
-          '200': { description: 'Thông tin chi tiết lớp học' },
-          '404': { description: 'Không tìm thấy lớp học' },
+          200: { description: 'Thông tin chi tiết lớp học' },
+          404: { description: 'Không tìm thấy lớp học' },
         },
       },
     },
@@ -371,10 +434,10 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': { description: 'Chỉ định giảng viên thành công' },
-          '400': { description: 'Dữ liệu không hợp lệ' },
-          '403': { description: 'Chỉ Admin có quyền' },
-          '404': { description: 'Lớp học hoặc giảng viên không tồn tại' },
+          200: { description: 'Chỉ định giảng viên thành công' },
+          400: { description: 'Dữ liệu không hợp lệ' },
+          403: { description: 'Chỉ Admin có quyền' },
+          404: { description: 'Lớp học hoặc giảng viên không tồn tại' },
         },
       },
     },
@@ -388,9 +451,9 @@ export const openApiSpec = {
           { name: 'teacherId', in: 'path', required: true, schema: { type: 'integer' } },
         ],
         responses: {
-          '200': { description: 'Gỡ bỏ giảng viên thành công' },
-          '403': { description: 'Chỉ Admin có quyền' },
-          '404': { description: 'Lớp học hoặc giảng viên không tồn tại' },
+          200: { description: 'Gỡ bỏ giảng viên thành công' },
+          403: { description: 'Chỉ Admin có quyền' },
+          404: { description: 'Lớp học hoặc giảng viên không tồn tại' },
         },
       },
     },
@@ -401,8 +464,8 @@ export const openApiSpec = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'classId', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
-          '200': { description: 'Danh sách sinh viên ghi danh' },
-          '403': { description: 'Giảng viên lớp khác không có quyền' },
+          200: { description: 'Danh sách sinh viên ghi danh' },
+          403: { description: 'Giảng viên lớp khác không có quyền' },
         },
       },
       post: {
@@ -423,9 +486,9 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': { description: 'Ghi danh sinh viên thành công' },
-          '400': { description: 'Dữ liệu không hợp lệ' },
-          '403': { description: 'Không có quyền' },
+          200: { description: 'Ghi danh sinh viên thành công' },
+          400: { description: 'Dữ liệu không hợp lệ' },
+          403: { description: 'Không có quyền' },
         },
       },
     },
@@ -439,8 +502,8 @@ export const openApiSpec = {
           { name: 'studentId', in: 'path', required: true, schema: { type: 'integer' } },
         ],
         responses: {
-          '200': { description: 'Hủy ghi danh thành công' },
-          '403': { description: 'Không có quyền' },
+          200: { description: 'Hủy ghi danh thành công' },
+          403: { description: 'Không có quyền' },
         },
       },
     },
@@ -450,8 +513,8 @@ export const openApiSpec = {
         tags: ['Classes'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': { description: 'Danh sách tất cả sinh viên' },
-          '403': { description: 'Sinh viên không có quyền truy cập' },
+          200: { description: 'Danh sách tất cả sinh viên' },
+          403: { description: 'Sinh viên không có quyền truy cập' },
         },
       },
     },
@@ -461,7 +524,40 @@ export const openApiSpec = {
         tags: ['Classes'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': { description: 'Thông tin lớp học của người dùng' },
+          200: { description: 'Thông tin lớp học của người dùng' },
+        },
+      },
+    },
+    '/api/my-classes': {
+      get: {
+        summary: 'Lấy danh mục các lớp học do Giảng viên phụ trách (Hỗ trợ quản lý nhiều lớp)',
+        tags: ['Classes'],
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: { description: 'Danh sách các lớp học của giảng viên' },
+          403: { description: 'Chỉ Giảng viên hoặc Quản trị viên mới có quyền' },
+        },
+      },
+    },
+    '/api/classes/{classId}/announcements': {
+      get: {
+        summary: 'Lấy danh sách thông báo của lớp học',
+        tags: ['Classes'],
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'classId', in: 'path', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Danh sách thông báo' },
+          403: { description: 'Không có quyền truy cập lớp này' },
+        },
+      },
+      post: {
+        summary: 'Đăng thông báo mới cho sinh viên trong lớp',
+        tags: ['Classes'],
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'classId', in: 'path', required: true, schema: { type: 'integer' } }],
+        responses: {
+          201: { description: 'Đã tạo thông báo thành công' },
+          403: { description: 'Chỉ giảng viên của lớp mới có quyền đăng thông báo' },
         },
       },
     },
@@ -471,7 +567,7 @@ export const openApiSpec = {
         tags: ['Labs'],
         security: [{ bearerAuth: [] }],
         responses: {
-          '200': {
+          200: {
             content: {
               'application/json': {
                 schema: {
@@ -523,9 +619,12 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '201': { description: 'Tạo bài Lab thành công' },
-          '400': { description: 'Dữ liệu không hợp lệ (trừ điểm âm, code trùng)' },
-          '403': { description: 'Chỉ Giảng viên (TA) có lớp mới được tạo bài Lab. Admin và Sinh viên bị chặn 403.' },
+          201: { description: 'Tạo bài Lab thành công' },
+          400: { description: 'Dữ liệu không hợp lệ (trừ điểm âm, code trùng)' },
+          403: {
+            description:
+              'Chỉ Giảng viên (TA) có lớp mới được tạo bài Lab. Admin và Sinh viên bị chặn 403.',
+          },
         },
       },
     },
@@ -536,8 +635,8 @@ export const openApiSpec = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'labId', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
-          '200': { description: 'Chi tiết đề bài' },
-          '404': { description: 'Không tìm thấy hoặc thuộc lớp khác (Cách ly đa khách thuê)' },
+          200: { description: 'Chi tiết đề bài' },
+          404: { description: 'Không tìm thấy hoặc thuộc lớp khác (Cách ly đa khách thuê)' },
         },
       },
       put: {
@@ -561,10 +660,10 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': { description: 'Cập nhật đề bài Lab thành công' },
-          '400': { description: 'Thiếu tiêu đề hoặc nội dung đề bài' },
-          '403': { description: 'Không có quyền (Chỉ Giảng viên phụ trách lớp)' },
-          '404': { description: 'Không tìm thấy Lab hoặc Lab thuộc lớp khác' },
+          200: { description: 'Cập nhật đề bài Lab thành công' },
+          400: { description: 'Thiếu tiêu đề hoặc nội dung đề bài' },
+          403: { description: 'Không có quyền (Chỉ Giảng viên phụ trách lớp)' },
+          404: { description: 'Không tìm thấy Lab hoặc Lab thuộc lớp khác' },
         },
       },
     },
@@ -587,18 +686,21 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '202': {
+          202: {
             description: 'Đã nhận bài nộp và xếp hàng chấm (Atomic Queued)',
             content: {
               'application/json': {
                 schema: {
                   type: 'object',
-                  properties: { id: { type: 'integer', example: 1 }, status: { type: 'string', example: 'queued' } },
+                  properties: {
+                    id: { type: 'integer', example: 1 },
+                    status: { type: 'string', example: 'queued' },
+                  },
                 },
               },
             },
           },
-          '404': { description: 'Không tìm thấy Lab' },
+          404: { description: 'Không tìm thấy Lab' },
         },
       },
     },
@@ -607,13 +709,18 @@ export const openApiSpec = {
         summary: 'Tra cứu trạng thái bài nộp (Đảm bảo Strict Student Privacy)',
         tags: ['Submissions'],
         security: [{ bearerAuth: [] }],
-        parameters: [{ name: 'submissionId', in: 'path', required: true, schema: { type: 'integer' } }],
+        parameters: [
+          { name: 'submissionId', in: 'path', required: true, schema: { type: 'integer' } },
+        ],
         responses: {
-          '200': {
-            description: 'Trạng thái bài nộp. Với sinh viên, toàn bộ vi phạm AST bị ẩn trước publish.',
-            content: { 'application/json': { schema: { $ref: '#/components/schemas/Submission' } } },
+          200: {
+            description:
+              'Trạng thái bài nộp. Với sinh viên, toàn bộ vi phạm AST bị ẩn trước publish.',
+            content: {
+              'application/json': { schema: { $ref: '#/components/schemas/Submission' } },
+            },
           },
-          '404': { description: 'Bài nộp không tồn tại hoặc thuộc sinh viên/lớp khác' },
+          404: { description: 'Bài nộp không tồn tại hoặc thuộc sinh viên/lớp khác' },
         },
       },
     },
@@ -624,7 +731,7 @@ export const openApiSpec = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'labId', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
-          '200': {
+          200: {
             description: 'Danh sách bài nộp cần thẩm định',
             content: {
               'application/json': {
@@ -633,14 +740,17 @@ export const openApiSpec = {
                   properties: {
                     labId: { type: 'integer' },
                     publishedAt: { type: 'string', nullable: true },
-                    items: { type: 'array', items: { $ref: '#/components/schemas/ReviewQueueItem' } },
+                    items: {
+                      type: 'array',
+                      items: { $ref: '#/components/schemas/ReviewQueueItem' },
+                    },
                   },
                 },
               },
             },
           },
-          '403': { description: 'Sinh viên bị từ chối' },
-          '404': { description: 'Giảng viên lớp khác nhận 404' },
+          403: { description: 'Sinh viên bị từ chối' },
+          404: { description: 'Giảng viên lớp khác nhận 404' },
         },
       },
     },
@@ -666,9 +776,9 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': { description: 'Thẩm định thành công' },
-          '400': { description: 'Quyết định không hợp lệ' },
-          '404': { description: 'Không tìm thấy bài nộp hoặc ràng buộc' },
+          200: { description: 'Thẩm định thành công' },
+          400: { description: 'Quyết định không hợp lệ' },
+          404: { description: 'Không tìm thấy bài nộp hoặc ràng buộc' },
         },
       },
     },
@@ -677,7 +787,9 @@ export const openApiSpec = {
         summary: 'Thẩm định bài nộp tổng thể (Legacy Review Endpoint)',
         tags: ['Reviews'],
         security: [{ bearerAuth: [] }],
-        parameters: [{ name: 'submissionId', in: 'path', required: true, schema: { type: 'integer' } }],
+        parameters: [
+          { name: 'submissionId', in: 'path', required: true, schema: { type: 'integer' } },
+        ],
         requestBody: {
           required: true,
           content: {
@@ -691,9 +803,9 @@ export const openApiSpec = {
           },
         },
         responses: {
-          '200': { description: 'Thẩm định thành công' },
-          '400': { description: 'Quyết định không hợp lệ' },
-          '404': { description: 'Không tìm thấy bài nộp' },
+          200: { description: 'Thẩm định thành công' },
+          400: { description: 'Quyết định không hợp lệ' },
+          404: { description: 'Không tìm thấy bài nộp' },
         },
       },
     },
@@ -702,7 +814,7 @@ export const openApiSpec = {
         summary: 'Tải tài liệu đặc tả OpenAPI 3.1 JSON',
         tags: ['System'],
         responses: {
-          '200': { description: 'OpenAPI 3.1 JSON' },
+          200: { description: 'OpenAPI 3.1 JSON' },
         },
       },
     },
@@ -711,7 +823,20 @@ export const openApiSpec = {
         summary: 'Xem giao diện tài liệu tương tác Scalar API Reference',
         tags: ['System'],
         responses: {
-          '200': { description: 'Scalar HTML Documentation' },
+          200: { description: 'Scalar HTML Documentation' },
+        },
+      },
+    },
+    '/api/labs/{labId}/grades': {
+      get: {
+        summary:
+          'Lấy bảng điểm và số lần nộp bài của toàn bộ sinh viên trong lớp đối với bài Lab này',
+        tags: ['Labs'],
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'labId', in: 'path', required: true, schema: { type: 'integer' } }],
+        responses: {
+          200: { description: 'Bảng điểm và danh sách sinh viên cùng số lần submit' },
+          404: { description: 'Không tìm thấy bài lab hoặc không có quyền truy cập' },
         },
       },
     },
@@ -722,10 +847,10 @@ export const openApiSpec = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'labId', in: 'path', required: true, schema: { type: 'integer' } }],
         responses: {
-          '200': { description: 'Công bố điểm thành công (hoặc Idempotent retry)' },
-          '409': { description: 'Xung đột: Còn bài nộp chưa được thẩm định (reviews-pending)' },
-          '403': { description: 'Sinh viên bị từ chối' },
-          '404': { description: 'Giảng viên lớp khác nhận 404' },
+          200: { description: 'Công bố điểm thành công (hoặc Idempotent retry)' },
+          409: { description: 'Xung đột: Còn bài nộp chưa được thẩm định (reviews-pending)' },
+          403: { description: 'Sinh viên bị từ chối' },
+          404: { description: 'Giảng viên lớp khác nhận 404' },
         },
       },
     },

@@ -282,6 +282,9 @@ function updateDOM(container, vnode) {
   if (typeof document === 'undefined' || !container) return;
   const activeEl = document.activeElement;
   const activeId = activeEl?.id || null;
+  const activeName = activeEl?.getAttribute?.('name') || null;
+  const activeTag = activeEl?.tagName || null;
+  const activePlaceholder = activeEl?.getAttribute?.('placeholder') || null;
   const selStart = typeof activeEl?.selectionStart === 'number' ? activeEl.selectionStart : null;
   const selEnd = typeof activeEl?.selectionEnd === 'number' ? activeEl.selectionEnd : null;
 
@@ -289,16 +292,25 @@ function updateDOM(container, vnode) {
   container.innerHTML = '';
   container.appendChild(newDOM);
 
+  let nextEl = null;
   if (activeId) {
-    const nextEl = document.getElementById(activeId);
-    if (nextEl) {
-      nextEl.focus();
-      if (selStart !== null && selEnd !== null && typeof nextEl.setSelectionRange === 'function') {
-        try {
-          nextEl.setSelectionRange(selStart, selEnd);
-        } catch {
-          // Ignore unsupported element types
-        }
+    nextEl = document.getElementById(activeId);
+  }
+  if (!nextEl && activeTag && (activeTag === 'INPUT' || activeTag === 'TEXTAREA')) {
+    if (activeName) {
+      nextEl = container.querySelector(`${activeTag}[name="${activeName}"]`);
+    } else if (activePlaceholder) {
+      nextEl = container.querySelector(`${activeTag}[placeholder="${activePlaceholder}"]`);
+    }
+  }
+
+  if (nextEl) {
+    nextEl.focus();
+    if (selStart !== null && selEnd !== null && typeof nextEl.setSelectionRange === 'function') {
+      try {
+        nextEl.setSelectionRange(selStart, selEnd);
+      } catch {
+        // Ignore unsupported element types
       }
     }
   }

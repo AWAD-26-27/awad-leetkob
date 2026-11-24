@@ -35,7 +35,9 @@ const { runSandbox } = await import('../src/sandbox.js');
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8' }).trim();
 const sandboxIds = () => {
   if (!dockerAvailable) return [];
-  return docker('ps', '-aq', '--filter', 'label=app=leetkob-cpp-sandbox').split('\n').filter(Boolean);
+  return docker('ps', '-aq', '--filter', 'label=app=leetkob-cpp-sandbox')
+    .split('\n')
+    .filter(Boolean);
 };
 
 const dockerTest = (name, fn) =>
@@ -78,10 +80,13 @@ dockerTest('03 wall time removes the entire running container', async () => {
   assert.ok(!sandboxIds().includes(id));
 });
 
-dockerTest('04 memory is limited, swap is disabled, and the fixture reads its allocation', async () => {
-  const result = await runFixture('04-memory-limit', { expectedOutput: String(270 * 1024 ** 2) });
-  assert.equal(result.verdict, 'MLE');
-});
+dockerTest(
+  '04 memory is limited, swap is disabled, and the fixture reads its allocation',
+  async () => {
+    const result = await runFixture('04-memory-limit', { expectedOutput: String(270 * 1024 ** 2) });
+    assert.equal(result.verdict, 'MLE');
+  },
+);
 
 dockerTest('05 the kernel limits the sandbox to 64 processes', async () => {
   assert.equal((await runFixture('05-process-limit')).verdict, 'Accepted');

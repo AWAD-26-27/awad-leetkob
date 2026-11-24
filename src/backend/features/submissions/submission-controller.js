@@ -14,7 +14,11 @@ export function createSubmissionController(submissionModel, labModel) {
         return problem(res, 404, 'not-found', 'No such lab');
       }
 
-      if (req.user.role !== 'admin' && req.user.classId !== lab.classId) {
+      const isEnrolled =
+        Number(req.user.classId) === Number(lab.classId) ||
+        (submissionModel.isStudentEnrolled &&
+          submissionModel.isStudentEnrolled(lab.classId, req.user.id));
+      if (req.user.role !== 'admin' && !isEnrolled) {
         return problem(res, 404, 'not-found', 'No such lab');
       }
 
@@ -52,7 +56,12 @@ export function createSubmissionController(submissionModel, labModel) {
       }
 
       // Cross-class isolation
-      if (req.user.role !== 'admin' && req.user.classId !== sub.classId) {
+      const isStudentAllowed =
+        req.user.role === 'student' &&
+        (Number(req.user.classId) === Number(sub.classId) ||
+          (submissionModel.isStudentEnrolled &&
+            submissionModel.isStudentEnrolled(sub.classId, req.user.id)));
+      if (req.user.role !== 'admin' && !isStaff(req.user, sub.classId) && !isStudentAllowed) {
         return problem(res, 404, 'not-found', 'No such submission');
       }
 
@@ -95,7 +104,15 @@ export function createSubmissionController(submissionModel, labModel) {
       }
 
       const lab = labModel.getLab(labId);
-      if (!lab || (req.user.role !== 'admin' && req.user.classId !== lab.classId)) {
+      const isStudentAllowed =
+        req.user.role === 'student' &&
+        (Number(req.user.classId) === Number(lab.classId) ||
+          (submissionModel.isStudentEnrolled &&
+            submissionModel.isStudentEnrolled(lab.classId, req.user.id)));
+      if (
+        !lab ||
+        (req.user.role !== 'admin' && !isStaff(req.user, lab.classId) && !isStudentAllowed)
+      ) {
         return problem(res, 404, 'not-found', 'No such lab');
       }
 

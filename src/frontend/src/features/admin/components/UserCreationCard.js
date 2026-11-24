@@ -40,6 +40,15 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
     setCreating(false);
   };
 
+  const selectStyle = {
+    padding: '8px 12px',
+    borderRadius: '6px',
+    border: '1px solid #cbd5e1',
+    fontSize: '13px',
+    backgroundColor: '#ffffff',
+    color: '#0f172a',
+  };
+
   return h(
     Card,
     null,
@@ -62,14 +71,7 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
         null,
         h(
           'h2',
-          {
-            style: {
-              margin: 0,
-              fontSize: '16px',
-              fontWeight: '700',
-              color: '#0f172a',
-            },
-          },
+          { style: { margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' } },
           'Tạo tài khoản mới',
         ),
         h(
@@ -108,7 +110,13 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
       }),
       h(
         'div',
-        { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' } },
+        {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+          },
+        },
         h(Input, {
           label: 'Tên đăng nhập',
           placeholder: 'vd: student_a, teacher_b',
@@ -127,51 +135,41 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
       ),
       h(
         'div',
-        { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' } },
+        {
+          style: {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '12px',
+          },
+        },
         h(
           'div',
           { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-          h('label', { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } }, 'Vai trò'),
+          h(
+            'label',
+            { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } },
+            'Vai trò',
+          ),
           h(
             'select',
-            {
-              value: role,
-              onChange: (e) => setRole(e.target.value),
-              style: {
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                fontSize: '13px',
-                backgroundColor: '#ffffff',
-                color: '#0f172a',
-              },
-            },
-            h('option', { value: 'student' }, 'Sinh viên'),
-            h('option', { value: 'ta' }, 'Giảng viên'),
+            { value: role, onChange: (e) => setRole(e.target.value), style: selectStyle },
+            h('option', { value: 'student' }, 'Sinh viên (Student)'),
+            h('option', { value: 'ta' }, 'Giảng viên (Teacher / TA)'),
           ),
         ),
         h(
           'div',
           { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-          h('label', { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } }, 'Gán vào lớp (tùy chọn)'),
+          h(
+            'label',
+            { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } },
+            'Lớp học ban đầu (Tùy chọn)',
+          ),
           h(
             'select',
-            {
-              value: classId,
-              onChange: (e) => setClassId(e.target.value),
-              style: {
-                padding: '8px 12px',
-                borderRadius: '6px',
-                border: '1px solid #cbd5e1',
-                fontSize: '13px',
-                backgroundColor: '#ffffff',
-                color: '#0f172a',
-              },
-            },
+            { value: classId, onChange: (e) => setClassId(e.target.value), style: selectStyle },
             h('option', { value: '' }, '-- Chưa gán lớp --'),
-            classes.map((c) =>
-              h('option', { key: c.id, value: c.id }, `${c.name} (#${c.id})`),
-            ),
+            classes.map((c) => h('option', { key: c.id, value: c.id }, `${c.name} (#${c.id})`)),
           ),
         ),
       ),
