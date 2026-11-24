@@ -1,16 +1,7 @@
-import { h, useState } from '../../../lib/react.js';
+import { h } from '../../../lib/react.js';
 import { Card, Button, Badge, Spinner } from '../../../components/ui/index.js';
-import { CreateLabForm } from '../../labs/components/CreateLabForm.js';
 
-export function TeacherClassLabsTab({
-  classId,
-  labs = [],
-  onSelectLab,
-  onLabCreated,
-  loading = false,
-}) {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-
+export function TeacherClassLabsTab({ labs = [], onSelectLab, onCreateLab, loading = false }) {
   return h(
     'div',
     { style: { display: 'flex', flexDirection: 'column', gap: '20px' } },
@@ -44,26 +35,12 @@ export function TeacherClassLabsTab({
         Button,
         {
           variant: 'primary',
-          onClick: () => setShowCreateModal((prev) => !prev),
+          onClick: onCreateLab,
           style: { padding: '8px 16px', fontWeight: '600' },
         },
-        showCreateModal ? '✕ Đóng form tạo Lab' : '➕ Tạo bài thực hành mới',
+        '➕ Tạo bài thực hành mới',
       ),
     ),
-
-    // Create Lab section
-    showCreateModal &&
-      h(
-        Card,
-        { style: { border: '1px solid #bfdbfe', borderRadius: '12px', padding: '16px' } },
-        h(CreateLabForm, {
-          defaultClassId: classId,
-          onSuccess: (newLab) => {
-            setShowCreateModal(false);
-            if (onLabCreated) onLabCreated(newLab);
-          },
-        }),
-      ),
 
     // Labs Grid
     loading
@@ -91,11 +68,7 @@ export function TeacherClassLabsTab({
               { style: { fontSize: '13.5px', marginTop: '4px', marginBottom: '16px' } },
               'Hãy tạo bài thực hành đầu tiên với các test cases và quy tắc ràng buộc.',
             ),
-            h(
-              Button,
-              { variant: 'primary', onClick: () => setShowCreateModal(true) },
-              'Tạo bài Lab ngay',
-            ),
+            h(Button, { variant: 'primary', onClick: onCreateLab }, 'Tạo bài Lab ngay'),
           )
         : h(
             'div',
@@ -140,7 +113,12 @@ export function TeacherClassLabsTab({
                     h(
                       'h4',
                       {
-                        style: { fontSize: '16px', fontWeight: '700', color: '#0f172a', margin: 0 },
+                        style: {
+                          fontSize: '16px',
+                          fontWeight: '700',
+                          color: '#0f172a',
+                          margin: 0,
+                        },
                       },
                       `Lab ${lab.id}: ${lab.title}`,
                     ),

@@ -63,15 +63,36 @@ export function StudentClassInfoTab({ classroom, announcements = [] }) {
           { style: { overflow: 'hidden' } },
           h(
             'div',
-            { style: { fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b', fontWeight: '600' } },
+            {
+              style: {
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                color: '#64748b',
+                fontWeight: '600',
+              },
+            },
             'Giảng viên phụ trách',
           ),
           h(
             'div',
-            { style: { fontSize: '15px', fontWeight: '700', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } },
+            {
+              style: {
+                fontSize: '15px',
+                fontWeight: '700',
+                color: '#0f172a',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              },
+            },
             teacherName,
           ),
-          h('div', { style: { fontSize: '12px', color: '#1d4ed8', fontWeight: '500' } }, teacherUsername),
+          h(
+            'div',
+            { style: { fontSize: '12px', color: '#1d4ed8', fontWeight: '500' } },
+            teacherUsername,
+          ),
         ),
       ),
       // Stats Card
@@ -141,8 +162,18 @@ export function StudentClassInfoTab({ classroom, announcements = [] }) {
                       gap: '8px',
                     },
                   },
-                  h('h4', { style: { margin: 0, fontWeight: '700', fontSize: '14.5px', color: '#0f172a' } }, a.title),
-                  h('span', { style: { fontSize: '11.5px', color: '#64748b', fontWeight: '500' } }, formatTime(a.createdAt)),
+                  h(
+                    'h4',
+                    {
+                      style: { margin: 0, fontWeight: '700', fontSize: '14.5px', color: '#0f172a' },
+                    },
+                    a.title,
+                  ),
+                  h(
+                    'span',
+                    { style: { fontSize: '11.5px', color: '#64748b', fontWeight: '500' } },
+                    formatTime(a.createdAt),
+                  ),
                 ),
                 h(
                   'p',
@@ -167,10 +198,37 @@ export function StudentClassInfoTab({ classroom, announcements = [] }) {
       { title: '📌 Quy chế thực hành & Chấm điểm' },
       h(
         'div',
-        { style: { display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#334155', lineHeight: '1.6' } },
-        h('div', null, '• ', h('strong', null, 'Ngôn ngữ: '), 'Toàn bộ bài thực hành được biên dịch và chạy trên tiêu chuẩn C++20 trong Docker Sandbox cô lập.'),
-        h('div', null, '• ', h('strong', null, 'Ràng buộc AST: '), 'Hệ thống tự động kiểm tra cú pháp cấm hàm/thư viện bằng bộ phân tích AST Tree-sitter.'),
-        h('div', null, '• ', h('strong', null, 'Công bố điểm: '), 'Sau khi Giảng viên hoàn tất xét duyệt, điểm số chính thức và nhận xét sẽ được công bố tại tab "Các bài labs".'),
+        {
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            fontSize: '13px',
+            color: '#334155',
+            lineHeight: '1.6',
+          },
+        },
+        h(
+          'div',
+          null,
+          '• ',
+          h('strong', null, 'Ngôn ngữ: '),
+          'Toàn bộ bài thực hành được biên dịch và chạy trên tiêu chuẩn C++20 trong Docker Sandbox cô lập.',
+        ),
+        h(
+          'div',
+          null,
+          '• ',
+          h('strong', null, 'Ràng buộc AST: '),
+          'Hệ thống tự động kiểm tra cú pháp cấm hàm/thư viện bằng bộ phân tích AST Tree-sitter.',
+        ),
+        h(
+          'div',
+          null,
+          '• ',
+          h('strong', null, 'Công bố điểm: '),
+          'Sau khi Giảng viên hoàn tất xét duyệt, điểm số chính thức và nhận xét sẽ được công bố tại tab "Các bài labs".',
+        ),
       ),
     ),
   );
@@ -181,6 +239,10 @@ function metricItem(label, value, color) {
     'div',
     { style: { textAlign: 'center' } },
     h('div', { style: { fontSize: '17px', fontWeight: '800', color: color || '#0f172a' } }, value),
-    h('div', { style: { fontSize: '11.5px', color: '#64748b', fontWeight: '500', marginTop: '2px' } }, label),
+    h(
+      'div',
+      { style: { fontSize: '11.5px', color: '#64748b', fontWeight: '500', marginTop: '2px' } },
+      label,
+    ),
   );
 }

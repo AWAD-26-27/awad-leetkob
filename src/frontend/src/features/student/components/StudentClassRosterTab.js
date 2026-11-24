@@ -50,8 +50,16 @@ export function StudentClassRosterTab({ classroom }) {
             h(
               'div',
               null,
-              h('div', { style: { fontWeight: '700', fontSize: '15px', color: '#0f172a' } }, primaryTeacher.name),
-              h('div', { style: { fontSize: '12.5px', color: '#64748b' } }, `@${primaryTeacher.username}`),
+              h(
+                'div',
+                { style: { fontWeight: '700', fontSize: '15px', color: '#0f172a' } },
+                primaryTeacher.name,
+              ),
+              h(
+                'div',
+                { style: { fontSize: '12.5px', color: '#64748b' } },
+                `@${primaryTeacher.username}`,
+              ),
             ),
             h(
               'span',
@@ -70,7 +78,11 @@ export function StudentClassRosterTab({ classroom }) {
               'Giảng viên (TA)',
             ),
           )
-        : h('div', { style: { color: '#64748b', fontSize: '13px' } }, 'Chưa có thông tin giảng viên.'),
+        : h(
+            'div',
+            { style: { color: '#64748b', fontSize: '13px' } },
+            'Chưa có thông tin giảng viên.',
+          ),
     ),
     // 2. Classmate Roster Card with Search Filter
     h(
@@ -89,8 +101,17 @@ export function StudentClassRosterTab({ classroom }) {
       filteredStudents.length === 0
         ? h(
             'div',
-            { style: { textAlign: 'center', padding: '32px 16px', color: '#64748b', fontSize: '13px' } },
-            query ? 'Không tìm thấy sinh viên nào phù hợp với từ khóa.' : 'Lớp học chưa có sinh viên nào.',
+            {
+              style: {
+                textAlign: 'center',
+                padding: '32px 16px',
+                color: '#64748b',
+                fontSize: '13px',
+              },
+            },
+            query
+              ? 'Không tìm thấy sinh viên nào phù hợp với từ khóa.'
+              : 'Lớp học chưa có sinh viên nào.',
           )
         : h(
             'div',

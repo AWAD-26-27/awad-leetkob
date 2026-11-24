@@ -45,12 +45,15 @@ export function AppRoutes({
   // Admin view is dedicated strictly to Admin Portal (Class & User management)
   // Admin has NO permission to manage labs or view class labs.
   if (isAdmin) {
-    return h(AdminDashboard, null);
+    // Key by user.id ensures full remount on account switch — clears all stale state
+    return h(AdminDashboard, { key: user.id });
   }
 
   // Teacher Portal: Multi-class management, announcements, roster, labs, and lab detail grades
   if (isTeacher) {
+    // Key by user.id ensures full remount on account switch — clears all stale state
     return h(TeacherPortal, {
+      key: user.id,
       user,
       labs,
       activeLabId,
@@ -67,7 +70,9 @@ export function AppRoutes({
 
   // Student Portal: Multi-class directory, class workspace, labs, and submission history without code
   if (isStudent) {
+    // Key by user.id ensures full remount on account switch — clears all stale state
     return h(StudentPortal, {
+      key: user.id,
       user,
       activeLabId,
       setActiveLabId,

@@ -2,6 +2,7 @@ export * from './LabSelector.js';
 export * from './TestCaseInputs.js';
 export * from './ConstraintInputs.js';
 export * from './CreateLabForm.js';
+export * from './CreateLabPage.js';
 export * from './LabStatementView.js';
 export * from './LabConstraintsView.js';
 export * from './LabTestCasesView.js';

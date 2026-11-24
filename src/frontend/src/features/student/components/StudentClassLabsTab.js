@@ -90,7 +90,8 @@ export function StudentClassLabsTab({
   labs.forEach((lab) => {
     const labSubs = submissions.filter((s) => s.labId === lab.id);
     if (labSubs.length === 0) notDoneCount++;
-    else if (labSubs.some((s) => s.judgeVerdict === 'Accepted' || s.judgeVerdict === 'AC')) doneCount++;
+    else if (labSubs.some((s) => s.judgeVerdict === 'Accepted' || s.judgeVerdict === 'AC'))
+      doneCount++;
     else wrongCount++;
   });
 
@@ -147,6 +148,10 @@ function statusSummary(label, count, color, bg) {
       },
     },
     h('div', { style: { fontSize: '18px', fontWeight: '800', color } }, count),
-    h('div', { style: { fontSize: '12px', color: '#64748b', fontWeight: '500', marginTop: '2px' } }, label),
+    h(
+      'div',
+      { style: { fontSize: '12px', color: '#64748b', fontWeight: '500', marginTop: '2px' } },
+      label,
+    ),
   );
 }

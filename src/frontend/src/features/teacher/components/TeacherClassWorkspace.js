@@ -4,6 +4,7 @@ import { ClassOverviewTab } from './ClassOverviewTab.js';
 import { ClassAnnouncementsTab } from './ClassAnnouncementsTab.js';
 import { TeacherClassRosterTab } from './TeacherClassRosterTab.js';
 import { TeacherClassLabsTab } from './TeacherClassLabsTab.js';
+import { CreateLabPage } from '../../labs/components/CreateLabPage.js';
 import {
   fetchClassDetails,
   fetchClassLabs,
@@ -16,6 +17,7 @@ import { useToast } from '../../../providers/ToastProvider.js';
 export function TeacherClassWorkspace({ classId, onBack, onSelectLab }) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'announcements', 'roster', 'labs'
+  const [showCreateLab, setShowCreateLab] = useState(false);
   const [classroom, setClassroom] = useState(null);
   const [labs, setLabs] = useState([]);
   const [students, setStudents] = useState([]);
@@ -71,6 +73,20 @@ export function TeacherClassWorkspace({ classId, onBack, onSelectLab }) {
     { key: 'roster', label: '👥 Danh sách lớp', count: students.length },
     { key: 'labs', label: '🧪 Danh sách Lab', count: labs.length },
   ];
+
+  // Dedicated Create Lab page — replaces workspace when active
+  if (showCreateLab) {
+    return h(CreateLabPage, {
+      classId,
+      className: classroom?.name || `Lớp #${classId}`,
+      onBack: () => setShowCreateLab(false),
+      onSuccess: () => {
+        setShowCreateLab(false);
+        loadAll();
+        setActiveTab('labs');
+      },
+    });
+  }
 
   return h(
     'div',
@@ -221,6 +237,7 @@ export function TeacherClassWorkspace({ classId, onBack, onSelectLab }) {
                   labs,
                   onSelectLab,
                   onLabCreated: loadAll,
+                  onCreateLab: () => setShowCreateLab(true),
                   loading,
                 })
               : null,

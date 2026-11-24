@@ -20,11 +20,17 @@ export function StudentLabCard({ lab, submissions = [], onSelectLab }) {
     statusBadge = { text: '✓ Đã làm (Đạt AC)', bg: '#ecfdf5', color: '#059669', border: '#a7f3d0' };
   } else {
     const verdict = latestSub?.judgeVerdict || 'Chưa đạt';
-    statusBadge = { text: `✕ Làm sai (${verdict})`, bg: '#fef2f2', color: '#dc2626', border: '#fecaca' };
+    statusBadge = {
+      text: `✕ Làm sai (${verdict})`,
+      bg: '#fef2f2',
+      color: '#dc2626',
+      border: '#fecaca',
+    };
   }
 
   const isPublished = Boolean(lab.publishedAt);
-  const bestGrade = latestSub && latestSub.grade !== undefined && latestSub.grade !== null ? latestSub.grade : null;
+  const bestGrade =
+    latestSub && latestSub.grade !== undefined && latestSub.grade !== null ? latestSub.grade : null;
 
   return h(
     'div',
@@ -137,12 +143,19 @@ export function StudentLabCard({ lab, submissions = [], onSelectLab }) {
       h(
         'div',
         { style: { fontSize: '12.5px', color: '#64748b' } },
-        h('span', null, `Đã nộp: `, h('strong', { style: { color: '#0f172a' } }, `${subCount} lần`)),
-        isPublished && bestGrade !== null && h(
+        h(
           'span',
-          { style: { marginLeft: '10px', color: '#059669', fontWeight: '700' } },
-          `• Điểm: ${bestGrade}/10`,
+          null,
+          `Đã nộp: `,
+          h('strong', { style: { color: '#0f172a' } }, `${subCount} lần`),
         ),
+        isPublished &&
+          bestGrade !== null &&
+          h(
+            'span',
+            { style: { marginLeft: '10px', color: '#059669', fontWeight: '700' } },
+            `• Điểm: ${bestGrade}/10`,
+          ),
       ),
       h(
         Button,
