@@ -10,6 +10,7 @@ import {
 import { DEMO_USERS, GUEST_USER, ALL_USERS } from '../../src/frontend/src/config/constants.js';
 import { StudentSubmissionsTable } from '../../src/frontend/src/features/submissions/components/StudentSubmissionsTable.js';
 import { ReviewQueueTable } from '../../src/frontend/src/features/reviews/components/ReviewQueueTable.js';
+import { ClassStudentTable } from '../../src/frontend/src/features/classes/components/ClassStudentTable.js';
 
 test('Frontend Stage 3 - React runtime persistent state across re-renders', () => {
   resetComponentState();
@@ -115,3 +116,23 @@ test('Frontend Stage 3 - Demo Users configuration includes all roles and legacy 
   assert.equal(stu1.role, 'student');
   assert.equal(stu1.token, 'tok-stu1');
 });
+
+test('Frontend Stage 3 - ClassStudentTable renders students and handles empty state gracefully', () => {
+  // 1. Empty state
+  const emptyTree = evalComponent(h(ClassStudentTable, { classStudents: [] }));
+  const emptyStr = JSON.stringify(emptyTree);
+  assert.match(emptyStr, /Chưa có sinh viên nào trong lớp này/);
+
+  // 2. Populated state
+  const students = [
+    { id: 4, name: 'Student One', username: 'student_1' },
+    { id: 5, name: 'Student Two', username: 'student_2' },
+  ];
+  const populatedTree = evalComponent(h(ClassStudentTable, { classStudents: students, onRemove: () => {} }));
+  const populatedStr = JSON.stringify(populatedTree);
+  assert.match(populatedStr, /Student One/);
+  assert.match(populatedStr, /@student_1/);
+  assert.match(populatedStr, /Student Two/);
+  assert.match(populatedStr, /Xóa khỏi lớp/);
+});
+

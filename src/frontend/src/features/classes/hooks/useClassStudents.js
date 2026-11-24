@@ -13,19 +13,43 @@ export function useClassStudents(classId) {
   const [allStudents, setAllStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [assigning, setAssigning] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const numericClassId = classId ? Number(classId) : null;
 
   const loadStudents = async () => {
-    if (!classId) return;
+    if (!numericClassId) {
+      setClassStudents([]);
+      setAllStudents([]);
+      return;
+    }
     setLoading(true);
+
     try {
-      const [classRes, allRes] = await Promise.all([
-        fetchClassStudents(classId),
-        fetchAllStudents(),
-      ]);
-      if (classRes?.items) setClassStudents(classRes.items);
-      if (allRes?.items) setAllStudents(allRes.items);
-    } catch (err) {
-      toast.error(err.detail || err.message || 'Lỗi tải danh sách sinh viên');
+      // 1. Fetch students for this class
+      try {
+        const classRes = await fetchClassStudents(numericClassId);
+        if (classRes?.items && Array.isArray(classRes.items)) {
+          setClassStudents(classRes.items);
+        } else {
+          setClassStudents([]);
+        }
+      } catch (err) {
+        setClassStudents([]);
+        toast.error(err.detail || err.message || 'Lỗi tải danh sách sinh viên lớp học');
+      }
+
+      // 2. Fetch all students directory for candidate assignment
+      try {
+        const allRes = await fetchAllStudents();
+        if (allRes?.items && Array.isArray(allRes.items)) {
+          setAllStudents(allRes.items);
+        } else {
+          setAllStudents([]);
+        }
+      } catch {
+        // Non-fatal if staff cannot read all students
+      }
     } finally {
       setLoading(false);
     }
@@ -33,16 +57,20 @@ export function useClassStudents(classId) {
 
   useEffect(() => {
     loadStudents();
-  }, [classId]);
+  }, [numericClassId]);
 
   const handleAssignStudent = async (studentId) => {
     if (!studentId) {
       toast.error('Vui lòng chọn sinh viên cần thêm vào lớp');
       return false;
     }
+    if (!numericClassId) {
+      toast.error('Chưa xác định lớp học');
+      return false;
+    }
     setAssigning(true);
     try {
-      await assignStudentApi(classId, Number(studentId));
+      await assignStudentApi(numericClassId, Number(studentId));
       toast.success('Đã thêm sinh viên vào lớp học thành công!');
       await loadStudents();
       return true;
@@ -55,6 +83,7 @@ export function useClassStudents(classId) {
   };
 
   const handleRemoveStudent = async (studentId, studentName) => {
+    if (!numericClassId) return false;
     const shouldRemove =
       typeof globalThis !== 'undefined' && globalThis.confirm
         ? globalThis.confirm(`Bạn có chắc muốn xóa sinh viên "${studentName}" khỏi lớp?`)
@@ -62,7 +91,7 @@ export function useClassStudents(classId) {
     if (!shouldRemove) return false;
 
     try {
-      await removeStudentApi(classId, studentId);
+      await removeStudentApi(numericClassId, Number(studentId));
       toast.success(`Đã xóa sinh viên "${studentName}" khỏi lớp!`);
       await loadStudents();
       return true;
@@ -72,11 +101,24 @@ export function useClassStudents(classId) {
     }
   };
 
+  const filteredStudents = classStudents.filter((stu) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      (stu.name && stu.name.toLowerCase().includes(q)) ||
+      (stu.username && stu.username.toLowerCase().includes(q)) ||
+      String(stu.id).includes(q)
+    );
+  });
+
   return {
     classStudents,
+    filteredStudents,
     allStudents,
     loading,
     assigning,
+    searchQuery,
+    setSearchQuery,
     loadStudents,
     handleAssignStudent,
     handleRemoveStudent,

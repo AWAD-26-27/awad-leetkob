@@ -2,12 +2,14 @@ import { createServer } from 'node:http';
 import { readFileSync, existsSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 import { problem, rfc7807ErrorHandler } from './middleware/rfc7807.js';
+import { applySecurityHeaders } from './middleware/security.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createAuthRouter } from './features/auth/router.js';
 import { createClassRouter } from './features/classes/router.js';
 import { createLabRouter } from './features/labs/router.js';
 import { createSubmissionRouter } from './features/submissions/router.js';
 import { createReviewRouter } from './features/reviews/router.js';
+import { createDocsRouter } from './features/docs/router.js';
 
 const HTML_PATH = new URL('../../public/index.html', import.meta.url);
 const PAGE = existsSync(HTML_PATH)
@@ -26,9 +28,16 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon',
 };
 
-export async function readJson(req) {
+export async function readJson(req, limit = 1024 * 1024) {
   let raw = '';
-  for await (const chunk of req) raw += chunk;
+  let bytes = 0;
+  for await (const chunk of req) {
+    bytes += chunk.length;
+    if (bytes > limit) {
+      return { __error: 'payload-too-large' };
+    }
+    raw += chunk;
+  }
   if (!raw.trim()) return {};
   try {
     return JSON.parse(raw);
@@ -49,6 +58,7 @@ export function createApp(db) {
     subModule.submissionModel,
     authMiddleware,
   );
+  const docsModule = createDocsRouter();
 
   // Combine all route descriptors from feature subsystems
   const allRoutes = [
@@ -57,17 +67,46 @@ export function createApp(db) {
     ...labModule.router.routes,
     ...subModule.router.routes,
     ...revModule.router.routes,
+    ...docsModule.router.routes,
   ];
 
   async function handle(req, res) {
+    // 0. Apply security headers & Request-ID tracing
+    applySecurityHeaders(req, res);
+
     const url = new URL(req.url, 'http://x');
     const pathname = url.pathname;
 
     // Attach parsed query parameters
     req.query = Object.fromEntries(url.searchParams.entries());
 
-    // 1. Serve root page
-    if (['GET', 'HEAD'].includes(req.method) && (pathname === '/' || pathname === '')) {
+    // 0.1 Health check probe
+    if (['GET', 'HEAD'].includes(req.method) && (pathname === '/api/health' || pathname === '/healthz' || pathname === '/health')) {
+      const health = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptimeSeconds: Math.floor(process.uptime()),
+        database: {
+          connected: Boolean(db),
+          mode: 'WAL',
+        },
+      };
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify(health));
+    }
+
+    // 1. Serve root page & SPA client route navigation fallback
+    const isSpaRoute =
+      ['GET', 'HEAD'].includes(req.method) &&
+      !pathname.startsWith('/api/') &&
+      !extname(pathname) &&
+      (pathname === '/' ||
+        pathname === '' ||
+        ['/labs', '/admin', '/classes', '/profile', '/login'].some(
+          (r) => pathname === r || pathname.startsWith(r + '/'),
+        ));
+
+    if (isSpaRoute) {
       const pageHtml = existsSync(HTML_PATH) ? readFileSync(HTML_PATH, 'utf8') : PAGE;
       res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
       return res.end(req.method === 'HEAD' ? '' : pageHtml);
@@ -75,6 +114,9 @@ export function createApp(db) {
 
     // 2. Serve static files from public/ or src/frontend/ if requested
     if (['GET', 'HEAD'].includes(req.method) && !pathname.startsWith('/api/')) {
+      if (pathname.includes('..')) {
+        return problem(res, 403, 'forbidden', 'Path traversal is forbidden');
+      }
       let filePath = join(process.cwd(), 'public', pathname);
       if (!existsSync(filePath)) {
         filePath = join(process.cwd(), pathname);
@@ -95,10 +137,14 @@ export function createApp(db) {
 
     // 3. Parse request body for mutations
     if (['POST', 'PUT', 'PATCH'].includes(req.method)) {
-      req.body = await readJson(req);
-      if (req.body === null) {
+      const parsed = await readJson(req);
+      if (parsed && parsed.__error === 'payload-too-large') {
+        return problem(res, 413, 'payload-too-large', 'Request payload exceeds 1MB limit');
+      }
+      if (parsed === null) {
         return problem(res, 400, 'invalid-body', 'Malformed JSON in request body');
       }
+      req.body = parsed;
     } else {
       req.body = {};
     }
@@ -113,7 +159,11 @@ export function createApp(db) {
       if (match) {
         req.params = {};
         for (let i = 0; i < route.paramNames.length; i++) {
-          req.params[route.paramNames[i]] = match[i + 1];
+          try {
+            req.params[route.paramNames[i]] = decodeURIComponent(match[i + 1]);
+          } catch {
+            req.params[route.paramNames[i]] = match[i + 1];
+          }
         }
 
         // Execute handler chain (e.g. authMiddleware -> controller)

@@ -2,7 +2,7 @@ import { h, useState } from '../../../lib/react.js';
 import { Button } from '../../../components/ui/index.js';
 
 export function AssignStudentForm({
-  candidateStudents,
+  candidateStudents = [],
   onAssign,
   onRefresh,
   assigning,
@@ -17,6 +17,8 @@ export function AssignStudentForm({
     if (ok) setSelectedStudentId('');
   };
 
+  const hasCandidates = candidateStudents && candidateStudents.length > 0;
+
   return h(
     'form',
     {
@@ -24,9 +26,9 @@ export function AssignStudentForm({
       style: {
         display: 'flex',
         alignItems: 'center',
-        gap: '12px',
+        gap: '10px',
         backgroundColor: '#f8fafc',
-        padding: '12px 16px',
+        padding: '12px 14px',
         borderRadius: '10px',
         border: '1px solid #e2e8f0',
         flexWrap: 'wrap',
@@ -34,7 +36,7 @@ export function AssignStudentForm({
     },
     h(
       'span',
-      { style: { fontSize: '14.5px', fontWeight: '600', color: '#334155' } },
+      { style: { fontSize: '13.5px', fontWeight: '600', color: '#334155' } },
       'Thêm sinh viên vào lớp:',
     ),
     h(
@@ -42,24 +44,34 @@ export function AssignStudentForm({
       {
         value: selectedStudentId,
         onChange: (e) => setSelectedStudentId(e.target.value),
+        disabled: assigning || !hasCandidates,
         style: {
           flex: 1,
-          minWidth: '240px',
-          padding: '9px 14px',
+          minWidth: '220px',
+          padding: '8px 12px',
           borderRadius: '8px',
           border: '1px solid #cbd5e1',
-          fontSize: '14px',
+          fontSize: '13px',
           backgroundColor: '#ffffff',
         },
       },
-      h('option', { value: '' }, '-- Chọn sinh viên để gán vào lớp --'),
-      candidateStudents.map((s) =>
-        h(
+      h(
+        'option',
+        { value: '' },
+        hasCandidates
+          ? `-- Chọn sinh viên để gán (${candidateStudents.length} khả dụng) --`
+          : '-- Tất cả sinh viên đã được gán vào lớp này --',
+      ),
+      candidateStudents.map((s) => {
+        const classNote = s.classId
+          ? `[Đang ở: ${s.className || `Class ${s.classId}`}]`
+          : '[Chưa có lớp]';
+        return h(
           'option',
           { key: s.id, value: s.id },
-          `${s.name} (@${s.username}) ${s.classId ? `[Đang ở: ${s.className || `Class ${s.classId}`}]` : '[Chưa có lớp]'}`,
-        ),
-      ),
+          `${s.name} (@${s.username}) ${classNote}`,
+        );
+      }),
     ),
     h(
       Button,
@@ -71,16 +83,17 @@ export function AssignStudentForm({
       },
       assigning ? 'Đang thêm...' : '+ Thêm vào lớp',
     ),
-    h(
-      Button,
-      {
-        type: 'button',
-        variant: 'secondary',
-        onClick: onRefresh,
-        disabled: loading,
-        size: 'sm',
-      },
-      '🔄 Làm mới',
-    ),
+    onRefresh &&
+      h(
+        Button,
+        {
+          type: 'button',
+          variant: 'secondary',
+          onClick: onRefresh,
+          disabled: loading,
+          size: 'sm',
+        },
+        '🔄 Làm mới',
+      ),
   );
 }

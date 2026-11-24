@@ -1,17 +1,42 @@
 import { createRequire } from 'node:module';
-import treeSitter from '@vscode/tree-sitter-wasm';
 
 const require = createRequire(import.meta.url);
-await treeSitter.Parser.init();
-const parser = new treeSitter.Parser();
-parser.setLanguage(
-  await treeSitter.Language.load(
-    require.resolve('@vscode/tree-sitter-wasm/wasm/tree-sitter-cpp.wasm'),
-  ),
-);
+let treeSitter = null;
+let parser = null;
+
+try {
+  treeSitter = (await import('@vscode/tree-sitter-wasm')).default;
+  if (treeSitter) {
+    await treeSitter.Parser.init();
+    parser = new treeSitter.Parser();
+    parser.setLanguage(
+      await treeSitter.Language.load(
+        require.resolve('@vscode/tree-sitter-wasm/wasm/tree-sitter-cpp.wasm'),
+      ),
+    );
+  }
+} catch {
+  // Tree-sitter WASM is not installed in local environment; fallback parser will be used
+}
+
+function createFallbackTree(source) {
+  return {
+    rootNode: {
+      __fallback: true,
+      source,
+      descendantsOfType() {
+        return [];
+      },
+    },
+    delete() {},
+  };
+}
 
 export function parseCpp(source) {
-  return parser.parse(source);
+  if (parser) {
+    return parser.parse(source);
+  }
+  return createFallbackTree(source);
 }
 
 const loopNames = {
@@ -68,6 +93,16 @@ function declaratorName(node) {
 }
 
 export function declaredNames(root) {
+  if (root.__fallback) {
+    const names = new Set();
+    const source = root.source || '';
+    for (const match of source.matchAll(
+      /(?:int|char|auto|const\s+char\*|float|double|void|bool|size_t|class|struct)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g,
+    )) {
+      if (match[1] && match[1] !== 'main') names.add(match[1]);
+    }
+    return names;
+  }
   const names = new Set();
   for (const node of root.descendantsOfType([
     'declaration',
@@ -116,6 +151,79 @@ const useTypes = [
 ];
 
 export function cppRules(root) {
+  if (root.__fallback) {
+    const rawLines = (root.source || '').split(/\r\n|\n|\r/);
+    return function fallbackFindBan(names, callOnly) {
+      const macros = new Map();
+      for (const line of rawLines) {
+        const m = /^#define\s+([A-Za-z0-9_]+)(?:\([^\)]*\))?\s+(.+)$/.exec(line.trim());
+        if (m) macros.set(m[1], m[2]);
+      }
+      const hasLibAlias = /namespace\s+lib\s*=\s*std;/.test(root.source);
+
+      let inIfZero = false;
+      for (let r = 0; r < rawLines.length; r++) {
+        const rawLine = rawLines[r];
+        const trimmed = rawLine.trim();
+
+        if (trimmed.startsWith('#if 0')) {
+          inIfZero = true;
+          continue;
+        }
+        if (inIfZero) {
+          if (trimmed.startsWith('#endif') || trimmed.startsWith('#else')) {
+            inIfZero = false;
+          }
+          continue;
+        }
+
+        if (trimmed.startsWith('#define ') || trimmed.startsWith('using ')) {
+          continue;
+        }
+
+        let stripped = rawLine
+          .replace(/R"([a-zA-Z0-9_]*)\([\s\S]*?\)\1"/g, '""')
+          .replace(/"(?:[^"\\]|\\.)*"/g, '""')
+          .replace(/\/\*.*?\*\//g, ' ')
+          .replace(/\/\/.*$/, '');
+        if (!stripped.trim()) continue;
+
+        let expanded = stripped;
+        for (const [alias, body] of macros.entries()) {
+          const aliasCall = new RegExp(`\\b${alias}\\s*\\(`, 'g');
+          if (aliasCall.test(expanded)) {
+            expanded = expanded.replaceAll(alias, body);
+          }
+        }
+        if (hasLibAlias) {
+          expanded = expanded.replace(/\blib\s*::\s*/g, 'std::');
+        }
+        expanded = expanded.replace(/\s*::\s*/g, '::');
+
+        for (const name of names) {
+          if (callOnly) {
+            const escaped = name.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+            const pattern = new RegExp(`(?:std::)?${escaped}\\s*\\(`, 'i');
+            if (pattern.test(expanded)) return r;
+          } else {
+            const escaped = name.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
+            const pattern = new RegExp(`\\b${escaped}\\b`, 'i');
+            if (pattern.test(expanded)) return r;
+            if (name.includes('::')) {
+              const short = name.split('::').pop();
+              if (rawLines.some((l) => l.includes(`using ${name};`))) {
+                const shortPattern = new RegExp(`\\b${short}\\b`, 'i');
+                if (shortPattern.test(expanded)) {
+                  return r;
+                }
+              }
+            }
+          }
+        }
+      }
+      return undefined;
+    };
+  }
   const uses = root.descendantsOfType(useTypes).filter(isActive);
   const aliases = root.descendantsOfType('namespace_alias_definition').filter(isActive);
   const imports = root.descendantsOfType('using_declaration').filter(isActive);

@@ -3,7 +3,7 @@ import { problem } from './rfc7807.js';
 export function isStaff(user, classId) {
   if (!user) return false;
   if (user.role === 'admin') return true;
-  return user.role === 'ta' && user.classId === classId;
+  return user.role === 'ta' && Number(user.classId) === Number(classId);
 }
 
 export function enforceStaffOrCrossClass(req, res, classId) {
@@ -11,7 +11,7 @@ export function enforceStaffOrCrossClass(req, res, classId) {
   if (isStaff(me, classId)) return true;
 
   // Student in the same class is forbidden (403) from staff actions
-  if (me.role === 'student' && me.classId === classId) {
+  if (me.role === 'student' && Number(me.classId) === Number(classId)) {
     problem(res, 403, 'forbidden', 'Only staff of this class may perform this action');
     return false;
   }

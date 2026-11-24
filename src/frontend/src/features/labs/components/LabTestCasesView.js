@@ -9,8 +9,23 @@ export function LabTestCasesView({ tests }) {
     h(
       'div',
       { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
-      tests.map((t, idx) =>
-        h(
+      tests.map((t, idx) => {
+        const inputVal =
+          t.input !== undefined && t.input !== null
+            ? t.input
+            : t.inputText !== undefined && t.inputText !== null
+              ? t.inputText
+              : '—';
+        const expectedVal =
+          t.expectedOutput !== undefined && t.expectedOutput !== null
+            ? t.expectedOutput
+            : t.expected !== undefined && t.expected !== null
+              ? t.expected
+              : t.output !== undefined && t.output !== null
+                ? t.output
+                : '—';
+
+        return h(
           'div',
           {
             key: idx,
@@ -29,14 +44,14 @@ export function LabTestCasesView({ tests }) {
             { style: { color: '#94a3b8', marginBottom: '4px' } },
             `Test Case #${t.ordinal || idx + 1}:`,
           ),
-          h('div', null, `Input: ${t.input || t.inputText || '—'}`),
+          h('div', null, `Input: ${inputVal}`),
           h(
             'div',
             { style: { color: '#10b981', marginTop: '2px' } },
-            `Expected: ${t.expected || t.expectedOutput || '—'}`,
+            `Expected: ${expectedVal}`,
           ),
-        ),
-      ),
+        );
+      }),
     ),
   );
 }

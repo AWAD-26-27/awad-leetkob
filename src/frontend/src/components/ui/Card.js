@@ -5,18 +5,21 @@ export function Card({
   title,
   subtitle,
   actions,
+  headerRight,
   children,
   className = '',
   style = {},
   headerStyle = {},
 }) {
+  const rightContent = headerRight || actions;
+
   return h(
     'div',
     {
       className: cx('card', className),
       style,
     },
-    (title || actions) &&
+    (title || rightContent) &&
       h(
         'div',
         {
@@ -53,7 +56,7 @@ export function Card({
               subtitle,
             ),
         ),
-        actions && h('div', { style: { display: 'flex', gap: '8px' } }, actions),
+        rightContent && h('div', { style: { display: 'flex', gap: '8px' } }, rightContent),
       ),
     children,
   );

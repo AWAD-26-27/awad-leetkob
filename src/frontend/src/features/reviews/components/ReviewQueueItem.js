@@ -6,6 +6,9 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
   const hasReviewed = Boolean(
     item.decision || item.reviewStatus === 'confirmed' || item.reviewStatus === 'overturned',
   );
+  const hasEvidence =
+    item.evidence &&
+    (Array.isArray(item.evidence) ? item.evidence.length > 0 : Boolean(item.evidence));
   const confirmBtnName = `Confirm ${studentName}`;
   const isConfirming =
     processingId === `${item.id}-${item.constraintCode || 'legacy'}-confirm`;
@@ -72,7 +75,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
             ),
       ),
     ),
-    item.evidence &&
+    hasEvidence &&
       h(
         'div',
         {
@@ -83,7 +86,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderLeft: '4px solid #ef4444',
             fontFamily: 'var(--font-mono)',
-            fontSize: '14px',
+            fontSize: '13.5px',
             color: '#e2e8f0',
             boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.4)',
           },
@@ -118,13 +121,33 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
             'Confidence: High',
           ),
         ),
-        h(
-          'div',
-          { style: { whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#fca5a5' } },
-          typeof item.evidence === 'string'
-            ? item.evidence
-            : JSON.stringify(item.evidence, null, 2),
-        ),
+        Array.isArray(item.evidence)
+          ? h(
+              'div',
+              { style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
+              item.evidence.map((ev, i) =>
+                h(
+                  'div',
+                  { key: i, style: { display: 'flex', gap: '8px', alignItems: 'baseline' } },
+                  ev.line &&
+                    h(
+                      'span',
+                      { style: { color: '#ef4444', fontWeight: '700', fontSize: '12px' } },
+                      `Dòng ${ev.line}:`,
+                    ),
+                  h(
+                    'code',
+                    { style: { color: '#fca5a5', fontSize: '13px' } },
+                    ev.text || JSON.stringify(ev),
+                  ),
+                ),
+              ),
+            )
+          : h(
+              'div',
+              { style: { whiteSpace: 'pre-wrap', lineHeight: '1.6', color: '#fca5a5' } },
+              String(item.evidence),
+            ),
       ),
     !hasReviewed &&
       h(

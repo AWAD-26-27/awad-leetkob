@@ -34,9 +34,9 @@ const db = open(process.env.DB_PATH || './data/leetkob.db');
 | 3 | `ta_b` | `ta` | 2 | `tok-ta-b` | Trợ giảng Lớp 2 (Bob) |
 | 4 | `student_1` | `student` | 1 | `tok-student-1` | Sinh viên Lớp 1 |
 | 5 | `student_2` | `student` | 1 | `tok-student-2` | Sinh viên Lớp 1 |
-| 6 | `stu1` | `student` | 1 | `tok-stu1` | Sinh viên Lớp 1 (dữ liệu tương thích PA2) |
-| 7 | `stu2` | `student` | 1 | `tok-stu2` | Sinh viên Lớp 1 (dữ liệu tương thích PA2) |
-| 8 | `stu3` | `student` | 2 | `tok-stu3` | Sinh viên Lớp 2 (dữ liệu tương thích PA2) |
+| 6 | `stu1` | `student` | 1 | `tok-stu1` | Sinh viên Lớp 1 (dữ liệu tương thích ngược) |
+| 7 | `stu2` | `student` | 1 | `tok-stu2` | Sinh viên Lớp 1 (dữ liệu tương thích ngược) |
+| 8 | `stu3` | `student` | 2 | `tok-stu3` | Sinh viên Lớp 2 (dữ liệu tương thích ngược) |
 
 ---
 

@@ -10,6 +10,8 @@ export function createLabRouter(db, authMiddleware) {
   router.get('/api/labs', authMiddleware, controller.list);
   router.get('/api/labs/:labId', authMiddleware, controller.get);
   router.post('/api/labs', authMiddleware, controller.create);
+  router.put('/api/labs/:labId', authMiddleware, controller.update);
+  router.patch('/api/labs/:labId', authMiddleware, controller.update);
   router.post('/api/labs/:labId/publish', authMiddleware, controller.publish);
 
   return { router, labModel, controller };

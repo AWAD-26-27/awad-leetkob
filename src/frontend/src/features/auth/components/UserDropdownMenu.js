@@ -94,11 +94,12 @@ export function UserDropdownMenu({
     // Menu Actions
     h(
       'div',
-      { style: { padding: '6px' } },
+      { style: { padding: '6px' }, role: 'menu' },
       h(
         'button',
         {
           type: 'button',
+          role: 'menuitem',
           style: itemStyle,
           onClick: () => {
             onClose();
@@ -112,6 +113,7 @@ export function UserDropdownMenu({
         'button',
         {
           type: 'button',
+          role: 'menuitem',
           style: itemStyle,
           onClick: () => {
             onClose();
@@ -120,6 +122,20 @@ export function UserDropdownMenu({
         },
         h('span', { style: { fontSize: '15px' } }, '🔑'),
         'Đổi mật khẩu',
+      ),
+      h(
+        'button',
+        {
+          type: 'button',
+          role: 'menuitem',
+          style: itemStyle,
+          onClick: () => {
+            onClose();
+            if (typeof window !== 'undefined') window.open('/api/docs', '_blank');
+          },
+        },
+        h('span', { style: { fontSize: '15px' } }, '📖'),
+        'Tài liệu API (Docs)',
       ),
     ),
     // Divider

@@ -2,7 +2,7 @@
 
 This folder is the **dev set** for the LeeTKOB constraint checker, together with
 `eval.mjs`, the tool that scores a checker against it. Read section 3 and section 6 of the
-class brief first (*LeeTKOB — class project brief*, attached to the `PA#2` assignment on
+class brief first (*LeeTKOB — class project brief*, attached on
 Classroom). This README explains the files.
 
 The lecturer keeps a **held-out set** with the same layout and **different problems**. Your

@@ -6,6 +6,7 @@ export function LoginDemoQuickFill({ onSelectUser }) {
     { label: 'TA Alice (Lớp A)', user: 'ta_a' },
     { label: 'TA Bob (Lớp B)', user: 'ta_b' },
     { label: 'Sinh viên 1', user: 'student_1' },
+    { label: 'Sinh viên 2', user: 'student_2' },
   ];
 
   return h(

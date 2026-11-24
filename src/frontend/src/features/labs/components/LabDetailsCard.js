@@ -1,18 +1,32 @@
-import { h, useState } from '../../../lib/react.js';
+import { h, useState, useEffect } from '../../../lib/react.js';
 import { Card, Button, Badge } from '../../../components/ui/index.js';
 import { Callout } from '../../../components/feedback/index.js';
-import { publishLab } from '../api/index.js';
+import { publishLab, updateLab } from '../api/index.js';
 import { useAuth } from '../../../providers/AuthProvider.js';
 import { useToast } from '../../../providers/ToastProvider.js';
 import { LabStatementView } from './LabStatementView.js';
 import { LabConstraintsView } from './LabConstraintsView.js';
 import { LabTestCasesView } from './LabTestCasesView.js';
 
-export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
+export function LabDetailsCard({ lab, onPublished, onLabUpdated, setE2eStatusText }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [publishing, setPublishing] = useState(false);
   const [activeTab, setActiveTab] = useState('statement');
+
+  // Inline editing state for assigned teacher
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editStatement, setEditStatement] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  useEffect(() => {
+    if (lab) {
+      setEditTitle(lab.title || '');
+      setEditStatement(lab.statement || '');
+      setIsEditing(false);
+    }
+  }, [lab?.id]);
 
   if (!lab) {
     return h(
@@ -23,7 +37,30 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
   }
 
   const isStaff = user.role === 'ta' || user.role === 'admin';
+  const isAssignedTeacher = user.role === 'ta' && Number(user.classId) === Number(lab.classId);
   const isPublished = Boolean(lab.publishedAt || lab.published_at);
+
+  const handleSaveEdit = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    if (!editTitle.trim()) {
+      toast.error('Tiêu đề không được để trống');
+      return;
+    }
+    setSavingEdit(true);
+    try {
+      await updateLab(lab.id, {
+        title: editTitle.trim(),
+        statement: editStatement.trim(),
+      });
+      toast.success('Đã cập nhật bài thực hành thành công!');
+      setIsEditing(false);
+      if (onLabUpdated) onLabUpdated();
+    } catch (err) {
+      toast.error(err.detail || err.message || 'Lỗi khi cập nhật bài lab');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   const handlePublish = async () => {
     setPublishing(true);
@@ -48,18 +85,108 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
     {
       title: `Lab ${lab.id}: ${lab.title || 'Assignment'}`,
       style: { marginBottom: '24px' },
-      headerRight: isPublished
-        ? h(
-            Badge,
-            { variant: 'success', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
-            '✓ Đã công bố điểm (Published)',
-          )
-        : h(
-            Badge,
-            { variant: 'warning', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
-            '⏳ Đang chấm & Xét duyệt',
+      headerRight: h(
+        'div',
+        { style: { display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } },
+        isAssignedTeacher &&
+          h(
+            Button,
+            {
+              size: 'sm',
+              variant: isEditing ? 'secondary' : 'outline',
+              onClick: () => {
+                setEditTitle(lab.title || '');
+                setEditStatement(lab.statement || '');
+                setIsEditing(!isEditing);
+              },
+              style: {
+                fontSize: '12px',
+                padding: '4px 10px',
+                fontWeight: '600',
+              },
+            },
+            isEditing ? '✕ Hủy sửa' : '✏️ Sửa bài lab',
           ),
+        isPublished
+          ? h(
+              Badge,
+              { variant: 'success', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
+              '✓ Đã công bố điểm (Published)',
+            )
+          : h(
+              Badge,
+              { variant: 'warning', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
+              '⏳ Đang chấm & Xét duyệt',
+            ),
+      ),
     },
+    isEditing &&
+      h(
+        'form',
+        {
+          onSubmit: handleSaveEdit,
+          style: {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '12px',
+            padding: '16px',
+            backgroundColor: '#f8fafc',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0',
+            marginBottom: '16px',
+          },
+        },
+        h(
+          'div',
+          { style: { fontWeight: '700', fontSize: '14px', color: '#0f172a' } },
+          '✏️ Chỉnh Sửa Bài Thực Hành (Chỉ Giảng Viên Phụ Trách Lớp)',
+        ),
+        h('label', { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } }, 'Tiêu đề bài lab:'),
+        h('input', {
+          type: 'text',
+          value: editTitle,
+          onChange: (e) => setEditTitle(e.target.value),
+          style: {
+            padding: '8px 12px',
+            fontSize: '14px',
+            borderRadius: '6px',
+            border: '1px solid #cbd5e1',
+            width: '100%',
+            boxSizing: 'border-box',
+          },
+          placeholder: 'Nhập tiêu đề bài lab...',
+        }),
+        h('label', { style: { fontSize: '12px', fontWeight: '600', color: '#475569' } }, 'Nội dung đề bài (Markdown):'),
+        h('textarea', {
+          rows: 6,
+          value: editStatement,
+          onChange: (e) => setEditStatement(e.target.value),
+          style: {
+            padding: '8px 12px',
+            fontSize: '13px',
+            borderRadius: '6px',
+            border: '1px solid #cbd5e1',
+            width: '100%',
+            fontFamily: 'monospace',
+            boxSizing: 'border-box',
+          },
+          placeholder: 'Nhập nội dung đề bài Markdown...',
+        }),
+        h(
+          'div',
+          { style: { display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '6px' } },
+          h(
+            Button,
+            { type: 'button', variant: 'secondary', size: 'sm', onClick: () => setIsEditing(false) },
+            'Hủy',
+          ),
+          h(
+            Button,
+            { type: 'submit', variant: 'primary', size: 'sm', loading: savingEdit },
+            '💾 Lưu thay đổi',
+          ),
+        ),
+      ),
     h(
       'div',
       {
@@ -107,7 +234,7 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
         },
         `⚡ Ràng buộc kỹ thuật (${lab.constraints ? lab.constraints.length : 0})`,
       ),
-      lab.tests &&
+      (lab.tests || lab.testCases) &&
         h(
           'button',
           {
@@ -124,12 +251,12 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
               cursor: 'pointer',
             },
           },
-          `🧪 Test cases (${lab.tests.length})`,
+          `🧪 Test cases (${(lab.tests || lab.testCases || []).length})`,
         ),
     ),
     activeTab === 'statement' && h(LabStatementView, { lab }),
     activeTab === 'constraints' && h(LabConstraintsView, { constraints: lab.constraints }),
-    activeTab === 'tests' && h(LabTestCasesView, { tests: lab.tests }),
+    activeTab === 'tests' && h(LabTestCasesView, { tests: lab.tests || lab.testCases }),
     isStaff &&
       h(
         'div',

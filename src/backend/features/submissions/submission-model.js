@@ -15,7 +15,7 @@ export function createSubmissionModel(db) {
            u.username as studentUsername, s.status, s.judge_verdict as judgeVerdict,
            s.created_at as createdAt, s.judged_at as judgedAt
     FROM submissions s
-    JOIN users u ON u.id = s.student_id
+    LEFT JOIN users u ON u.id = s.student_id
     WHERE s.lab_id = ?
     ORDER BY s.id DESC
   `);

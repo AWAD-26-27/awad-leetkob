@@ -169,3 +169,42 @@ test('Teacher Role: can assign and remove student from their own class; other te
   assert.equal(rAfter.status, 200);
   assert.equal(rAfter.body.items.some((s) => s.id === studentId), false);
 });
+
+test('Classroom API Enhancements: GET /api/classes/:classId and GET /api/my-class', async () => {
+  // 1. Admin gets details of Class 1 including student roster
+  const rClassDetails = await app.as('admin').get('/api/classes/1');
+  assert.equal(rClassDetails.status, 200);
+  assert.equal(rClassDetails.body.class.name, 'Class A');
+  assert.ok(Array.isArray(rClassDetails.body.class.students));
+  assert.ok(rClassDetails.body.class.studentCount >= 2);
+
+  // 2. Student 1 queries their own class via /api/my-class
+  const rMyClass = await app.as('student_1').get('/api/my-class');
+  assert.equal(rMyClass.status, 200);
+  assert.ok(rMyClass.body.class);
+  assert.equal(rMyClass.body.class.name, 'Class A');
+  assert.ok(rMyClass.body.class.teachers.some((t) => t.username === 'ta_a'));
+
+  // 3. Admin has no classId -> /api/my-class returns { class: null }
+  const rAdminMyClass = await app.as('admin').get('/api/my-class');
+  assert.equal(rAdminMyClass.status, 200);
+  assert.equal(rAdminMyClass.body.class, null);
+
+  // 4. Non-existent class ID returns 404
+  const rNotFound = await app.as('admin').get('/api/classes/99999');
+  assertProblem(rNotFound, 404, 'not-found');
+
+  // 5. Single-class boundary: Reassigning student to Class 2 cleanly removes them from Class 1
+  const rReassign = await app.as('admin').post('/api/classes/2/students', { studentId: 4 }); // student_1
+  assert.equal(rReassign.status, 200);
+
+  const rClass1Students = await app.as('admin').get('/api/classes/1/students');
+  assert.equal(rClass1Students.body.items.some((s) => s.id === 4), false, 'student_1 must not be in Class 1');
+
+  const rClass2Students = await app.as('admin').get('/api/classes/2/students');
+  assert.equal(rClass2Students.body.items.some((s) => s.id === 4), true, 'student_1 must now be in Class 2');
+
+  const rStudent1Updated = await app.as('student_1').get('/api/my-class');
+  assert.equal(rStudent1Updated.body.class.name, 'Class B');
+});
+

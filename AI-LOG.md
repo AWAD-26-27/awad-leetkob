@@ -1,6 +1,6 @@
 # AI-LOG.md
 
-Team log for PA#2. Retain every member's dated entries when merging branches.
+Team log for PA#3 (LeeTKOB). Retain every member's dated entries when merging branches.
 
 Confirmed identities: **23120101 — Nguyễn Minh Tú**, **23120105 — Huỳnh Mạnh Tường**, and **23120111 — Phạm Quốc Nam Anh**.
 
@@ -262,4 +262,39 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Kiểm tra số dòng: 100% component `.js` dưới 200 dòng (file lớn nhất 182 dòng).
   - Unit tests frontend (`test/unit/frontend-core.test.js`, `test/unit/frontend-stage3.test.js`): 100% pass (bao gồm kiểm thử FAQ Privacy Invariant, persistent state, DEMO_USERS, formatTime, cx, apiClient).
   - Contract & E2E tests (`test/contract/frontend-serving.contract.test.js`, `test/contract/playwright-ci-simulation.contract.test.js`, `test/contract/e2e-8step-verification.test.js`, `test/contract/headless-browser-flow.test.js`, `test/contract/publish.contract.test.js`): 46/46 tests pass.
+
+## 2026-11-24 — Full-stack & Security Architect — Chuẩn hóa RBAC, Tách quyền Admin/Giảng viên, Bỏ xóa DB và Thiết kế lại Admin UI SaaS
+
+- Tool: Antigravity (Gemini 3.8 Flash), Node.js 22 built-in test runner, Chrome DevTools Browser Subagent.
+- Context & Requirements:
+  - Người dùng yêu cầu chuẩn hóa triệt để mô hình phân quyền:
+    1. Bỏ hoàn toàn tính năng cho phép admin xóa dữ liệu (xóa DB).
+    2. Admin KHÔNG có quyền quản lý các lab; các lab thuộc về từng lớp riêng biệt và chỉ có giảng viên phụ trách lớp có quyền tạo, sửa lab.
+    3. Trạng thái khởi tạo: Admin luôn có; Giảng viên và Sinh viên lúc khởi tạo chưa có lớp (`classId = null`), Admin sẽ gán họ vào lớp.
+    4. Trang quản lý lớp học và người dùng của Admin cần trực quan, rõ ràng, hiện đầy đủ thông tin (tạo lớp, thêm/xóa thành viên, xem thông tin, xem bài học).
+    5. Thiết kế lại giao diện Admin để bớt giống "AI vibe", chuyên nghiệp, tự nhiên và hiện đại.
+- Changed:
+  - **Xóa bỏ triệt để tính năng xóa database:**
+    - Gỡ bỏ hoàn toàn `POST /api/admin/reset-database` khỏi `src/backend/features/auth/auth-controller.js` và `router.js`.
+    - Xóa bỏ nút bấm "Reset Database" và modal cảnh báo nguy hiểm trong giao diện Admin.
+  - **Tách bạch ranh giới Quản trị viên và Giảng viên:**
+    - Trong `src/backend/features/labs/lab-controller.js`: Chặn Admin (`req.user.role === 'admin'`) tạo bài lab (`POST /api/labs` trả về 403 Forbidden). Chỉ cho phép Giảng viên (`role === 'ta'`) đã được gán lớp (`classId != null`) tạo bài lab.
+    - Bổ sung hàm `updateLab(labId, { title, statement })` trong `src/backend/features/labs/lab-model.js`.
+    - Bổ sung API `PUT /api/labs/:labId` và `PATCH /api/labs/:labId` trong `src/backend/features/labs/router.js` và `lab-controller.js`: Chỉ giảng viên phụ trách lớp của bài lab đó mới có quyền sửa đổi.
+    - Mở rộng thư viện router tùy biến `src/backend/lib/router.js` để hỗ trợ method `patch`.
+    - Cập nhật giao diện `src/frontend/src/features/labs/components/LabDetailsCard.js`: Giảng viên phụ trách lớp có thể bấm nút "✏️ Sửa bài lab" để cập nhật ngay tiêu đề và đề bài Markdown.
+    - Cập nhật `src/frontend/src/routes/AppRoutes.js`: Admin đăng nhập chỉ thấy giao diện Quản trị Lớp học và Người dùng; không hiển thị danh mục bài lab hay hàng đợi review. Nếu giảng viên chưa được phân công lớp, hiển thị banner nhắc nhở liên hệ Admin để được gán lớp.
+  - **Thiết kế lại Admin Portal theo phong cách Enterprise SaaS:**
+    - Thay thế toàn bộ phong cách emoji gaming (👑, 🏫, 👥, 👨‍🏫, v.v.) và nền tối gradient bằng giao diện SaaS hiện đại, bảng màu trung tính trang nhã (`slate-50` đến `slate-900`, viền `slate-200`, điểm nhấn xanh `blue-600` chuẩn doanh nghiệp).
+    - Xây dựng thư viện biểu tượng vector SVG zero-dependency `src/frontend/src/features/admin/components/AdminIcons.js` (`IconSchool`, `IconUsers`, `IconPlus`, `IconCheck`, `IconX`, `IconTrash`, `IconShield`, v.v.).
+    - Tối ưu các thẻ quản lý `ClassManagementCard.js`, `ClassItemRow.js`, `UserCreationCard.js`, `UserDirectoryTable.js` và thanh tiêu đề `AdminHeader.js`: hiển thị rõ ràng danh sách bài lab hiện có của từng lớp, số lượng sinh viên, thông tin giảng viên kèm nút gán/gỡ linh hoạt; bảng danh bạ người dùng có lọc theo vai trò, trạng thái gán lớp và tìm kiếm.
+  - **Đồng bộ hóa tài liệu kỹ thuật & Đặc tả API:**
+    - `docs/role-business-matrix.md`: Cập nhật sơ đồ kiến trúc Mermaid, trách nhiệm vai trò Admin/Teacher, ma trận phân quyền RBAC Matrix (Admin bị 403 khi tạo/sửa lab, cấm xóa DB).
+    - `src/backend/features/docs/openapi-spec.js`: Thêm đặc tả `PUT /api/labs/{labId}`, `DELETE /api/classes/{classId}/teachers/{teacherId}`, cập nhật mã lỗi 403 cho `POST /api/labs`.
+    - `docs/frontend-architecture.md`: Cập nhật checklist hoàn thành tái cấu trúc và thiết kế SaaS cho Admin.
+- Validation:
+  - Unit tests: Bổ sung bộ kiểm thử `test/unit/admin-features-and-reset.test.js` kiểm tra toàn bộ các trường hợp: Admin bị 403 khi tạo/sửa lab; Reset Database trả về 404; Giảng viên chưa gán lớp bị 403; Giảng viên đã gán lớp tạo và sửa lab thành công. 59/59 unit tests pass.
+  - Contract tests: 58/58 contract tests pass (`node --test test/contract/*.test.js`).
+  - Browser verification: Dùng browser subagent kiểm tra trực tiếp giao diện Admin tại `http://localhost:3007` qua 2 tab "Quản lý Lớp học" và "Quản lý Người dùng". Kết quả giao diện hiển thị sắc nét, chuyên nghiệp, không còn emoji hay "AI vibe". Ảnh chụp màn hình: `admin_tab_classes.png` và `admin_tab_users.png`.
+
 

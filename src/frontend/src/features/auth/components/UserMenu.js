@@ -34,21 +34,49 @@ export function UserMenu({
 
   if (isGuest) {
     return h(
-      Button,
-      {
-        variant: 'primary',
-        onClick: onOpenLogin,
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '8px 20px',
-          fontWeight: '600',
-          fontSize: '14px',
-          borderRadius: '8px',
+      'div',
+      { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+      h(
+        'button',
+        {
+          type: 'button',
+          onClick: () => {
+            if (typeof window !== 'undefined') window.open('/api/docs', '_blank');
+          },
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '7px 14px',
+            borderRadius: '8px',
+            border: '1px solid #e2e8f0',
+            backgroundColor: '#ffffff',
+            color: '#475569',
+            fontSize: '13.5px',
+            fontWeight: '600',
+            cursor: 'pointer',
+          },
         },
-      },
-      'Đăng nhập',
+        h('span', null, '📖'),
+        'API Docs',
+      ),
+      h(
+        Button,
+        {
+          variant: 'primary',
+          onClick: onOpenLogin,
+          style: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 20px',
+            fontWeight: '600',
+            fontSize: '14px',
+            borderRadius: '8px',
+          },
+        },
+        'Đăng nhập',
+      ),
     );
   }
 
@@ -64,6 +92,9 @@ export function UserMenu({
       'button',
       {
         type: 'button',
+        'aria-haspopup': 'menu',
+        'aria-expanded': isOpen,
+        'aria-label': 'Menu tài khoản người dùng',
         onClick: () => setIsOpen(!isOpen),
         style: {
           display: 'flex',

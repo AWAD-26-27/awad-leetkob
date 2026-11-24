@@ -152,6 +152,7 @@ export function createAuthController(db) {
       const hash = hashPassword(password);
       const token = `tok-${cleanUsername.replace(/_/g, '-')}`;
 
+      db.exec('BEGIN IMMEDIATE');
       try {
         const result = qInsertUser.run(
           cleanUsername,
@@ -170,6 +171,7 @@ export function createAuthController(db) {
             qInsertEnrollment.run(targetClassId, newId);
           }
         }
+        db.exec('COMMIT');
 
         return sendJson(res, 201, {
           user: {
@@ -182,6 +184,7 @@ export function createAuthController(db) {
           },
         });
       } catch (err) {
+        db.exec('ROLLBACK');
         return problem(res, 500, 'database-error', err.message);
       }
     },

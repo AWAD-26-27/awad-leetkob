@@ -171,9 +171,18 @@ Use this checklist to bring remaining features into compliance with this standar
   - [x] Decompose `ReviewQueueTable.js`.
 - [x] **`features/admin/`**:
   - [x] Decompose monolithic 687-line `AdminDashboard.js` into subcomponents (`ClassManagementCard`, `ClassItemRow`, `UserCreationCard`, `UserDirectoryTable`, `AdminHeader`).
+  - [x] Modern Enterprise SaaS Redesign: Removed gaming emojis and saturated dark gradients, replaced with a dedicated zero-dependency SVG icon system `AdminIcons.js`, clean subtle borders, and natural Vietnamese typography.
   - [x] Add `features/admin/api/`, `hooks/`, `types/`.
+  - [x] Completely removed dangerous database reset features (`POST /api/admin/reset-database` and "Reset Database" UI button).
 - [x] **`features/classes/`**:
   - [x] Decompose monolithic 320-line `ClassStudentRoster.js` into subcomponents (`AssignStudentForm`, `ClassStudentTable`, `ClassStudentRoster`).
   - [x] Add `features/classes/hooks/`, `types/`.
+- [x] **`features/labs/`**:
+  - [x] Add `features/labs/types/index.js` with JSDoc definitions.
+  - [x] Add `features/labs/api/index.js`.
+  - [x] Add `features/labs/components/index.js`.
+  - [x] Added inline lab editing (title, statement) via `PUT /api/labs/:labId` in `LabDetailsCard.js` for assigned teachers.
+  - [x] Decompose `CreateLabForm.js` and `LabDetailsCard.js` under 200 lines limit.
 - [x] **`src/routes/`**:
-  - [x] Create `src/routes/AppRoutes.js`, `AdminModeBar.js`, `GuestLandingCard.js`, and remove inline route switching from `App.js`.
+  - [x] Create `src/routes/AppRoutes.js`, `GuestLandingCard.js`, and remove inline route switching from `App.js`.
+  - [x] Role-based routing: Admin views dedicated SaaS Admin Dashboard; Teachers view Class Labs; unassigned teachers receive an alert callout banner directing them to contact Admin.

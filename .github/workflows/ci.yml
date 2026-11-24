@@ -5,7 +5,7 @@ on:
     branches: [main]
   push:
     branches: [main]
-    tags: [pa2, pa3]
+    tags: [pa3]
 
 permissions:
   contents: read

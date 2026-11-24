@@ -18,9 +18,12 @@ export function useLabs() {
       const list = data?.items || [];
       setLabs(list);
       if (list.length > 0) {
-        if (!activeLabId || !list.some((l) => l.id === activeLabId)) {
-          setActiveLabId(list[0].id);
-        }
+        setActiveLabId((currentId) => {
+          if (!currentId || !list.some((l) => l.id === currentId)) {
+            return list[0].id;
+          }
+          return currentId;
+        });
       } else {
         setActiveLabId(null);
         setLabDetails(null);
@@ -33,7 +36,7 @@ export function useLabs() {
     } finally {
       setLoading(false);
     }
-  }, [user.username, user.classId, activeLabId]);
+  }, [user.username, user.classId]);
 
   const loadLabDetails = useCallback(async (id) => {
     if (!id) {

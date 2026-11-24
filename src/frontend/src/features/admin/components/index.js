@@ -4,3 +4,4 @@ export * from './ClassManagementCard.js';
 export * from './UserCreationCard.js';
 export * from './UserDirectoryTable.js';
 export * from './AdminDashboard.js';
+export * from './AdminIcons.js';

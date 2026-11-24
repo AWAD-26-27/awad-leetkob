@@ -9,7 +9,10 @@ export function useReviewQueue(labId) {
   const [error, setError] = useState(null);
 
   const loadQueue = useCallback(async () => {
-    if (!labId) return;
+    if (!labId || user.role === 'student' || user.role === 'guest') {
+      setQueue([]);
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -21,7 +24,7 @@ export function useReviewQueue(labId) {
     } finally {
       setLoading(false);
     }
-  }, [labId, user.username]);
+  }, [labId, user.username, user.role]);
 
   useEffect(() => {
     loadQueue();

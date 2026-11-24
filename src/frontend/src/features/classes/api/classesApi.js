@@ -4,6 +4,14 @@ export async function fetchClasses() {
   return api.get('/api/classes');
 }
 
+export async function fetchClassDetails(classId) {
+  return api.get(`/api/classes/${classId}`);
+}
+
+export async function fetchMyClass() {
+  return api.get('/api/my-class');
+}
+
 export async function createClassApi(name) {
   return api.post('/api/classes', { name });
 }

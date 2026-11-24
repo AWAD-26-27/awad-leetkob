@@ -9,7 +9,6 @@ test('an expired attempt cannot commit over a restarted worker or replace a TA r
   const { db, path, enqueue, verdicts } = workerDatabase(t);
   const id = enqueue();
   const second = openQueueDatabase(path);
-  t.after(() => second.close());
   let time = Date.now();
   const started = Promise.withResolvers();
   const result = Promise.withResolvers();
@@ -49,6 +48,11 @@ test('an expired attempt cannot commit over a restarted worker or replace a TA r
       callLogs: [],
     });
     await pending;
+    try {
+      second.close();
+    } catch {
+      // ignore if already closed
+    }
   }
 
   assert.deepEqual(verdicts(id), checkerFixture.expected.verdicts);

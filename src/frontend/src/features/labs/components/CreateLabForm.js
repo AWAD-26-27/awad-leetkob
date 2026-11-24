@@ -31,7 +31,7 @@ export function CreateLabForm({ onSuccess }) {
   const removeConstraint = (idx) => setConstraints(constraints.filter((_, i) => i !== idx));
   const updateConstraint = (idx, field, val) => {
     const next = [...constraints];
-    next[idx][field] = field === 'deduction' ? parseFloat(val) || 0 : val;
+    next[idx][field] = field === 'deduction' ? (val === '' ? '' : parseFloat(val) || 0) : val;
     setConstraints(next);
   };
 
@@ -50,10 +50,16 @@ export function CreateLabForm({ onSuccess }) {
         statementMd: statement,
         testCases: testCases.map((tc, idx) => ({
           ordinal: idx + 1,
+          input: tc.input,
           inputText: tc.input,
+          output: tc.output,
           expectedOutput: tc.output,
         })),
-        constraints,
+        constraints: constraints.map((c) => ({
+          code: c.code,
+          text: c.text,
+          deduction: typeof c.deduction === 'number' ? c.deduction : parseFloat(c.deduction) || 0,
+        })),
       });
       toast.success('Lab created successfully');
       setTitle('');

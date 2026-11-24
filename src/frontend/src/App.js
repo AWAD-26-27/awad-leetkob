@@ -1,11 +1,12 @@
 import { h, useState, useEffect } from './lib/react.js';
 import { AuthProvider, useAuth } from './providers/AuthProvider.js';
 import { ToastProvider, useToast } from './providers/ToastProvider.js';
+import { OfflineBanner, ErrorBoundary } from './components/ui/index.js';
 import { Navbar, UserSelectorBar, LoginModal } from './features/auth/index.js';
 import { useLabs } from './features/labs/index.js';
 import { submitCode, listSubmissions, useAutoPollSubmission } from './features/submissions/index.js';
 import { useReviewQueue } from './features/reviews/index.js';
-import { AppRoutes } from './routes/index.js';
+import { AppRoutes, useHashRouter } from './routes/index.js';
 
 function AppContent() {
   const { user, switchUser } = useAuth();
@@ -16,8 +17,36 @@ function AppContent() {
   const [submittingCode, setSubmittingCode] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
+  // Client-side Hash Router
+  const { path: routePath, params: routeParams, navigate: navigateTo } = useHashRouter();
+
   // Labs data & actions
   const { labs, activeLabId, setActiveLabId, labDetails, refreshLabs, refreshDetails } = useLabs();
+
+  // Synchronize route lab parameter with activeLabId
+  useEffect(() => {
+    if (routePath === '/labs/:labId' && routeParams.labId) {
+      if (routeParams.labId !== activeLabId) {
+        setActiveLabId(routeParams.labId);
+      }
+    }
+  }, [routePath, routeParams.labId]);
+
+  // Synchronize activeLabId with route hash when on labs page
+  useEffect(() => {
+    if (activeLabId && (routePath === '/' || routePath === '/labs')) {
+      if (user.role !== 'guest' && user.role !== 'admin') {
+        navigateTo(`#/labs/${activeLabId}`);
+      }
+    }
+  }, [activeLabId]);
+
+  // Trigger login modal if route is #/login and user is not authenticated
+  useEffect(() => {
+    if (routePath === '/login' && (!user || user.role === 'guest')) {
+      setShowLoginModal(true);
+    }
+  }, [routePath, user]);
 
   // Review queue hook
   const { queue, refreshQueue, handleReview } = useReviewQueue(activeLabId);
@@ -42,14 +71,18 @@ function AppContent() {
 
   // Load existing student submissions for this lab
   useEffect(() => {
+    setActiveSubId(null);
     if (isStudent && activeLabId && user.id) {
+      setSubmissionsList([]);
       listSubmissions(activeLabId)
         .then((data) => {
           if (data?.items) setSubmissionsList(data.items);
         })
         .catch(() => {});
+    } else {
+      setSubmissionsList([]);
     }
-  }, [isStudent, activeLabId, user.username]);
+  }, [isStudent, activeLabId, user.username, user.id]);
 
   const handleCodeSubmit = async (code) => {
     if (!activeLabId) return;
@@ -129,13 +162,19 @@ function AppContent() {
         setE2eStatusText,
         onOpenLogin: () => setShowLoginModal(true),
         onQuickLogin: switchUser,
+        routePath,
+        routeParams,
+        navigateTo,
       }),
     ),
 
     // Landing Login Modal
     h(LoginModal, {
       isOpen: showLoginModal,
-      onClose: () => setShowLoginModal(false),
+      onClose: () => {
+        setShowLoginModal(false);
+        if (routePath === '/login') navigateTo('#/');
+      },
     }),
 
     // Professional Academic & Modern Footer
@@ -187,6 +226,10 @@ function AppContent() {
 }
 
 export function App() {
-  return h(AuthProvider, null, h(ToastProvider, null, h(AppContent, null)));
+  return h(
+    ErrorBoundary,
+    null,
+    h(AuthProvider, null, h(ToastProvider, null, h(OfflineBanner, null), h(AppContent, null))),
+  );
 }
 export default App;

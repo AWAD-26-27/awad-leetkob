@@ -2,9 +2,12 @@
 
 ## Stack
 
-- PA#2 slice: JavaScript ES modules, Node.js 22.13+, built-in HTTP and SQLite in memory; plain HTML UI.
-- PA#3 slice: Feature-driven frontend architecture under `src/frontend/` following [docs/frontend-architecture.md](docs/frontend-architecture.md).
-- ESLint, Prettier, `node:test`, Playwright. Demo has no LLM pipeline or C++ sandbox; Gemini access is provisioned separately for PA#3.
+- Architecture: Modern ES modules on Node.js 22.13+, built-in HTTP server, and SQLite with WAL mode.
+- C++ Sandbox: Dockerized sandbox (`sandbox/`) for isolated C++ execution with strict resource limits.
+- AST Checker: Tree-sitter WASM parser (`src/checker/`) for syntax rules, guardrails, and Gemini model adapter.
+- Worker Queue: Background SQLite worker (`src/worker.js`) with lease recovery and offline resilience.
+- Frontend: Feature-driven architecture under `src/frontend/` following [docs/frontend-architecture.md](docs/frontend-architecture.md).
+- Quality Gate: ESLint, Prettier, `node:test`, Playwright. Unit and contract test suites run zero external network calls.
 
 ## Commands
 
@@ -18,7 +21,7 @@
 
 ## Conventions
 
-- Follow [permissions](docs/permissions.md) and [task ownership](PHAN_CONG_PA2.md). State scope and verification before editing; keep changes focused.
+- Follow [permissions](docs/permissions.md) and [task ownership](../PHAN_CONG_PA3.md). State scope and verification before editing; keep changes focused.
 - Follow [Frontend Architecture](docs/frontend-architecture.md) and [Agent Coding Guidelines](docs/agent-coding-guidelines.md) for all UI tasks. Keep components under 200 lines and preserve strict feature module encapsulation.
 - Use a branch from current main and a PR; main requires `gates` and `e2e`. Preserve every member's entries when merging AI-LOG.md.
 - Read [Publish's contract](docs/contract/publish.md) before changing its behavior. Check role/ownership and pending reviews before writes; refused calls leave data unchanged. Publish retries keep the original timestamp.

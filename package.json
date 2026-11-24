@@ -1,9 +1,9 @@
 {
-  "name": "awad-quality-gate-starter",
+  "name": "leetkob",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Session 7 starter: a slice of LeeTKOB and a CI gate that cannot fail. Make it bite.",
+  "description": "LeeTKOB PA3: Multi-tenant C++ Autograder, AST Checker & Review Queue",
   "engines": {
     "node": ">=22.13"
   },

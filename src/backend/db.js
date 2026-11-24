@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { createHash } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
@@ -60,7 +60,7 @@ export const USERS = [
   },
 ];
 
-// Legacy demo users for backwards compatibility with PA2 contract tests
+// Legacy demo users for backwards compatibility with baseline contract tests
 export const LEGACY_USERS = [
   {
     id: 6,
@@ -98,10 +98,24 @@ export function hashPassword(password) {
 export function verifyPassword(storedHash, inputPassword, username = '') {
   if (!storedHash || inputPassword === undefined || inputPassword === null) return false;
   const hashed = hashPassword(inputPassword);
-  if (storedHash === hashed) return true;
-  const defaultHash = hashPassword('password123');
-  if (storedHash === defaultHash && username && inputPassword === username) {
-    return true;
+  try {
+    const bufStored = Buffer.from(storedHash, 'hex');
+    const bufHashed = Buffer.from(hashed, 'hex');
+    if (bufStored.length === bufHashed.length && timingSafeEqual(bufStored, bufHashed)) {
+      return true;
+    }
+    const defaultHash = hashPassword('password123');
+    const bufDefault = Buffer.from(defaultHash, 'hex');
+    if (
+      bufStored.length === bufDefault.length &&
+      timingSafeEqual(bufStored, bufDefault) &&
+      username &&
+      inputPassword === username
+    ) {
+      return true;
+    }
+  } catch {
+    return false;
   }
   return false;
 }
@@ -202,7 +216,7 @@ CREATE TABLE IF NOT EXISTS llm_call_logs (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- Backwards compatibility structures for PA2
+-- Backwards compatibility structures for baseline schema
 CREATE TABLE IF NOT EXISTS class_staff (
   class_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL REFERENCES users(id),
@@ -216,7 +230,7 @@ CREATE TABLE IF NOT EXISTS enrollments (
 );
 `;
 
-export function initDatabase(db, { seed = true, seedLegacyLabs = true } = {}) {
+export function initDatabase(db, { seed = true, seedLegacyLabs = true, seedUnassigned = false } = {}) {
   db.exec('PRAGMA busy_timeout = 5000;');
   db.exec('PRAGMA foreign_keys = ON;');
   try {
@@ -235,60 +249,93 @@ export function initDatabase(db, { seed = true, seedLegacyLabs = true } = {}) {
       'INSERT OR IGNORE INTO users (id, username, name, password_hash, role, class_id, token) VALUES (?, ?, ?, ?, ?, ?, ?)',
     );
     for (const u of USERS) {
+      const classId = seedUnassigned ? null : u.classId;
       insertUser.run(
         u.id,
         u.username,
         u.name,
         hashPassword(u.password),
         u.role,
-        u.classId,
+        classId,
         u.token,
       );
     }
     for (const u of LEGACY_USERS) {
+      const classId = seedUnassigned ? null : u.classId;
       insertUser.run(
         u.id,
         u.username,
         u.name,
         hashPassword(u.password),
         u.role,
-        u.classId,
+        classId,
         u.token,
       );
     }
 
-    // Populate compatibility mapping
-    db.exec(`
-      INSERT OR IGNORE INTO class_staff (class_id, user_id)
-      SELECT class_id, id FROM users WHERE role = 'ta' AND class_id IS NOT NULL;
-
-      INSERT OR IGNORE INTO enrollments (class_id, user_id)
-      SELECT class_id, id FROM users WHERE role = 'student' AND class_id IS NOT NULL;
-    `);
-
-    if (seedLegacyLabs) {
+    if (!seedUnassigned) {
+      // Populate compatibility mapping only when assigned
       db.exec(`
-        INSERT OR IGNORE INTO labs (id, class_id, title, statement_md, created_by, published_at)
-        VALUES (1, 1, 'Merge sort', 'Implement merge sort', 2, NULL),
-               (2, 2, 'Merge sort', 'Implement merge sort', 3, NULL);
+        INSERT OR IGNORE INTO class_staff (class_id, user_id)
+        SELECT class_id, id FROM users WHERE role = 'ta' AND class_id IS NOT NULL;
 
-        INSERT OR IGNORE INTO submissions (id, lab_id, student_id, source_code, status, verdict, judge_verdict, decision)
-        VALUES (1, 1, 6, 'int main() {}', 'judged', 'violation', 'Accepted', NULL),
-               (2, 1, 7, 'int main() {}', 'judged', 'pass', 'Accepted', NULL),
-               (3, 2, 8, 'int main() {}', 'judged', 'violation', 'Accepted', 'confirm');
-
-        INSERT OR IGNORE INTO constraints (id, lab_id, code, text, deduction)
-        VALUES (1, 1, 'C1', 'Do not call std::sort', 2),
-               (2, 2, 'C1', 'Do not call std::sort', 2);
-
-        INSERT OR IGNORE INTO constraint_verdicts
-          (id, submission_id, constraint_id, verdict, evidence_json, source, review_status)
-        VALUES (1, 1, 1, 'violation', '[]', 'hard_rule', 'pending'),
-               (2, 2, 1, 'pass', '[]', 'hard_rule', 'confirmed'),
-               (3, 3, 2, 'violation', '[]', 'hard_rule', 'confirmed');
+        INSERT OR IGNORE INTO enrollments (class_id, user_id)
+        SELECT class_id, id FROM users WHERE role = 'student' AND class_id IS NOT NULL;
       `);
     }
+
+    if (seedLegacyLabs) {
+      if (seedUnassigned) {
+        db.exec(`
+          INSERT OR IGNORE INTO labs (id, class_id, title, statement_md, created_by, published_at)
+          VALUES (1, 1, 'Merge sort', 'Implement merge sort without using std::sort', 1, NULL),
+                 (2, 2, 'Merge sort', 'Implement merge sort without using std::sort', 1, NULL);
+
+          INSERT OR IGNORE INTO constraints (id, lab_id, code, text, deduction)
+          VALUES (1, 1, 'C1', 'Do not call std::sort', 2),
+                 (2, 2, 'C1', 'Do not call std::sort', 2);
+        `);
+      } else {
+        db.exec(`
+          INSERT OR IGNORE INTO labs (id, class_id, title, statement_md, created_by, published_at)
+          VALUES (1, 1, 'Merge sort', 'Implement merge sort', 2, NULL),
+                 (2, 2, 'Merge sort', 'Implement merge sort', 3, NULL);
+
+          INSERT OR IGNORE INTO submissions (id, lab_id, student_id, source_code, status, verdict, judge_verdict, decision)
+          VALUES (1, 1, 6, 'int main() {}', 'judged', 'violation', 'Accepted', NULL),
+                 (2, 1, 7, 'int main() {}', 'judged', 'pass', 'Accepted', NULL),
+                 (3, 2, 8, 'int main() {}', 'judged', 'violation', 'Accepted', 'confirm');
+
+          INSERT OR IGNORE INTO constraints (id, lab_id, code, text, deduction)
+          VALUES (1, 1, 'C1', 'Do not call std::sort', 2),
+                 (2, 2, 'C1', 'Do not call std::sort', 2);
+
+          INSERT OR IGNORE INTO constraint_verdicts
+            (id, submission_id, constraint_id, verdict, evidence_json, source, review_status)
+          VALUES (1, 1, 1, 'violation', '[]', 'hard_rule', 'pending'),
+                 (2, 2, 1, 'pass', '[]', 'hard_rule', 'confirmed'),
+                 (3, 3, 2, 'violation', '[]', 'hard_rule', 'confirmed');
+        `);
+      }
+    }
   }
+}
+
+export function resetDatabase(db, { seedUnassigned = true } = {}) {
+  db.exec(`
+    DELETE FROM llm_call_logs;
+    DELETE FROM constraint_verdicts;
+    DELETE FROM jobs;
+    DELETE FROM submissions;
+    DELETE FROM test_cases;
+    DELETE FROM constraints;
+    DELETE FROM labs;
+    DELETE FROM enrollments;
+    DELETE FROM class_staff;
+    DELETE FROM users;
+    DELETE FROM classes;
+  `);
+  initDatabase(db, { seed: true, seedLegacyLabs: true, seedUnassigned });
 }
 
 export function open(options = {}) {

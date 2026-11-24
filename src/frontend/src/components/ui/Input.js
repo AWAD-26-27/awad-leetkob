@@ -13,6 +13,7 @@ export function Input({
   disabled = false,
   required = false,
   className = '',
+  style = {},
   ...props
 }) {
   return h(
@@ -47,6 +48,7 @@ export function Input({
         background: disabled ? '#f1f5f9' : '#ffffff',
         color: 'var(--text-main)',
         transition: 'border-color 0.15s ease',
+        ...style,
       },
       ...props,
     }),

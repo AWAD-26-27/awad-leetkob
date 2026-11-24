@@ -11,5 +11,15 @@ export function createSubmissionRouter(db, labModel, authMiddleware) {
   router.get('/api/labs/:labId/submissions', authMiddleware, controller.list);
   router.get('/api/submissions/:submissionId', authMiddleware, controller.get);
 
+  // Remapped aliases for flexible client routing
+  router.get('/api/submissions', authMiddleware, (req, res) => {
+    req.params.labId = req.params.labId || req.query?.labId;
+    return controller.list(req, res);
+  });
+  router.post('/api/submissions', authMiddleware, (req, res) => {
+    req.params.labId = req.params.labId || req.body?.labId;
+    return controller.submit(req, res);
+  });
+
   return { router, submissionModel, controller };
 }

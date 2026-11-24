@@ -1,6 +1,7 @@
-import { h, useRef, useState } from '../../../lib/react.js';
+import { h, useRef, useState, useEffect } from '../../../lib/react.js';
 import { EditorHeader } from './EditorHeader.js';
 import { EditorLineGutter } from './EditorLineGutter.js';
+import { useCodeDraft } from '../hooks/useCodeDraft.js';
 
 const SAMPLE_CPP_CODE = `#include <iostream>
 #include <vector>
@@ -33,21 +34,45 @@ int main() {
 `,
 };
 
-export function CodeEditorWindow({ onSubmit, submitting = false }) {
+export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) {
   const textareaRef = useRef(null);
-  const codeRef = useRef(SAMPLE_CPP_CODE);
+  const { draft, saveCode, lastSaved, resetDraft } = useCodeDraft(labId, SAMPLE_CPP_CODE);
+  const codeRef = useRef(draft);
   const [lineCount, setLineCount] = useState(14);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (textareaRef.current && textareaRef.current.value !== draft) {
+      textareaRef.current.value = draft;
+      codeRef.current = draft;
+      const lines = (draft.match(/\n/g) || []).length + 1;
+      setLineCount(Math.max(lines, 14));
+    }
+  }, [labId, draft]);
 
   const handleInput = (e) => {
     const val = e.target.value;
     codeRef.current = val;
+    saveCode(val);
     const lines = (val.match(/\n/g) || []).length + 1;
     if (lines !== lineCount) setLineCount(Math.max(lines, 14));
   };
 
   const handleKeyDown = (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleSubmit(e);
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const ta = textareaRef.current;
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const val = ta.value;
+      ta.value = val.substring(0, start) + '  ' + val.substring(end);
+      ta.selectionStart = ta.selectionEnd = start + 2;
+      codeRef.current = ta.value;
+      saveCode(ta.value);
+    } else if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      handleSubmit(e);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -69,6 +94,7 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
     if (TEMPLATES[key] && textareaRef.current) {
       textareaRef.current.value = TEMPLATES[key];
       codeRef.current = TEMPLATES[key];
+      saveCode(TEMPLATES[key]);
       const lines = (TEMPLATES[key].match(/\n/g) || []).length + 1;
       setLineCount(Math.max(lines, 14));
     }
@@ -111,10 +137,11 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
       h(EditorLineGutter, { lineNumbers }),
       h('textarea', {
         ref: textareaRef,
-        defaultValue: SAMPLE_CPP_CODE,
+        defaultValue: draft,
         onInput: handleInput,
         onKeyDown: handleKeyDown,
         spellCheck: 'false',
+        'aria-label': 'Trình soạn thảo mã nguồn C++',
         style: {
           flex: 1,
           padding: '16px 20px',
@@ -132,6 +159,35 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
           caretColor: '#38bdf8',
         },
       }),
+    ),
+    h(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '6px 16px',
+          backgroundColor: 'rgba(255, 255, 255, 0.03)',
+          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+          fontSize: '12px',
+          color: '#94a3b8',
+        },
+      },
+      h(
+        'span',
+        null,
+        lastSaved ? `✓ Đã lưu nháp (${lastSaved})` : '• Tự động lưu nháp (LocalStorage)',
+      ),
+      h(
+        'span',
+        null,
+        'Phím tắt: ',
+        h('code', { style: { color: '#38bdf8' } }, 'Tab'),
+        ' thụt lề • ',
+        h('code', { style: { color: '#38bdf8' } }, 'Ctrl + Enter'),
+        ' nộp bài',
+      ),
     ),
   );
 }

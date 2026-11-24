@@ -3,7 +3,12 @@ import { h } from '../../../lib/react.js';
 export function NavbarBrand() {
   return h(
     'div',
-    { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
+    {
+      style: { display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' },
+      onClick: () => {
+        if (typeof window !== 'undefined') window.location.hash = '#/';
+      },
+    },
     // Modern Code Logo Mark
     h(
       'div',

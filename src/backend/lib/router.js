@@ -38,6 +38,9 @@ export function createRouter() {
     put(path, ...handlers) {
       add('PUT', path, handlers);
     },
+    patch(path, ...handlers) {
+      add('PATCH', path, handlers);
+    },
     delete(path, ...handlers) {
       add('DELETE', path, handlers);
     },

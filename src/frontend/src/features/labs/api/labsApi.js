@@ -15,3 +15,7 @@ export async function createLab(labData) {
 export async function publishLab(id) {
   return await api.post(`/api/labs/${id}/publish`);
 }
+
+export async function updateLab(id, labData) {
+  return await api.put(`/api/labs/${id}`, labData);
+}

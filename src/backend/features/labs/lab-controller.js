@@ -35,7 +35,7 @@ export function createLabController(db, labModel) {
       }
 
       // Cross-class isolation: if user is not admin and does not belong to the lab's class
-      if (req.user.role !== 'admin' && req.user.classId !== lab.classId) {
+      if (req.user.role !== 'admin' && Number(req.user.classId) !== Number(lab.classId)) {
         return problem(res, 404, 'not-found', 'No such lab');
       }
 
@@ -45,12 +45,20 @@ export function createLabController(db, labModel) {
         title: lab.title,
         statement: lab.statement,
         publishedAt: lab.publishedAt,
+        constraints: lab.constraints || [],
+        tests: lab.tests || [],
+        testCases: lab.testCases || [],
       });
     },
 
     create(req, res) {
-      if (req.user.role === 'student') {
-        return problem(res, 403, 'forbidden', 'Only staff may create labs');
+      if (req.user.role !== 'ta') {
+        return problem(res, 403, 'forbidden', 'Only teachers may create labs for their class');
+      }
+
+      const classId = req.user.classId;
+      if (!classId) {
+        return problem(res, 400, 'invalid-body', 'Cannot create lab: teacher is not assigned to any class');
       }
 
       const body = req.body || {};
@@ -65,12 +73,20 @@ export function createLabController(db, labModel) {
       if (!Array.isArray(testCases) || testCases.length === 0) {
         return problem(res, 400, 'invalid-body', 'testCases must have at least one test case');
       }
+      for (const tc of testCases) {
+        if (!tc || typeof tc !== 'object') {
+          return problem(res, 400, 'invalid-body', 'testCases must contain valid test case objects');
+        }
+      }
       if (!Array.isArray(constraints) || constraints.length === 0) {
         return problem(res, 400, 'invalid-body', 'constraints must have at least one constraint');
       }
 
       const seenCodes = new Set();
       for (const c of constraints) {
+        if (!c || typeof c !== 'object') {
+          return problem(res, 400, 'invalid-body', 'constraints must contain valid constraint objects');
+        }
         if (!c.code || typeof c.code !== 'string' || !c.code.trim()) {
           return problem(res, 400, 'invalid-body', 'constraint code cannot be empty');
         }
@@ -87,8 +103,6 @@ export function createLabController(db, labModel) {
           return problem(res, 400, 'invalid-body', 'deduction must be a non-negative number');
         }
       }
-
-      const classId = req.user.role === 'admin' ? Number(body.classId) || 1 : req.user.classId;
 
       try {
         const created = labModel.createLab({
@@ -141,6 +155,43 @@ export function createLabController(db, labModel) {
 
       const publishedAt = labModel.publishLab(lab.id);
       return sendJson(res, 200, { lab: lab.id, publishedAt });
+    },
+
+    update(req, res) {
+      const labId = Number(req.params.labId);
+      if (!Number.isInteger(labId)) {
+        return problem(res, 404, 'not-found', 'No such lab');
+      }
+
+      const lab = labModel.getLab(labId);
+      if (!lab) {
+        return problem(res, 404, 'not-found', 'No such lab');
+      }
+
+      if (req.user.role !== 'ta' || Number(req.user.classId) !== Number(lab.classId)) {
+        return problem(res, 403, 'forbidden', 'Only the assigned teacher of this class may edit this lab');
+      }
+
+      const body = req.body || {};
+      const { title, statement } = body;
+
+      if (title !== undefined && (!title || typeof title !== 'string' || !title.trim())) {
+        return problem(res, 400, 'invalid-body', 'title cannot be empty');
+      }
+      if (statement !== undefined && (!statement || typeof statement !== 'string' || !statement.trim())) {
+        return problem(res, 400, 'invalid-body', 'statement cannot be empty');
+      }
+
+      try {
+        const updated = labModel.updateLab(lab.id, {
+          title: title ? title.trim() : undefined,
+          statement: statement ? statement.trim() : undefined,
+        });
+        return sendJson(res, 200, updated);
+      } catch (err) {
+        console.error(err);
+        return problem(res, 500, 'internal', 'Failed to update lab');
+      }
     },
   };
 }

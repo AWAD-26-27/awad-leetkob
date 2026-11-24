@@ -1,6 +1,7 @@
 import { h, useState } from '../../../lib/react.js';
 import { Card, Button, Input } from '../../../components/ui/index.js';
 import { useToast } from '../../../providers/ToastProvider.js';
+import { PlusIcon } from './AdminIcons.js';
 
 export function UserCreationCard({ classes, userCount, onCreateUser }) {
   const { toast } = useToast();
@@ -48,40 +49,48 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
         style: {
           borderBottom: '1px solid #f1f5f9',
           paddingBottom: '14px',
-          marginBottom: '18px',
+          marginBottom: '16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '10px',
         },
       },
       h(
-        'h3',
-        {
-          style: {
-            margin: 0,
-            fontSize: '16px',
-            fontWeight: '700',
-            color: '#0f172a',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
+        'div',
+        null,
+        h(
+          'h2',
+          {
+            style: {
+              margin: 0,
+              fontSize: '16px',
+              fontWeight: '700',
+              color: '#0f172a',
+            },
           },
-        },
-        '👤 Cấp Phát Tài Khoản (Teacher & Student)',
+          'Tạo tài khoản mới',
+        ),
+        h(
+          'p',
+          { style: { margin: '2px 0 0 0', fontSize: '13px', color: '#64748b' } },
+          'Cấp tài khoản cho giảng viên hoặc sinh viên trong hệ thống.',
+        ),
       ),
       h(
         'span',
         {
           style: {
             fontSize: '12px',
-            fontWeight: '700',
-            color: '#10b981',
-            background: '#ecfdf5',
-            padding: '2px 8px',
-            borderRadius: '6px',
+            fontWeight: '600',
+            color: '#475569',
+            background: '#f1f5f9',
+            padding: '2px 9px',
+            borderRadius: '9999px',
           },
         },
-        `${userCount} Tài khoản`,
+        `${userCount} người dùng`,
       ),
     ),
     h(
@@ -91,24 +100,24 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
         style: { display: 'flex', flexDirection: 'column', gap: '14px' },
       },
       h(Input, {
-        label: 'Họ và Tên đầy đủ (Full Name)',
-        placeholder: 'vd: TS. Nguyen Van B hoặc Le Van C',
+        label: 'Họ và tên',
+        placeholder: 'vd: Nguyễn Văn A',
         value: fullName,
         onChange: (e) => setFullName(e.target.value),
         required: true,
       }),
       h(
         'div',
-        { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' } },
+        { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' } },
         h(Input, {
-          label: 'Tên đăng nhập (Username)',
-          placeholder: 'vd: teacher_c, stu_88',
+          label: 'Tên đăng nhập',
+          placeholder: 'vd: student_a, teacher_b',
           value: username,
           onChange: (e) => setUsername(e.target.value),
           required: true,
         }),
         h(Input, {
-          label: 'Mật khẩu (Password)',
+          label: 'Mật khẩu',
           type: 'password',
           placeholder: 'Tối thiểu 6 ký tự',
           value: password,
@@ -118,11 +127,11 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
       ),
       h(
         'div',
-        { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' } },
+        { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' } },
         h(
           'div',
           { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-          h('label', { style: { fontSize: '13px', fontWeight: '600', color: '#475569' } }, 'Vai trò (Role)'),
+          h('label', { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } }, 'Vai trò'),
           h(
             'select',
             {
@@ -130,21 +139,21 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
               onChange: (e) => setRole(e.target.value),
               style: {
                 padding: '8px 12px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
                 fontSize: '13px',
                 backgroundColor: '#ffffff',
-                fontWeight: '600',
+                color: '#0f172a',
               },
             },
-            h('option', { value: 'student' }, '🎓 Sinh viên (Student)'),
-            h('option', { value: 'ta' }, '👨‍🏫 Giảng viên / TA (Teacher)'),
+            h('option', { value: 'student' }, 'Sinh viên'),
+            h('option', { value: 'ta' }, 'Giảng viên'),
           ),
         ),
         h(
           'div',
           { style: { display: 'flex', flexDirection: 'column', gap: '6px' } },
-          h('label', { style: { fontSize: '13px', fontWeight: '600', color: '#475569' } }, 'Gán Lớp (Tùy chọn)'),
+          h('label', { style: { fontSize: '13px', fontWeight: '500', color: '#334155' } }, 'Gán vào lớp (tùy chọn)'),
           h(
             'select',
             {
@@ -152,26 +161,40 @@ export function UserCreationCard({ classes, userCount, onCreateUser }) {
               onChange: (e) => setClassId(e.target.value),
               style: {
                 padding: '8px 12px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 border: '1px solid #cbd5e1',
                 fontSize: '13px',
                 backgroundColor: '#ffffff',
+                color: '#0f172a',
               },
             },
             h('option', { value: '' }, '-- Chưa gán lớp --'),
-            classes.map((c) => h('option', { key: c.id, value: c.id }, c.name)),
+            classes.map((c) =>
+              h('option', { key: c.id, value: c.id }, `${c.name} (#${c.id})`),
+            ),
           ),
         ),
       ),
       h(
-        Button,
-        {
-          type: 'submit',
-          variant: 'primary',
-          disabled: creating,
-          style: { marginTop: '6px' },
-        },
-        creating ? 'Đang khởi tạo...' : '+ Khởi Tạo Tài Khoản Mới',
+        'div',
+        { style: { display: 'flex', justifyContent: 'flex-end', marginTop: '4px' } },
+        h(
+          Button,
+          {
+            type: 'submit',
+            variant: 'primary',
+            disabled: creating,
+            style: {
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontWeight: '600',
+              padding: '8px 18px',
+            },
+          },
+          h(PlusIcon, { size: 14 }),
+          creating ? 'Đang tạo...' : 'Tạo tài khoản',
+        ),
       ),
     ),
   );

@@ -4,13 +4,16 @@ import { useClassStudents } from '../hooks/index.js';
 import { AssignStudentForm } from './AssignStudentForm.js';
 import { ClassStudentTable } from './ClassStudentTable.js';
 
-export function ClassStudentRoster({ classId, className }) {
+export function ClassStudentRoster({ classId, className, onRosterChange }) {
   const [isOpen, setIsOpen] = useState(true);
   const {
     classStudents,
+    filteredStudents,
     allStudents,
     loading,
     assigning,
+    searchQuery,
+    setSearchQuery,
     loadStudents,
     handleAssignStudent,
     handleRemoveStudent,
@@ -38,7 +41,21 @@ export function ClassStudentRoster({ classId, className }) {
     );
   }
 
-  const candidateStudents = allStudents.filter((s) => s.classId !== classId);
+  // Safe numerical comparison so string vs number type mismatches are impossible
+  const targetId = Number(classId);
+  const candidateStudents = allStudents.filter((s) => Number(s.classId) !== targetId);
+
+  const onAssignWrapper = async (studentId) => {
+    const ok = await handleAssignStudent(studentId);
+    if (ok && onRosterChange) onRosterChange();
+    return ok;
+  };
+
+  const onRemoveWrapper = async (studentId, studentName) => {
+    const ok = await handleRemoveStudent(studentId, studentName);
+    if (ok && onRosterChange) onRosterChange();
+    return ok;
+  };
 
   return h(
     Card,
@@ -66,12 +83,12 @@ export function ClassStudentRoster({ classId, className }) {
           null,
           h(
             'h3',
-            { style: { margin: 0, fontSize: '18px', fontWeight: '700', color: '#0f172a' } },
+            { style: { margin: 0, fontSize: '17px', fontWeight: '700', color: '#0f172a' } },
             `Quản Lý Sinh Viên — Lớp Phụ Trách: ${className || `Class ${classId}`}`,
           ),
           h(
             'p',
-            { style: { margin: '3px 0 0 0', fontSize: '13.5px', color: '#64748b' } },
+            { style: { margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' } },
             `Hiện có ${classStudents.length} sinh viên đã ghi danh vào lớp.`,
           ),
         ),
@@ -83,7 +100,7 @@ export function ClassStudentRoster({ classId, className }) {
           'span',
           {
             style: {
-              fontSize: '13px',
+              fontSize: '12px',
               fontWeight: '700',
               padding: '3px 10px',
               borderRadius: '6px',
@@ -101,8 +118,9 @@ export function ClassStudentRoster({ classId, className }) {
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              fontSize: '14px',
+              fontSize: '13px',
               color: '#64748b',
+              fontWeight: '600',
             },
           },
           isOpen ? '▲ Thu gọn' : '▼ Mở rộng',
@@ -112,17 +130,31 @@ export function ClassStudentRoster({ classId, className }) {
     isOpen &&
       h(
         'div',
-        { style: { display: 'flex', flexDirection: 'column', gap: '16px' } },
+        { style: { display: 'flex', flexDirection: 'column', gap: '14px' } },
         h(AssignStudentForm, {
           candidateStudents,
-          onAssign: handleAssignStudent,
+          onAssign: onAssignWrapper,
           onRefresh: loadStudents,
           assigning,
           loading,
         }),
+        classStudents.length > 3 &&
+          h('input', {
+            type: 'text',
+            placeholder: '🔍 Tìm kiếm sinh viên theo tên hoặc username...',
+            value: searchQuery,
+            onChange: (e) => setSearchQuery(e.target.value),
+            style: {
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: '1px solid #cbd5e1',
+              fontSize: '13px',
+              outline: 'none',
+            },
+          }),
         h(ClassStudentTable, {
-          classStudents,
-          onRemove: handleRemoveStudent,
+          classStudents: filteredStudents,
+          onRemove: onRemoveWrapper,
         }),
       ),
   );

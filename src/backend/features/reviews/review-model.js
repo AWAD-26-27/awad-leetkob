@@ -79,7 +79,7 @@ export function createReviewModel(db) {
         });
       }
 
-      // Fallback for legacy PA2 queue data
+      // Fallback for legacy queue data
       return qLegacyQueue.all(labId).map((r) => ({
         id: r.submissionId,
         submissionId: r.submissionId,

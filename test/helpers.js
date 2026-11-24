@@ -42,5 +42,5 @@ export async function startApp(customDb, options = {}) {
     return row ? row.t : null;
   };
 
-  return { db, as, publishedAt, close: () => new Promise((r) => server.close(r)) };
+  return { db, as, base, publishedAt, close: () => new Promise((r) => server.close(r)) };
 }

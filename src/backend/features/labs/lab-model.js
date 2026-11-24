@@ -21,6 +21,12 @@ export function createLabModel(db) {
     "UPDATE labs SET published_at = datetime('now') WHERE id = ? AND published_at IS NULL",
   );
   const qGetPublishedAt = db.prepare('SELECT published_at as publishedAt FROM labs WHERE id = ?');
+  const qConstraintsByLab = db.prepare(
+    'SELECT id, code, text, deduction FROM constraints WHERE lab_id = ? ORDER BY id',
+  );
+  const qTestsByLab = db.prepare(
+    'SELECT id, ordinal, input_text as input, expected_output as expectedOutput FROM test_cases WHERE lab_id = ? ORDER BY ordinal',
+  );
 
   return {
     listLabs(user) {
@@ -31,7 +37,16 @@ export function createLabModel(db) {
     },
 
     getLab(labId) {
-      return qLabById.get(labId);
+      const lab = qLabById.get(labId);
+      if (!lab) return null;
+      const constraints = qConstraintsByLab.all(labId);
+      const tests = qTestsByLab.all(labId);
+      return {
+        ...lab,
+        constraints,
+        tests,
+        testCases: tests,
+      };
     },
 
     createLab({ classId, title, statement, testCases, constraints, createdBy }) {
@@ -45,8 +60,8 @@ export function createLabModel(db) {
           qInsertTestCase.run(
             labId,
             ordinal++,
-            tc.input !== undefined && tc.input !== null ? String(tc.input) : '',
-            tc.expectedOutput !== undefined && tc.expectedOutput !== null
+            tc && tc.input !== undefined && tc.input !== null ? String(tc.input) : '',
+            tc && tc.expectedOutput !== undefined && tc.expectedOutput !== null
               ? String(tc.expectedOutput)
               : '',
           );
@@ -72,6 +87,16 @@ export function createLabModel(db) {
     publishLab(labId) {
       qPublish.run(labId);
       return qGetPublishedAt.get(labId)?.publishedAt;
+    },
+
+    updateLab(labId, { title, statement }) {
+      if (title !== undefined) {
+        db.prepare('UPDATE labs SET title = ? WHERE id = ?').run(title, labId);
+      }
+      if (statement !== undefined) {
+        db.prepare('UPDATE labs SET statement_md = ? WHERE id = ?').run(statement, labId);
+      }
+      return this.getLab(labId);
     },
   };
 }
