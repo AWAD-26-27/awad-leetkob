@@ -97,7 +97,7 @@ export async function judgeSemantic({
     promptTokens: null,
     completionTokens: null,
     latencyMs: null,
-    costUsd: null,
+    costUsd: client.costUsd ?? null,
   };
   const controller = new globalThis.AbortController();
   const started = performance.now();
@@ -143,6 +143,7 @@ export function createGeminiClient() {
 
   return {
     model,
+    costUsd: process.env.GEMINI_BILLING_TIER === 'free' ? 0 : null,
     async generate({ prompt, signal }) {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,

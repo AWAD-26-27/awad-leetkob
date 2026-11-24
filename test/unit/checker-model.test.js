@@ -136,7 +136,7 @@ test('a timeout aborts the request and an offline/denied request never reaches t
   assert.equal(timedOut.callLogs[0].status, 'timeout');
 });
 
-test('the Gemini adapter sends the response schema and records provider metadata', async (t) => {
+test('the Gemini adapter records provider metadata and uses the configured free-tier cost', async (t) => {
   t.mock.method(globalThis, 'fetch', async (url, request) => {
     requests.push({ url, request });
     return new globalThis.Response(
@@ -154,7 +154,7 @@ test('the Gemini adapter sends the response schema and records provider metadata
     );
   });
   const requests = [];
-  const keys = ['GEMINI_API_KEY', 'GEMINI_MODEL'];
+  const keys = ['GEMINI_API_KEY', 'GEMINI_MODEL', 'GEMINI_BILLING_TIER'];
   const previous = keys.map((key) => process.env[key]);
   t.after(() =>
     keys.forEach((key, index) => {
@@ -164,6 +164,7 @@ test('the Gemini adapter sends the response schema and records provider metadata
   );
   process.env.GEMINI_API_KEY = 'fixture-value';
   process.env.GEMINI_MODEL = 'fixture-model';
+  delete process.env.GEMINI_BILLING_TIER;
 
   const { verdicts, callLogs } = await evaluateSubmission(input);
   assert.equal(requests.length, 1);
@@ -189,4 +190,10 @@ test('the Gemini adapter sends the response schema and records provider metadata
     completionTokens: 6,
     costUsd: null,
   });
+
+  process.env.GEMINI_BILLING_TIER = 'free';
+  const freeRun = await evaluateSubmission(input);
+  assert.deepEqual(freeRun.verdicts, verdicts);
+  assert.equal(freeRun.callLogs[0].costUsd, 0);
+  assert.equal(requests.length, 2);
 });
