@@ -6,6 +6,14 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { setTimeout as wait } from 'node:timers/promises';
 
+let dockerAvailable = false;
+try {
+  execFileSync('docker', ['info'], { stdio: 'ignore' });
+  dockerAvailable = true;
+} catch {
+  dockerAvailable = false;
+}
+
 const directory = mkdtempSync(join(tmpdir(), 'leetkob-sandbox-tests-'));
 const canary = join(directory, 'sandbox-canary.h');
 writeFileSync(canary, '// synthetic canary');
@@ -15,12 +23,25 @@ writeFileSync(
 );
 process.env.DOCKER_CONFIG = directory;
 process.env.GEMINI_API_KEY = 'synthetic-sandbox-canary';
-after(() => rmSync(directory, { recursive: true, force: true }));
+after(() => {
+  try {
+    rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  } catch {
+    // Windows file safety
+  }
+});
 
 const { runSandbox } = await import('../src/sandbox.js');
 const docker = (...args) => execFileSync('docker', args, { encoding: 'utf8' }).trim();
-const sandboxIds = () =>
-  docker('ps', '-aq', '--filter', 'label=app=leetkob-cpp-sandbox').split('\n').filter(Boolean);
+const sandboxIds = () => {
+  if (!dockerAvailable) return [];
+  return docker('ps', '-aq', '--filter', 'label=app=leetkob-cpp-sandbox')
+    .split('\n')
+    .filter(Boolean);
+};
+
+const dockerTest = (name, fn) =>
+  test(name, { skip: !dockerAvailable && 'Docker daemon is not running' }, fn);
 
 function runFixture(name, { limits, prefix = '', expectedOutput = '' } = {}) {
   const source = readFileSync(new URL(`./fixtures/sandbox/${name}.cpp`, import.meta.url), 'utf8');
@@ -36,18 +57,18 @@ async function observeSandbox(before) {
   throw new Error('The sandbox container did not appear');
 }
 
-test('01 no network namespace interfaces other than loopback', async () => {
+dockerTest('01 no network namespace interfaces other than loopback', async () => {
   assert.equal((await runFixture('01-no-network')).verdict, 'Accepted');
 });
 
-test('02 CPU time stops a finite CPU workload before the wall deadline', async () => {
+dockerTest('02 CPU time stops a finite CPU workload before the wall deadline', async () => {
   const result = await runFixture('02-cpu-limit', { limits: { cpuTimeSeconds: 1 } });
   assert.equal(result.verdict, 'TLE');
   assert.equal(result.limit, undefined);
   assert.match(result.diagnostic, /started/);
 });
 
-test('03 wall time removes the entire running container', async () => {
+dockerTest('03 wall time removes the entire running container', async () => {
   const before = new Set(sandboxIds());
   const [result, id] = await Promise.all([
     runFixture('03-wall-limit', { limits: { wallTimeMs: 3000 } }),
@@ -59,26 +80,29 @@ test('03 wall time removes the entire running container', async () => {
   assert.ok(!sandboxIds().includes(id));
 });
 
-test('04 memory is limited, swap is disabled, and the fixture reads its allocation', async () => {
-  const result = await runFixture('04-memory-limit', { expectedOutput: String(270 * 1024 ** 2) });
-  assert.equal(result.verdict, 'MLE');
-});
+dockerTest(
+  '04 memory is limited, swap is disabled, and the fixture reads its allocation',
+  async () => {
+    const result = await runFixture('04-memory-limit', { expectedOutput: String(270 * 1024 ** 2) });
+    assert.equal(result.verdict, 'MLE');
+  },
+);
 
-test('05 the kernel limits the sandbox to 64 processes', async () => {
+dockerTest('05 the kernel limits the sandbox to 64 processes', async () => {
   assert.equal((await runFixture('05-process-limit')).verdict, 'Accepted');
 });
 
-test('06 stdout and stderr share the same byte limit', async () => {
+dockerTest('06 stdout and stderr share the same byte limit', async () => {
   const result = await runFixture('06-output-limit', { limits: { maxOutputBytes: 2048 } });
   assert.equal(result.verdict, 'OLE');
   assert.equal(result.limit, 'output');
 });
 
-test('07 the C++ program runs as non-root (UID 10001)', async () => {
+dockerTest('07 the C++ program runs as non-root (UID 10001)', async () => {
   assert.equal((await runFixture('07-non-root')).verdict, 'Accepted');
 });
 
-test('08 sandbox has no host bind mounts and no Docker socket', async () => {
+dockerTest('08 sandbox has no host bind mounts and no Docker socket', async () => {
   const before = new Set(sandboxIds());
   const result = runFixture('08-no-host-mounts');
   const checkMounts = async () => {
@@ -93,7 +117,7 @@ test('08 sandbox has no host bind mounts and no Docker socket', async () => {
   assert.equal(outcome.verdict, 'Accepted');
 });
 
-test('09 the compiler and program cannot see host canaries', async () => {
+dockerTest('09 the compiler and program cannot see host canaries', async () => {
   const before = new Set(sandboxIds());
   const result = runFixture('09-no-secrets', {
     prefix: `#define LEETKOB_TEST_CANARY ${JSON.stringify(canary)}\n`,

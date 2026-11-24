@@ -7,10 +7,10 @@ Verified on **10 November 2026**, with the user's explicit approval to create a 
 | Item                      | Actual setup                                                                                                |
 | ------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | Provider/model            | Google Gemini API, `gemini-3.8-flash`                                                                       |
-| Dedicated project         | LeeTKOB PA2 (`gen-lang-client-0537961442`)                                                                  |
+| Dedicated project         | LeeTKOB PA3 (`gen-lang-client-0537961442`)                                                                  |
 | Billing                   | Free tier, **no billing account linked**; UI offers `Set up billing`                                        |
 | Paid spending limit       | **USD 0**, enforced by keeping this project unlinked from paid billing; no paid fallback                    |
-| Key                       | `leetkob-pa2-server`, one server key; value stored only in ignored local `.env`                             |
+| Key                       | `leetkob-pa3-server`, one server key; value stored only in ignored local `.env`                             |
 | Application usage         | Demo, unit/contract tests and CI make no model calls                                                        |
 | Current cost per demo lab | **USD 0** (zero calls)                                                                                      |
 | Future model-backed lab   | Free-tier tokens cost USD 0 within provider quota; no measured 80-submission lab cost/throughput is claimed |
@@ -37,7 +37,7 @@ The first setup request returned **HTTP 503**; the retry timed out at 30 seconds
 
 Free-tier prompts/responses may be used to improve Google's products. Setup uses synthetic text only. Before PA#3 sends real student submissions, the team must approve its data policy; strip comments/identity as the class brief requires, validate evidence and route timeout/invalid output to `unsure`. Hard rules decide first; only remaining semantic constraints go to the model. The TA sets deductions and reviews before Publish.
 
-The provider/model is selected for code reasoning, not validated against the class eval yet. Keep model calls out of unit/contract/CI tests; use fixtures. Add the actual per-lab request/token cap and benchmark when implementing that pipeline, rather than claiming an unimplemented cap in PA#2.
+The provider/model is selected for code reasoning, not validated against the class eval yet. Keep model calls out of unit/contract/CI tests; use fixtures. Add the actual per-lab request/token cap and benchmark when implementing that pipeline, rather than claiming an unimplemented cap in earlier iterations.
 
 Official sources inspected on 10 November 2026:
 

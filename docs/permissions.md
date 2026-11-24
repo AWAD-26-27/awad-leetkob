@@ -1,6 +1,6 @@
 # Assistant permissions
 
-These tiers apply to LeeTKOB. A direct user instruction authorizing an operation satisfies its approval requirement; ask only for missing authority or information. File ownership is in [PHAN_CONG_PA2.md](../PHAN_CONG_PA2.md).
+These tiers apply to LeeTKOB. A direct user instruction authorizing an operation satisfies its approval requirement; ask only for missing authority or information. File ownership is in [PHAN_CONG_PA3.md](../PHAN_CONG_PA3.md).
 
 ## Allowed
 
@@ -32,4 +32,4 @@ The `tok-*` strings in `src/db.js` are public demo identities seeded in memory a
 
 Scan the current tree and all fetched refs before handover; repeat after teammates' branches merge and before packaging. If a real credential appears, stop using it, report its location without its value, obtain authority to revoke/rotate, and record the incident. Deleting the current file does not remove a secret from history; do not rewrite shared history without approval.
 
-Google Gemini `gemini-3.8-flash` is provisioned on the separate LeeTKOB PA2 **Free tier** project with **no billing account linked**, an effective paid spending limit of **USD 0**. The key inherits project billing status, is stored only in ignored `.env`, and must never be packaged or copied into prompts/logs/screenshots. This is not a paid-tier numeric cap or a budget alert. Never enable billing or paid fallback without authorization. See [model/budget evidence](model-budget.md); manual synthetic checks and explicitly authorized public dev-set runs may contact the provider. Unit, contract and CI tests use offline fakes. Student code must not be sent until the team has approved the free-tier data handling policy.
+Google Gemini `gemini-3.8-flash` is provisioned on the separate LeeTKOB PA3 **Free tier** project with **no billing account linked**, an effective paid spending limit of **USD 0**. The key inherits project billing status, is stored only in ignored `.env`, and must never be packaged or copied into prompts/logs/screenshots. This is not a paid-tier numeric cap or a budget alert. Never enable billing or paid fallback without authorization. See [model/budget evidence](model-budget.md); manual synthetic checks and explicitly authorized public dev-set runs may contact the provider. Unit, contract and CI tests use offline fakes. Student code must not be sent until the team has approved the free-tier data handling policy.

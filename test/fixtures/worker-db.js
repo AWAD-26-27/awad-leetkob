@@ -11,8 +11,16 @@ export function workerDatabase(t) {
   const path = join(directory, 'jobs.db');
   const db = new DatabaseSync(path);
   t.after(() => {
-    db.close();
-    rmSync(directory, { recursive: true, force: true });
+    try {
+      db.close();
+    } catch {
+      // database handle might already be closed
+    }
+    try {
+      rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+    } catch {
+      // Windows file lock safety
+    }
   });
   // This fixture mirrors the worker-facing PA3 schema while the API migration is pending.
   db.exec(`

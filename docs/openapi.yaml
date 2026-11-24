@@ -1,0 +1,939 @@
+openapi: 3.1.0
+info:
+  title: LeeTKOB PA3 API
+  version: 3.0.0
+  description: >
+    Nền tảng thực hành và thẩm định bài tập lập trình C++20 với cơ chế chấm điểm
+    tĩnh AST, hàng đợi xét duyệt và kiểm soát đa khách thuê (Multi-tenant class isolation).
+    Tuân thủ chuẩn RFC 7807 Problem Details.
+  contact:
+    name: LeeTKOB Engineering Team
+
+servers:
+  - url: http://localhost:3007
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT or Token
+      description: 'Bearer token xác thực người dùng (Ví dụ: "tok-admin", "tok-ta-a", "tok-student-1").'
+
+  schemas:
+    ProblemDetails:
+      type: object
+      required:
+        - type
+        - title
+        - status
+      properties:
+        type:
+          type: string
+          example: https://leetkob.example/problems/unauthenticated
+        title:
+          type: string
+          example: Invalid username or password
+        status:
+          type: integer
+          example: 401
+        detail:
+          type: string
+          example: The provided credentials do not match our records.
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        username:
+          type: string
+          example: ta_a
+        name:
+          type: string
+          example: ta_a
+        role:
+          type: string
+          enum: [admin, ta, student]
+          example: ta
+        classId:
+          type: integer
+          nullable: true
+          example: 1
+
+    Lab:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        classId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: 'Lab 1: Merge Sort'
+        statement:
+          type: string
+          example: Implement merge sort without using std::sort.
+        publishedAt:
+          type: string
+          nullable: true
+          example: '2026-11-24 10:00:00'
+
+    Submission:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        labId:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [queued, judging, judged]
+          example: judged
+        judgeVerdict:
+          type: string
+          nullable: true
+          enum: [Accepted, WA, TLE, MLE, CE, RE, OLE, SystemError]
+          example: Accepted
+
+    ReviewQueueItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        submissionId:
+          type: integer
+          example: 1
+        student:
+          type: string
+          example: stu1
+        constraint:
+          type: string
+          example: C1
+        verdict:
+          type: string
+          enum: [pass, violation, unsure]
+          example: violation
+        evidence:
+          type: array
+          items:
+            type: object
+            properties:
+              line:
+                type: integer
+                example: 2
+              text:
+                type: string
+                example: 'int main() { return std::min(0, 1); }'
+        source:
+          type: string
+          example: hard_rule
+        deduction:
+          type: number
+          example: 2
+        reviewStatus:
+          type: string
+          enum: [pending, confirmed, overturned]
+          example: pending
+
+paths:
+  /api/health:
+    get:
+      summary: Kiểm tra sức khỏe hệ thống (Health Check Probe)
+      tags:
+        - System
+      responses:
+        '200':
+          description: Hệ thống hoạt động bình thường
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    example: '2026-11-24T11:00:00.000Z'
+                  uptimeSeconds:
+                    type: number
+                    example: 3600
+                  database:
+                    type: object
+                    properties:
+                      connected:
+                        type: boolean
+                        example: true
+                      mode:
+                        type: string
+                        example: WAL
+
+  /api/login:
+    post:
+      summary: Đăng nhập vào hệ thống
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: ta_a
+                password:
+                  type: string
+                  example: password123
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: tok-ta-a
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Thông tin đăng nhập không hợp lệ
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /api/logout:
+    post:
+      summary: Đăng xuất khỏi hệ thống
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Đăng xuất thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logged out successfully
+
+  /api/me:
+    get:
+      summary: Lấy thông tin tài khoản hiện tại
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Thông tin tài khoản
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /api/users/change-password:
+    post:
+      summary: Đổi mật khẩu người dùng
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  example: password123
+                newPassword:
+                  type: string
+                  example: NewSecretPass2026!
+      responses:
+        '200':
+          description: Đổi mật khẩu thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Password changed successfully
+        '400':
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /api/users:
+    get:
+      summary: Danh bạ toàn bộ người dùng (Chỉ Admin)
+      tags:
+        - Users & Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách người dùng
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+        '403':
+          description: Chỉ Admin mới có quyền truy cập
+    post:
+      summary: Cấp phát tài khoản mới (Chỉ Admin)
+      tags:
+        - Users & Admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - name
+                - password
+                - role
+              properties:
+                username:
+                  type: string
+                  example: new_student
+                name:
+                  type: string
+                  example: John Doe
+                password:
+                  type: string
+                  example: password123
+                role:
+                  type: string
+                  enum: [ta, student]
+                  example: student
+                classId:
+                  type: integer
+                  nullable: true
+                  example: 1
+      responses:
+        '201':
+          description: Tài khoản được tạo thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '403':
+          description: Không có quyền
+        '409':
+          description: Username đã tồn tại
+
+  /api/classes:
+    get:
+      summary: Lấy danh mục lớp học
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách lớp học
+    post:
+      summary: Khởi tạo lớp học mới (Chỉ Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                  example: Class C
+      responses:
+        '201':
+          description: Lớp học được tạo thành công
+        '403':
+          description: Chỉ Admin có quyền
+        '409':
+          description: Tên lớp học đã tồn tại
+
+  /api/classes/{classId}:
+    get:
+      summary: Xem chi tiết lớp học và danh sách sinh viên
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Thông tin chi tiết lớp học
+        '404':
+          description: Không tìm thấy lớp học
+
+  /api/classes/{classId}/teachers:
+    post:
+      summary: Chỉ định giảng viên cho lớp học (Chỉ Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - teacherId
+              properties:
+                teacherId:
+                  type: integer
+                  example: 2
+      responses:
+        '200':
+          description: Chỉ định giảng viên thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '403':
+          description: Chỉ Admin có quyền
+        '404':
+          description: Lớp học hoặc giảng viên không tồn tại
+
+  /api/classes/{classId}/students:
+    get:
+      summary: Lấy danh sách sinh viên trong lớp học (Staff hoặc Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách sinh viên ghi danh
+        '403':
+          description: Giảng viên lớp khác không có quyền
+    post:
+      summary: Ghi danh sinh viên vào lớp học (Staff hoặc Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - studentId
+              properties:
+                studentId:
+                  type: integer
+                  example: 4
+      responses:
+        '200':
+          description: Ghi danh sinh viên thành công
+        '400':
+          description: Dữ liệu không hợp lệ
+        '403':
+          description: Không có quyền
+
+  /api/classes/{classId}/students/{studentId}:
+    delete:
+      summary: Hủy ghi danh sinh viên khỏi lớp học (Staff hoặc Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Hủy ghi danh thành công
+        '403':
+          description: Không có quyền
+
+  /api/students:
+    get:
+      summary: Lấy danh sách tất cả sinh viên trong hệ thống (Staff hoặc Admin)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách tất cả sinh viên
+        '403':
+          description: Sinh viên không có quyền truy cập
+
+  /api/my-class:
+    get:
+      summary: Lấy thông tin lớp học và danh sách bạn học của tài khoản hiện tại
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Thông tin lớp học của người dùng
+
+  /api/my-classes:
+    get:
+      summary: Lấy danh mục các lớp học do Giảng viên phụ trách (Hỗ trợ quản lý nhiều lớp)
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Danh sách các lớp học của giảng viên
+        '403':
+          description: Chỉ Giảng viên hoặc Quản trị viên mới có quyền
+
+  /api/classes/{classId}/announcements:
+    get:
+      summary: Lấy danh sách thông báo của lớp học
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách thông báo của lớp học
+        '403':
+          description: Không có quyền truy cập lớp học này
+    post:
+      summary: Đăng thông báo mới cho sinh viên trong lớp
+      tags:
+        - Classes
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: classId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - content
+              properties:
+                title:
+                  type: string
+                  example: Nhắc nhở hạn nộp bài Lab 1
+                content:
+                  type: string
+                  example: Hạn chót là 23h59 Chủ nhật tuần này.
+      responses:
+        '201':
+          description: Đã tạo thông báo thành công
+        '403':
+          description: Chỉ giảng viên của lớp mới có quyền đăng thông báo
+
+  /api/labs:
+    get:
+      summary: Lấy danh sách bài thực hành (Phân đoạn theo lớp)
+      tags:
+        - Labs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Lab'
+    post:
+      summary: Biên soạn bài thực hành mới (Chỉ Staff)
+      tags:
+        - Labs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - statement
+                - testCases
+                - constraints
+              properties:
+                title:
+                  type: string
+                  example: 'Lab 2: Recursion'
+                statement:
+                  type: string
+                  example: Compute factorial iteratively.
+                testCases:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      input:
+                        type: string
+                      expectedOutput:
+                        type: string
+                constraints:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: C1
+                      text:
+                        type: string
+                        example: No while loops
+                      deduction:
+                        type: number
+                        example: 2
+      responses:
+        '201':
+          description: Tạo bài Lab thành công
+        '400':
+          description: Dữ liệu không hợp lệ (trừ điểm âm, code trùng)
+        '403':
+          description: Sinh viên bị từ chối
+
+  /api/labs/{labId}:
+    get:
+      summary: Xem chi tiết đề bài thực hành
+      tags:
+        - Labs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Chi tiết đề bài
+        '404':
+          description: Không tìm thấy hoặc thuộc lớp khác (Cách ly đa khách thuê)
+
+  /api/labs/{labId}/submissions:
+    post:
+      summary: Sinh viên nộp mã nguồn C++ giải bài tập
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - code
+              properties:
+                code:
+                  type: string
+                  example: 'int main() { return 0; }'
+      responses:
+        '202':
+          description: Đã nhận bài nộp và xếp hàng chấm (Atomic Queued)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  status:
+                    type: string
+                    example: queued
+        '404':
+          description: Không tìm thấy Lab
+
+  /api/submissions/{submissionId}:
+    get:
+      summary: Tra cứu trạng thái bài nộp (Đảm bảo Strict Student Privacy)
+      tags:
+        - Submissions
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Trạng thái bài nộp. Với sinh viên, toàn bộ vi phạm AST bị ẩn trước publish.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Submission'
+        '404':
+          description: Bài nộp không tồn tại hoặc thuộc sinh viên/lớp khác
+
+  /api/labs/{labId}/queue:
+    get:
+      summary: Lấy hàng đợi xét duyệt vi phạm AST (Chỉ Staff)
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Danh sách bài nộp cần thẩm định
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  labId:
+                    type: integer
+                  publishedAt:
+                    type: string
+                    nullable: true
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ReviewQueueItem'
+        '403':
+          description: Sinh viên bị từ chối
+        '404':
+          description: Giảng viên lớp khác nhận 404
+
+  /api/submissions/{submissionId}/constraints/{code}/review:
+    post:
+      summary: Giảng viên thẩm định vi phạm ràng buộc AST
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - decision
+              properties:
+                decision:
+                  type: string
+                  enum: [confirm, overturn]
+      responses:
+        '200':
+          description: Thẩm định thành công
+        '400':
+          description: Quyết định không hợp lệ
+        '404':
+          description: Không tìm thấy bài nộp hoặc ràng buộc
+
+  /api/submissions/{submissionId}/review:
+    post:
+      summary: Thẩm định bài nộp tổng thể (Legacy Review Endpoint)
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: submissionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - decision
+              properties:
+                decision:
+                  type: string
+                  enum: [confirm, overturn]
+      responses:
+        '200':
+          description: Thẩm định thành công
+        '400':
+          description: Quyết định không hợp lệ
+        '404':
+          description: Không tìm thấy bài nộp
+
+  /api/openapi.json:
+    get:
+      summary: Tải tài liệu đặc tả OpenAPI 3.1 JSON
+      tags:
+        - System
+      responses:
+        '200':
+          description: OpenAPI 3.1 JSON
+
+  /api/docs:
+    get:
+      summary: Xem giao diện tài liệu tương tác Scalar API Reference
+      tags:
+        - System
+      responses:
+        '200':
+          description: Scalar HTML Documentation
+
+  /api/labs/{labId}/grades:
+    get:
+      summary: Lấy bảng điểm và số lần nộp bài của toàn bộ sinh viên trong lớp đối với bài Lab này
+      tags:
+        - Labs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Bảng điểm và danh sách sinh viên cùng số lần submit
+        '404':
+          description: Không tìm thấy bài lab hoặc không có quyền truy cập
+
+  /api/labs/{labId}/publish:
+    post:
+      summary: Công bố điểm số chính thức cho sinh viên (Publish Gate)
+      tags:
+        - Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: labId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Công bố điểm thành công (hoặc Idempotent retry)
+        '409':
+          description: Xung đột - Còn bài nộp chưa được thẩm định (reviews-pending)
+        '403':
+          description: Sinh viên bị từ chối
+        '404':
+          description: Giảng viên lớp khác nhận 404

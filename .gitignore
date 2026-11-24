@@ -9,3 +9,5 @@ secrets/
 *.pfx
 test-results/
 playwright-report/
+.agent/
+src/.agent/

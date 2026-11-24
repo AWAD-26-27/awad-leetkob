@@ -2,14 +2,19 @@
 import { open } from '../src/db.js';
 import { createApp } from '../src/app.js';
 
-export async function startApp(customDb) {
-  const db = customDb ?? open();
+export async function startApp(customDb, options = {}) {
+  const db = customDb ?? open(options);
   const server = createApp(db).listen(0);
   await new Promise((r) => server.once('listening', r));
   const base = `http://localhost:${server.address().port}`;
 
   function as(user) {
-    const headers = user ? { authorization: `Bearer tok-${user.replace('_', '-')}` } : {};
+    let token = '';
+    if (user) {
+      if (typeof user === 'object' && user.token) token = user.token;
+      else token = `tok-${String(user).replace('_', '-')}`;
+    }
+    const headers = token ? { authorization: `Bearer ${token}` } : {};
     const call = async (method, path, body) => {
       const res = await fetch(base + path, {
         method,
@@ -25,11 +30,21 @@ export async function startApp(customDb) {
       }
       return { status: res.status, type: res.headers.get('content-type'), body: json };
     };
-    return { get: (path) => call('GET', path), post: (path, body) => call('POST', path, body) };
+    return {
+      get: (path) => call('GET', path),
+      post: (path, body) => call('POST', path, body),
+      put: (path, body) => call('PUT', path, body),
+      patch: (path, body) => call('PATCH', path, body),
+      delete: (path) => call('DELETE', path),
+    };
   }
 
-  const publishedAt = (lab) =>
-    db.prepare('SELECT published_at AS t FROM labs WHERE id = ?').get(lab).t;
+  const publishedAt = (lab) => {
+    const row = db.prepare('SELECT published_at AS t FROM labs WHERE id = ?').get(lab);
+    return row ? row.t : null;
+  };
 
-  return { as, publishedAt, close: () => new Promise((r) => server.close(r)) };
+  return { db, as, base, publishedAt, close: () => new Promise((r) => server.close(r)) };
 }
+
+export const openTestApp = startApp;

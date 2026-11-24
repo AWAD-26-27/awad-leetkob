@@ -49,6 +49,11 @@ test('an expired attempt cannot commit over a restarted worker or replace a TA r
       callLogs: [],
     });
     await pending;
+    try {
+      second.close();
+    } catch {
+      // ignore if already closed
+    }
   }
 
   assert.deepEqual(verdicts(id), checkerFixture.expected.verdicts);
