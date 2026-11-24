@@ -215,6 +215,14 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: `npm run check` và `npm run e2e` đạt trên Node 22. Năm bài custom biên dịch và đạt toàn bộ 15 cặp bài/test. Docker với `--network none` cho 55/55 cặp ban-list dev, 5/5 cặp custom, 0 wrongful deductions và hai call log rỗng. Scorer gốc trả 1 cho cả hai vì còn các constraint semantic `unsure`. [Lệnh và bằng chứng](docs/checker.md#cli-and-docker)
 - Model và chi phí: Đề xuất `gemini-3.8-flash` theo thiết lập free tier. 80 bài Accepted × 1 constraint semantic × 1 lần gọi = tối đa 80 request cho lab `sort-merge`. Trong quota free tier, 80 × 0 USD = 0 USD dự kiến. Chờ xác nhận quyền sử dụng trước khi đo tokens, latency và chạy eval thật.
 
+## 2026-11-24 — Nam Anh — Chi phí và cấu hình Gemini 3.8 cho PA3
+
+- Tool: Codex, Gemini API, Node 22, Docker và Playwright.
+- Changed: Checker ghi `costUsd: 0` cho lần gọi trên project được cấu hình `GEMINI_BILLING_TIER=free`. Unit tests xác nhận trường chi phí giữ `null` khi chưa khai báo tier, nhận `0` khi dùng free tier và xuống SQLite đúng giá trị. Sửa thứ tự đóng kết nối test worker để Windows xoá được DB tạm.
+- Model và budget: `gemini-3.8-flash`, ngân sách model của nhóm 0 USD trên project không liên kết billing. Worker dùng `MAX_MODEL_CALLS_PER_LAB=80`. Lab `sort-merge` có 80 bài Accepted × 1 constraint semantic × 1 lần gọi = 80 lượt, dự kiến 80 × 0 USD = 0 USD trong quota free tier. CLI dev set đặt cap 16 theo bài, đủ cho 47 cặp semantic của bộ công khai.
+- Rejected: Flash-Lite đã chạy thử, sau đó Nam Anh chọn Gemini 3.8. Giữ artifacts Flash-Lite ngoài repo để bằng chứng nộp bài khớp model triển khai. Khi Gemini 3.8 trả 503 liên tục, dừng ở synthetic probes và ghi nhận lỗi provider. [Bằng chứng probe](evidence/pa3-checker/gemini-3.8-probes.md)
+- Validation: `npm run check` đạt 17 unit và 12 contract tests. `npm run e2e` đạt 1 test. Docker `--network none` tạo predictions giống lần offline đã merge và call log rỗng. SHA-256 của `eval.mjs` và `labels.jsonl` khớp rubric. Ghi lệnh tái hiện và cấu hình handoff trong [checker guide](docs/checker.md#live-evaluation-and-budget). Predictions, báo cáo và call log của Gemini 3.8 sẽ có sau khi inference hoạt động.
+
 ## 2026-11-23 — Tú — Kiểm chứng sandbox trên CI
 
 - Tool: Codex, Node.js test runner, Docker và Git.

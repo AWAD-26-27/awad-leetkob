@@ -56,7 +56,7 @@ For the browser check, install once with `npx playwright install chromium`, then
 
 Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real credentials out of Git and untrusted execution, use fixtures in tests, and record actual AI changes/decisions in [AI-LOG.md](AI-LOG.md). `.env` variants, common private-key files and `secrets/` are ignored; `.env.example` is tracked. Scan the complete history before submission, including newly integrated branches.
 
-## Model and budget
+## PA2 model and budget
 
 **Provider/model:** Google Gemini API, `gemini-3.8-flash` (selected for code reasoning; constraint-review quality must still be measured by the PA#3/4 eval).
 
@@ -64,7 +64,7 @@ Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real cr
 
 The demo still makes **zero model calls**, so current model API cost per demo lab is **USD 0**. Future calls to this model in free tier are free within provider quotas; an 80-submission model run has not been measured or validated. No paid fallback is configured. Free-tier data may be used to improve Google's products: use synthetic/public fixtures only during setup, and decide data handling before sending real student code.
 
-The authorized key is stored only in ignored local `.env`. [.env.example](.env.example) contains variable names with empty values; obtain a separate key through the project owner rather than sharing one in Git/chat. This manual synthetic check uses Node's built-in fetch and sends no student data:
+The authorized key is stored only in ignored local `.env`. [.env.example](.env.example) leaves the key empty. Obtain a key through the project owner using the agreed private channel. This manual synthetic check uses Node's built-in fetch and sends no student data:
 
 ```sh
 node --env-file=.env scripts/model-smoke.js
@@ -76,7 +76,9 @@ Codex assisted Nam Anh's harness work, as recorded in AI-LOG.md; it is separate 
 
 ## PA3 checker
 
-The shared `evaluateSubmission` API, C1/C2 worker fixture, offline CLI/Docker commands and eval evidence are in the [checker guide](docs/checker.md). For `sort-merge`, 80 Accepted submissions × 1 semantic constraint × 1 attempt gives a maximum of 80 Gemini calls. With the proposed `gemini-3.8-flash` free-tier setup and available quota, 80 × USD 0 = USD 0 projected provider cost. Live inference and measured cost await an approved run.
+The shared `evaluateSubmission` API, C1/C2 worker fixture, offline CLI/Docker commands and eval evidence are in the [checker guide](docs/checker.md). The documented worker settings select `gemini-3.8-flash` and a cumulative cap of 80 attempts per lab. For `sort-merge`, 80 Accepted submissions × 1 semantic constraint × 1 attempt = 80 requests. At free-tier rates and within quota, 80 × USD 0 = **USD 0 projected provider cost**. The team's model budget is USD 0 with no billing account linked.
+
+The live checker log records request ID, model, prompt and completion tokens, latency and per-attempt cost. The [Gemini 3.8 reproduction commands and worker settings](docs/checker.md#live-evaluation-and-budget) give the locations for the predictions, eval report and call log. Gemini 3.8 generation returned HTTP 503 on 24 November 2026. The 3.8 proof awaits successful inference. [Provider checks](evidence/pa3-checker/gemini-3.8-probes.md)
 
 ## Submission
 

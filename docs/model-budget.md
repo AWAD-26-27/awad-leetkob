@@ -1,4 +1,6 @@
-# Model setup and spending boundary
+# PA2 model setup and spending boundary
+
+See the [PA3 model, call log and lab budget](checker.md#live-evaluation-and-budget) for current checker and worker configuration.
 
 Verified on **10 November 2026**, with the user's explicit approval to create a key and save it locally. No paid subscription, billing account, credits or auto-reload was enabled.
 
@@ -21,7 +23,7 @@ Google's paid project caps are documented as experimental and may overshoot duri
 
 ## Reproduce the manual setup check
 
-The project owner provisions a separate key to a developer privately. Store it only in ignored `.env` as `GEMINI_API_KEY` and set `GEMINI_MODEL` to `gemini-3.8-flash`; do not put either value in `.env.example`. Keep optional `PORT`/`CHROME_PATH` unset unless needed. Then run:
+The project owner provisions a separate key to a developer privately. Store it only in ignored `.env` as `GEMINI_API_KEY` and set `GEMINI_MODEL` to `gemini-3.8-flash`. Keep optional `PORT`/`CHROME_PATH` unset unless needed. Then run:
 
 ```sh
 node --env-file=.env scripts/model-smoke.js
