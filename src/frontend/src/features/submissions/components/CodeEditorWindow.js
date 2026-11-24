@@ -1,5 +1,6 @@
 import { h, useRef, useState } from '../../../lib/react.js';
-import { Button } from '../../../components/ui/index.js';
+import { EditorHeader } from './EditorHeader.js';
+import { EditorLineGutter } from './EditorLineGutter.js';
 
 const SAMPLE_CPP_CODE = `#include <iostream>
 #include <vector>
@@ -42,16 +43,11 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
     const val = e.target.value;
     codeRef.current = val;
     const lines = (val.match(/\n/g) || []).length + 1;
-    if (lines !== lineCount) {
-      setLineCount(Math.max(lines, 14));
-    }
+    if (lines !== lineCount) setLineCount(Math.max(lines, 14));
   };
 
   const handleKeyDown = (e) => {
-    // Ctrl + Enter to submit
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      handleSubmit(e);
-    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') handleSubmit(e);
   };
 
   const handleSubmit = (e) => {
@@ -93,148 +89,13 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
         marginBottom: '24px',
       },
     },
-    // macOS Header Bar
-    h(
-      'div',
-      {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 18px',
-          backgroundColor: '#070a10',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        },
-      },
-      // Window Dots & File Tab
-      h(
-        'div',
-        { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
-        h('span', {
-          style: {
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            backgroundColor: '#ff5f56',
-            display: 'inline-block',
-            boxShadow: '0 0 6px rgba(255, 95, 86, 0.4)',
-          },
-        }),
-        h('span', {
-          style: {
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            backgroundColor: '#ffbd2e',
-            display: 'inline-block',
-            boxShadow: '0 0 6px rgba(255, 189, 46, 0.4)',
-          },
-        }),
-        h('span', {
-          style: {
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            backgroundColor: '#27c93f',
-            display: 'inline-block',
-            boxShadow: '0 0 6px rgba(39, 201, 63, 0.4)',
-          },
-        }),
-        h(
-          'span',
-          {
-            style: {
-              marginLeft: '14px',
-              fontFamily: 'var(--font-mono)',
-              fontSize: '12px',
-              color: '#f8fafc',
-              fontWeight: '600',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            },
-          },
-          '⚡ solution.cpp',
-          h(
-            'span',
-            {
-              style: {
-                fontSize: '10px',
-                color: '#94a3b8',
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                padding: '2px 6px',
-                borderRadius: '4px',
-                fontWeight: '500',
-              },
-            },
-            'C++20 (GCC 14)',
-          ),
-        ),
-      ),
-
-      // Toolbar Controls & Submit Button
-      h(
-        'div',
-        { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
-        h(
-          'button',
-          {
-            type: 'button',
-            onClick: handleCopy,
-            style: {
-              background: 'rgba(255, 255, 255, 0.06)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              color: copied ? '#10b981' : '#cbd5e1',
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            },
-          },
-          copied ? '✓ Copied' : '📋 Copy',
-        ),
-        h(
-          'button',
-          {
-            type: 'button',
-            onClick: () => handleLoadTemplate('dynamicArray'),
-            style: {
-              background: 'rgba(59, 130, 246, 0.12)',
-              border: '1px solid rgba(59, 130, 246, 0.3)',
-              borderRadius: '6px',
-              padding: '4px 10px',
-              color: '#93c5fd',
-              fontSize: '11px',
-              fontFamily: 'var(--font-mono)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-            },
-          },
-          '💡 Load Safe Array Template',
-        ),
-        h(
-          Button,
-          {
-            variant: 'primary',
-            size: 'sm',
-            onClick: handleSubmit,
-            loading: submitting,
-            style: {
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              padding: '6px 18px',
-              fontSize: '12.5px',
-              fontWeight: '700',
-              boxShadow: '0 4px 12px rgba(37, 99, 235, 0.4)',
-            },
-          },
-          'Nộp bài giải (Submit)',
-        ),
-      ),
-    ),
-
-    // Editor Area with Line Numbers
+    h(EditorHeader, {
+      onCopy: handleCopy,
+      copied,
+      onLoadTemplate: handleLoadTemplate,
+      onSubmit: handleSubmit,
+      submitting,
+    }),
     h(
       'div',
       {
@@ -247,24 +108,7 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
           position: 'relative',
         },
       },
-      // Gutter Line Numbers
-      h(
-        'div',
-        {
-          style: {
-            padding: '16px 14px 16px 16px',
-            color: '#475569',
-            textAlign: 'right',
-            userSelect: 'none',
-            borderRight: '1px solid rgba(255, 255, 255, 0.08)',
-            backgroundColor: '#090d15',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
-          },
-        },
-        lineNumbers.map((num) => h('div', { key: num }, num)),
-      ),
-      // Textarea
+      h(EditorLineGutter, { lineNumbers }),
       h('textarea', {
         ref: textareaRef,
         defaultValue: SAMPLE_CPP_CODE,
@@ -288,26 +132,6 @@ export function CodeEditorWindow({ onSubmit, submitting = false }) {
           caretColor: '#38bdf8',
         },
       }),
-    ),
-
-    // IDE Status Bar Footer
-    h(
-      'div',
-      {
-        style: {
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '6px 16px',
-          backgroundColor: '#070a10',
-          borderTop: '1px solid rgba(255, 255, 255, 0.06)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '11px',
-          color: '#64748b',
-        },
-      },
-      h('div', null, `UTF-8 | LF | Tab: 4 spaces | Lines: ${lineCount}`),
-      h('div', { style: { color: '#94a3b8' } }, '💡 Gợi ý: Nhấn Ctrl + Enter để nộp bài nhanh'),
     ),
   );
 }

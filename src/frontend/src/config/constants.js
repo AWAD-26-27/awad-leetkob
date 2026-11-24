@@ -116,3 +116,9 @@ export const REVIEW_STATUS_CONFIG = {
   confirmed: { label: 'Confirmed', variant: 'success' },
   overturned: { label: 'Overturned', variant: 'neutral' },
 };
+
+// System timing and editor constants
+export const POLL_INTERVAL_MS = 3000;
+export const TOAST_DURATION_MS = 3500;
+export const MIN_EDITOR_LINES = 14;
+

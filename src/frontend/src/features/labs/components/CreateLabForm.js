@@ -1,16 +1,17 @@
 import { h, useState } from '../../../lib/react.js';
 import { Button, Input, Textarea, Card } from '../../../components/ui/index.js';
-import { createLab } from '../api/labsApi.js';
+import { createLab } from '../api/index.js';
 import { useToast } from '../../../providers/ToastProvider.js';
+import { TestCaseInputs } from './TestCaseInputs.js';
+import { ConstraintInputs } from './ConstraintInputs.js';
 
 export function CreateLabForm({ onSuccess }) {
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [statement, setStatement] = useState('');
-  const [testCases, setTestCases] = useState([{ input: '2 3', output: '5' }]);
+  const [testCases, setTestCases] = useState([{ input: '', output: '' }]);
   const [constraints, setConstraints] = useState([
-    { code: 'C1', text: 'Do not use std::sort or quicksort', deduction: 3.0 },
-    { code: 'C2', text: 'Do not use recursion', deduction: 2.0 },
+    { code: 'C1', text: '', deduction: 2.0 },
   ]);
   const [submitting, setSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -106,136 +107,18 @@ export function CreateLabForm({ onSuccess }) {
         onChange: (e) => setStatement(e.target.value),
         required: true,
       }),
-
-      // Dynamic Test Cases
-      h(
-        'div',
-        null,
-        h(
-          'div',
-          {
-            style: {
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px',
-            },
-          },
-          h(
-            'label',
-            {
-              style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' },
-            },
-            'Test Cases (Grading IO)',
-          ),
-          h(Button, { variant: 'ghost', size: 'sm', onClick: addTestCase }, '+ Add Test Case'),
-        ),
-        testCases.map((tc, idx) =>
-          h(
-            'div',
-            {
-              key: idx,
-              style: {
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr auto',
-                gap: '8px',
-                alignItems: 'center',
-                marginBottom: '8px',
-              },
-            },
-            h(Input, {
-              placeholder: 'Standard Input',
-              value: tc.input,
-              onChange: (e) => updateTestCase(idx, 'input', e.target.value),
-            }),
-            h(Input, {
-              placeholder: 'Expected Output',
-              value: tc.output,
-              onChange: (e) => updateTestCase(idx, 'output', e.target.value),
-            }),
-            testCases.length > 1 &&
-              h(
-                Button,
-                {
-                  variant: 'danger',
-                  size: 'sm',
-                  onClick: () => removeTestCase(idx),
-                  style: { padding: '8px 12px' },
-                },
-                '✕',
-              ),
-          ),
-        ),
-      ),
-
-      // Dynamic Constraints
-      h(
-        'div',
-        null,
-        h(
-          'div',
-          {
-            style: {
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '8px',
-            },
-          },
-          h(
-            'label',
-            {
-              style: { fontSize: '13px', fontWeight: '600', color: 'var(--color-text-secondary)' },
-            },
-            'LLM Constraint Rules',
-          ),
-          h(Button, { variant: 'ghost', size: 'sm', onClick: addConstraint }, '+ Add Constraint'),
-        ),
-        constraints.map((c, idx) =>
-          h(
-            'div',
-            {
-              key: idx,
-              style: {
-                display: 'grid',
-                gridTemplateColumns: '80px 1fr 110px auto',
-                gap: '8px',
-                alignItems: 'center',
-                marginBottom: '8px',
-              },
-            },
-            h(Input, {
-              placeholder: 'Code (C1)',
-              value: c.code,
-              onChange: (e) => updateConstraint(idx, 'code', e.target.value),
-            }),
-            h(Input, {
-              placeholder: 'Constraint description (e.g. No recursion)',
-              value: c.text,
-              onChange: (e) => updateConstraint(idx, 'text', e.target.value),
-            }),
-            h(Input, {
-              type: 'number',
-              placeholder: 'Penalty pts',
-              value: c.deduction,
-              onChange: (e) => updateConstraint(idx, 'deduction', e.target.value),
-            }),
-            constraints.length > 1 &&
-              h(
-                Button,
-                {
-                  variant: 'danger',
-                  size: 'sm',
-                  onClick: () => removeConstraint(idx),
-                  style: { padding: '8px 12px' },
-                },
-                '✕',
-              ),
-          ),
-        ),
-      ),
-
-      // Actions
+      h(TestCaseInputs, {
+        testCases,
+        onAdd: addTestCase,
+        onRemove: removeTestCase,
+        onUpdate: updateTestCase,
+      }),
+      h(ConstraintInputs, {
+        constraints,
+        onAdd: addConstraint,
+        onRemove: removeConstraint,
+        onUpdate: updateConstraint,
+      }),
       h(
         'div',
         { style: { display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' } },

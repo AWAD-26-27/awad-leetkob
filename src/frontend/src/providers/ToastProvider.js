@@ -1,4 +1,5 @@
 import { h, createContext, useContext, useState } from '../lib/react.js';
+import { TOAST_DURATION_MS } from '../config/constants.js';
 
 export const ToastContext = createContext({
   toast: {
@@ -17,7 +18,7 @@ export function ToastProvider({ children }) {
 
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4500);
+    }, TOAST_DURATION_MS);
   };
 
   const toast = {

@@ -229,3 +229,37 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Tách thời gian chạy Docker/model ra khỏi transaction SQLite để API có thể tiếp tục ghi. Worker ưu tiên bảo toàn review của TA và chỉ lưu metadata model. Test chạy `MODEL_OFF=1` hoặc fake checker với dữ liệu tổng hợp, nên không cần file `.env`.
 - Validation: `npm run check` đạt 17 unit và 12 contract tests, Playwright đạt 1 E2E. Suite Docker đạt 9 kiểm chứng sandbox và 1 test dừng/khởi động worker. Mỗi bài queued hoặc claim hết hạn có đúng một bộ verdict C1/C2. Bốn unit tests worker cũng đạt trong Node 22 với mạng tắt.
 - Bàn giao: Chạy `DB_PATH=/path/to/leetkob.db MODEL_OFF=1 node src/worker.js` sau khi API đã khởi tạo schema PA3. Test restart dùng tệp SQLite theo contract với giao dịch tạo job, ghép Docker và checker thật ở chế độ offline. Hành trình HTTP thực tế sẽ được kiểm khi schema/API của Luồng 1 được ghép.
+
+## 2026-11-24 — Frontend Architect — Tái cấu trúc toàn diện src/frontend/
+
+- Tool: Antigravity (Gemini 3.8 Flash), PowerShell, Node.js test runner.
+- Task: Tái cấu trúc toàn diện (Refactor) mã nguồn `src/frontend/` tuân thủ nghiêm ngặt 100% `docs/frontend-architecture.md`, `docs/agent-coding-guidelines.md` và `AGENTS.md`. Lấy `src/frontend/src/features/auth/` làm mẫu chuẩn tham chiếu (Canonical Reference).
+- Kept:
+  - Giữ vững hợp đồng bất biến bảo mật sinh viên (Student FAQ Privacy Invariant: zero leakage trước khi TA Publish).
+  - Giữ nguyên các bộ chọn DOM cho kiểm thử tự động Playwright CI (`button[name='Confirm stu1']`, `button[name='Publish grades']`, `#status`, `#who`, `UserSelectorBar`).
+  - Giữ nguyên runtime VDOM zero-dependency trong `src/frontend/src/lib/react.js`.
+- Changed:
+  - Hoàn thiện mô hình cấu trúc 5 phần (`api/`, `components/`, `hooks/`, `types/`, `index.js`) trên toàn bộ 6 domain features (`admin/`, `auth/`, `classes/`, `labs/`, `reviews/`, `submissions/`).
+  - Triệt để xóa bỏ các import xuyên tính năng vi phạm (cross-feature internal imports); 100% các import liên module đều đi qua gateway `features/<feature>/index.js`.
+  - Phân tách (decompose) toàn bộ các component nguyên khối vượt trần 200 dòng code:
+    - `features/admin/components/AdminDashboard.js` (665 dòng) -> Tách thành `AdminDashboard.js` (50 dòng), `AdminHeader.js` (75 dòng), `ClassItemRow.js` (128 dòng), `ClassManagementCard.js` (121 dòng), `UserCreationCard.js` (175 dòng), `UserDirectoryTable.js` (106 dòng).
+    - `features/classes/components/ClassStudentRoster.js` (309 dòng) -> Tách thành `ClassStudentRoster.js` (125 dòng), `AssignStudentForm.js` (83 dòng), `ClassStudentTable.js` (76 dòng).
+    - `features/labs/components/CreateLabForm.js` (240 dòng) -> Tách thành `CreateLabForm.js` (127 dòng), `TestCaseInputs.js` (63 dòng), `ConstraintInputs.js` (69 dòng).
+    - `features/labs/components/LabDetailsCard.js` (294 dòng) -> Tách thành `LabDetailsCard.js` (168 dòng), `LabStatementView.js` (23 dòng), `LabConstraintsView.js` (57 dòng), `LabTestCasesView.js` (40 dòng).
+    - `features/submissions/components/CodeEditorWindow.js` (298 dòng) -> Tách thành `CodeEditorWindow.js` (125 dòng), `EditorHeader.js` (140 dòng), `EditorLineGutter.js` (19 dòng).
+    - `features/submissions/components/StudentSubmissionsTable.js` (207 dòng) -> Tách thành `StudentSubmissionsTable.js` (93 dòng), `SubmissionRow.js` (116 dòng).
+    - `features/reviews/components/ReviewQueueTable.js` (325 dòng) -> Tách thành `ReviewQueueTable.js` (75 dòng), `QueueMetricsHeader.js` (98 dòng), `ReviewQueueItem.js` (163 dòng).
+    - `features/auth/components/Navbar.js` (299 dòng) -> Tách thành `Navbar.js` (87 dòng), `NavbarBrand.js` (65 dòng), `UserMenu.js` (131 dòng), `PlaywrightUserSelector.js` (37 dòng).
+    - `features/auth/components/AccountProfileModal.js` (364 dòng) -> Tách thành `AccountProfileModal.js` (182 dòng), `ProfileDetailsTab.js` (80 dòng), `ChangePasswordTab.js` (76 dòng), `AdminDirectoryTab.js` (44 dòng).
+  - Tạo mới module `src/routes/` gồm `AppRoutes.js` (111 dòng), `AdminModeBar.js` (54 dòng), `GuestLandingCard.js` (56 dòng) và `index.js`, tách toàn bộ inline routing khỏi `App.js` (giảm từ 340 dòng xuống 161 dòng).
+  - 100% component UI hiện tại đều dưới 200 dòng code (không có file nào vượt quá 182 dòng).
+  - Cập nhật checklist di chuyển kiến trúc trong `docs/frontend-architecture.md` đạt 100% hoàn thành `[x]`.
+- Rejected:
+  - Bác bỏ mọi đề xuất giữ nguyên các file lớn > 200 dòng với lý do tiện lợi.
+  - Bác bỏ việc import sâu vào thư mục con của tính năng khác (`../classes/components/...`).
+  - Bác bỏ việc đưa logic gọi network/fetch trực tiếp vào thân component render.
+- Validation:
+  - Kiểm tra số dòng: 100% component `.js` dưới 200 dòng (file lớn nhất 182 dòng).
+  - Unit tests frontend (`test/unit/frontend-core.test.js`, `test/unit/frontend-stage3.test.js`): 100% pass (bao gồm kiểm thử FAQ Privacy Invariant, persistent state, DEMO_USERS, formatTime, cx, apiClient).
+  - Contract & E2E tests (`test/contract/frontend-serving.contract.test.js`, `test/contract/playwright-ci-simulation.contract.test.js`, `test/contract/e2e-8step-verification.test.js`, `test/contract/headless-browser-flow.test.js`, `test/contract/publish.contract.test.js`): 46/46 tests pass.
+

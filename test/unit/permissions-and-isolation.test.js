@@ -161,3 +161,73 @@ test('Student visibility policy: student response strictly excludes constraint e
   assert.equal(JSON.stringify(res.body).includes('for(;;);'), false);
   assert.equal(JSON.stringify(res.body).includes('violation'), false);
 });
+
+test('Authentication and Account Management: login, logout, password change, and admin user list', async () => {
+  // 1. Login with bad credentials -> 401 unauthenticated
+  const badLogin = await app.as(null).post('/api/login', {
+    username: 'ta_a',
+    password: 'wrongpassword',
+  });
+  assertProblem(badLogin, 401, 'unauthenticated');
+
+  // 2. Login with correct credentials -> 200 with token and user object
+  const loginRes = await app.as(null).post('/api/login', {
+    username: 'ta_a',
+    password: 'password123',
+  });
+  assert.equal(loginRes.status, 200);
+  assert.equal(loginRes.body.user.username, 'ta_a');
+  assert.equal(loginRes.body.user.role, 'ta');
+  assert.ok(loginRes.body.token);
+
+  // 3. Use returned token to fetch /api/me
+  const meRes = await app.as({ token: loginRes.body.token }).get('/api/me');
+  assert.equal(meRes.status, 200);
+  assert.equal(meRes.body.username, 'ta_a');
+
+  // 4. Change password with incorrect current password -> 400 invalid-credentials
+  const badPwRes = await app.as({ token: loginRes.body.token }).post('/api/users/change-password', {
+    currentPassword: 'wrongpassword',
+    newPassword: 'newSecretPassword123',
+  });
+  assertProblem(badPwRes, 400, 'invalid-credentials');
+
+  // 5. Change password with valid credentials -> 200
+  const goodPwRes = await app.as({ token: loginRes.body.token }).post('/api/users/change-password', {
+    currentPassword: 'password123',
+    newPassword: 'newSecretPassword123',
+  });
+  assert.equal(goodPwRes.status, 200);
+  assert.ok(goodPwRes.body.message);
+
+  // 6. Verify login with old password fails, new password succeeds
+  const oldLogin = await app.as(null).post('/api/login', {
+    username: 'ta_a',
+    password: 'password123',
+  });
+  assertProblem(oldLogin, 401, 'unauthenticated');
+
+  const newLogin = await app.as(null).post('/api/login', {
+    username: 'ta_a',
+    password: 'newSecretPassword123',
+  });
+  assert.equal(newLogin.status, 200);
+
+  // 7. Logout endpoint -> 200
+  const logoutRes = await app.as({ token: newLogin.body.token }).post('/api/logout', {});
+  assert.equal(logoutRes.status, 200);
+
+  // 8. User list: non-admin gets 403, admin gets 200 with user directory
+  assertProblem(await app.as('ta_a').get('/api/users'), 403, 'forbidden');
+  assertProblem(await app.as('student_1').get('/api/users'), 403, 'forbidden');
+
+  const adminUsers = await app.as('admin').get('/api/users');
+  assert.equal(adminUsers.status, 200);
+  assert.ok(Array.isArray(adminUsers.body.items));
+  assert.ok(adminUsers.body.items.length >= 5);
+  // Ensure sensitive password hashes are stripped
+  for (const u of adminUsers.body.items) {
+    assert.equal(u.passwordHash, undefined);
+    assert.equal(u.password_hash, undefined);
+  }
+});

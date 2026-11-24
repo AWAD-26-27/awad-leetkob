@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from '../../../lib/react.js';
 import { getSubmissionStatus } from '../api/submissionsApi.js';
+import { POLL_INTERVAL_MS } from '../../../config/constants.js';
 
 export function useAutoPollSubmission(initialSubmissionId, onStatusChange) {
   const [submissionId, setSubmissionId] = useState(initialSubmissionId);
@@ -34,9 +35,9 @@ export function useAutoPollSubmission(initialSubmissionId, onStatusChange) {
           return;
         }
 
-        // Otherwise keep polling every 3000ms
+        // Otherwise keep polling every POLL_INTERVAL_MS
         setIsPolling(true);
-        timerRef.current = setTimeout(poll, 3000);
+        timerRef.current = setTimeout(poll, POLL_INTERVAL_MS);
       } catch (err) {
         if (!active) return;
         setPollError(err.message || 'Polling error');

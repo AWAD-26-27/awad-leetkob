@@ -4,6 +4,7 @@ import { extname, join } from 'node:path';
 import { problem, rfc7807ErrorHandler } from './middleware/rfc7807.js';
 import { createAuthMiddleware } from './middleware/auth.js';
 import { createAuthRouter } from './features/auth/router.js';
+import { createClassRouter } from './features/classes/router.js';
 import { createLabRouter } from './features/labs/router.js';
 import { createSubmissionRouter } from './features/submissions/router.js';
 import { createReviewRouter } from './features/reviews/router.js';
@@ -39,6 +40,7 @@ export async function readJson(req) {
 export function createApp(db) {
   const authMiddleware = createAuthMiddleware(db);
   const authModule = createAuthRouter(db, authMiddleware);
+  const classModule = createClassRouter(db, authMiddleware);
   const labModule = createLabRouter(db, authMiddleware);
   const subModule = createSubmissionRouter(db, labModule.labModel, authMiddleware);
   const revModule = createReviewRouter(
@@ -51,6 +53,7 @@ export function createApp(db) {
   // Combine all route descriptors from feature subsystems
   const allRoutes = [
     ...authModule.router.routes,
+    ...classModule.router.routes,
     ...labModule.router.routes,
     ...subModule.router.routes,
     ...revModule.router.routes,

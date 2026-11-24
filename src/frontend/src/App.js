@@ -1,31 +1,25 @@
 import { h, useState, useEffect } from './lib/react.js';
 import { AuthProvider, useAuth } from './providers/AuthProvider.js';
 import { ToastProvider, useToast } from './providers/ToastProvider.js';
-import { UserSelectorBar } from './features/auth/index.js';
-import { LabSelector, CreateLabForm, LabDetailsCard, useLabs } from './features/labs/index.js';
-import {
-  CodeEditorWindow,
-  SubmissionStepper,
-  StudentSubmissionsTable,
-  submitCode,
-  listSubmissions,
-  useAutoPollSubmission,
-} from './features/submissions/index.js';
-import { ReviewQueueTable, useReviewQueue } from './features/reviews/index.js';
-import { Callout } from './components/feedback/index.js';
+import { Navbar, UserSelectorBar, LoginModal } from './features/auth/index.js';
+import { useLabs } from './features/labs/index.js';
+import { submitCode, listSubmissions, useAutoPollSubmission } from './features/submissions/index.js';
+import { useReviewQueue } from './features/reviews/index.js';
+import { AppRoutes } from './routes/index.js';
 
 function AppContent() {
-  const { user } = useAuth();
+  const { user, switchUser } = useAuth();
   const { toast } = useToast();
   const [e2eStatusText, setE2eStatusText] = useState('');
   const [activeSubId, setActiveSubId] = useState(null);
   const [submissionsList, setSubmissionsList] = useState([]);
   const [submittingCode, setSubmittingCode] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Labs hook
+  // Labs data & actions
   const { labs, activeLabId, setActiveLabId, labDetails, refreshLabs, refreshDetails } = useLabs();
 
-  // Review queue hook (for TA/Admin)
+  // Review queue hook
   const { queue, refreshQueue, handleReview } = useReviewQueue(activeLabId);
 
   // Auto-polling hook for live submission
@@ -44,20 +38,14 @@ function AppContent() {
     },
   );
 
-  // Check cross-class isolation
   const isStudent = user.role === 'student';
-  const isStaff = user.role === 'ta' || user.role === 'admin';
-  const isClassMismatch =
-    isStudent && labDetails && user.classId && labDetails.classId !== user.classId;
 
   // Load existing student submissions for this lab
   useEffect(() => {
     if (isStudent && activeLabId && user.id) {
       listSubmissions(activeLabId)
         .then((data) => {
-          if (data?.items) {
-            setSubmissionsList(data.items);
-          }
+          if (data?.items) setSubmissionsList(data.items);
         })
         .catch(() => {});
     }
@@ -90,8 +78,8 @@ function AppContent() {
   return h(
     'div',
     { style: { minHeight: '100vh', display: 'flex', flexDirection: 'column' } },
-    // Header & User Selector
-    h(UserSelectorBar, null),
+    // Header & Navigation Bar (Navbar / UserSelectorBar)
+    h(Navbar || UserSelectorBar, { onOpenLogin: () => setShowLoginModal(true) }),
 
     // Main App Body
     h(
@@ -122,70 +110,33 @@ function AppContent() {
         e2eStatusText,
       ),
 
-      // Cross-class Isolation Guard
-      isClassMismatch
-        ? h(
-            Callout,
-            {
-              type: 'danger',
-              title: '404 Not Found',
-            },
-            'You do not have access to this laboratory assignment from another class.',
-          )
-        : h(
-            'div',
-            null,
-            // Staff Controls: Create Lab
-            isStaff && h(CreateLabForm, { onSuccess: refreshLabs }),
-
-            // Lab Selector Bar
-            h(LabSelector, {
-              labs,
-              activeLabId,
-              onSelectLab: (id) => setActiveLabId(id),
-            }),
-
-            // Lab Details Card (Statement, Constraints, and Publish Button)
-            h(LabDetailsCard, {
-              lab: labDetails,
-              onPublished: () => {
-                refreshDetails();
-                refreshQueue();
-              },
-              setE2eStatusText,
-            }),
-
-            // Role-specific sections
-            isStaff
-              ? // TA / Admin View: Review Queue
-                h(ReviewQueueTable, {
-                  queue,
-                  onReview: async (subId, constraintCode, decision) => {
-                    await handleReview(subId, constraintCode, decision);
-                    refreshQueue();
-                  },
-                  setE2eStatusText,
-                })
-              : isStudent
-                ? // Student View: Code Editor, Progress Stepper, Submissions Table
-                  h(
-                    'div',
-                    null,
-                    activeSub && h(SubmissionStepper, { submission: activeSub }),
-                    h(CodeEditorWindow, {
-                      onSubmit: handleCodeSubmit,
-                      submitting: submittingCode,
-                    }),
-                    h(StudentSubmissionsTable, { submissions: submissionsList }),
-                  )
-                : // Guest view prompt
-                  h(
-                    Callout,
-                    { type: 'info', title: 'Welcome to LeeTKOB' },
-                    'Please select an account in the top bar ("Signed in as") to start assessing or reviewing laboratory assignments.',
-                  ),
-          ),
+      // Route View Orchestrator
+      h(AppRoutes, {
+        user,
+        labs,
+        activeLabId,
+        labDetails,
+        setActiveLabId,
+        refreshLabs,
+        refreshDetails,
+        queue,
+        refreshQueue,
+        handleReview,
+        activeSub,
+        submissionsList,
+        submittingCode,
+        handleCodeSubmit,
+        setE2eStatusText,
+        onOpenLogin: () => setShowLoginModal(true),
+        onQuickLogin: switchUser,
+      }),
     ),
+
+    // Landing Login Modal
+    h(LoginModal, {
+      isOpen: showLoginModal,
+      onClose: () => setShowLoginModal(false),
+    }),
 
     // Modern SaaS Footer
     h(

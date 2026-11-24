@@ -1,15 +1,18 @@
 import { h, useState } from '../../../lib/react.js';
 import { Card, Button, Badge } from '../../../components/ui/index.js';
 import { Callout } from '../../../components/feedback/index.js';
-import { publishLab } from '../api/labsApi.js';
+import { publishLab } from '../api/index.js';
 import { useAuth } from '../../../providers/AuthProvider.js';
 import { useToast } from '../../../providers/ToastProvider.js';
+import { LabStatementView } from './LabStatementView.js';
+import { LabConstraintsView } from './LabConstraintsView.js';
+import { LabTestCasesView } from './LabTestCasesView.js';
 
 export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [publishing, setPublishing] = useState(false);
-  const [activeTab, setActiveTab] = useState('statement'); // 'statement' | 'constraints' | 'tests'
+  const [activeTab, setActiveTab] = useState('statement');
 
   if (!lab) {
     return h(
@@ -29,16 +32,12 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
       const pubTime = res.publishedAt || new Date().toISOString();
       const msg = `Published at ${pubTime}`;
       toast.success(msg);
-      if (setE2eStatusText) {
-        setE2eStatusText(msg);
-      }
+      if (setE2eStatusText) setE2eStatusText(msg);
       if (onPublished) onPublished();
     } catch (err) {
       const errMsg = err.title || err.detail || err.message || 'Failed to publish grades';
       toast.error(errMsg);
-      if (setE2eStatusText) {
-        setE2eStatusText(errMsg);
-      }
+      if (setE2eStatusText) setE2eStatusText(errMsg);
     } finally {
       setPublishing(false);
     }
@@ -52,22 +51,15 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
       headerRight: isPublished
         ? h(
             Badge,
-            {
-              variant: 'success',
-              style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' },
-            },
+            { variant: 'success', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
             '✓ Đã công bố điểm (Published)',
           )
         : h(
             Badge,
-            {
-              variant: 'warning',
-              style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' },
-            },
+            { variant: 'warning', style: { padding: '4px 12px', fontSize: '12px', fontWeight: '700' } },
             '⏳ Đang chấm & Xét duyệt',
           ),
     },
-    // Navigation Sub-tabs
     h(
       'div',
       {
@@ -93,7 +85,6 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
             backgroundColor: activeTab === 'statement' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
             color: activeTab === 'statement' ? '#2563eb' : '#64748b',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           },
         },
         '📖 Đề bài & Yêu cầu',
@@ -109,11 +100,9 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
             border: 'none',
             fontSize: '13px',
             fontWeight: activeTab === 'constraints' ? '700' : '500',
-            backgroundColor:
-              activeTab === 'constraints' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
+            backgroundColor: activeTab === 'constraints' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
             color: activeTab === 'constraints' ? '#2563eb' : '#64748b',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
           },
         },
         `⚡ Ràng buộc kỹ thuật (${lab.constraints ? lab.constraints.length : 0})`,
@@ -133,133 +122,14 @@ export function LabDetailsCard({ lab, onPublished, setE2eStatusText }) {
               backgroundColor: activeTab === 'tests' ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
               color: activeTab === 'tests' ? '#2563eb' : '#64748b',
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
             },
           },
           `🧪 Test cases (${lab.tests.length})`,
         ),
     ),
-
-    // Tab 1: Problem Statement
-    activeTab === 'statement' &&
-      h(
-        'div',
-        { className: 'animate-fade-in', style: { marginBottom: '16px' } },
-        h(
-          'div',
-          {
-            style: {
-              padding: '16px 20px',
-              backgroundColor: 'var(--color-bg)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-              fontSize: '14px',
-              lineHeight: 1.7,
-              whiteSpace: 'pre-wrap',
-              color: '#1e293b',
-            },
-          },
-          lab.statement || lab.statementMd || lab.statement_md || 'Không có mô tả chi tiết.',
-        ),
-      ),
-
-    // Tab 2: Constraints
-    activeTab === 'constraints' &&
-      h(
-        'div',
-        { className: 'animate-fade-in', style: { marginBottom: '16px' } },
-        lab.constraints && lab.constraints.length > 0
-          ? h(
-              'div',
-              { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
-              lab.constraints.map((c) =>
-                h(
-                  'div',
-                  {
-                    key: c.code,
-                    style: {
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '10px 14px',
-                      backgroundColor: 'var(--color-bg)',
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--color-border)',
-                      fontSize: '13px',
-                    },
-                  },
-                  h(
-                    'div',
-                    { style: { display: 'flex', alignItems: 'center', gap: '10px' } },
-                    h(
-                      Badge,
-                      {
-                        variant: 'info',
-                        style: { fontFamily: 'var(--font-mono)', fontWeight: '700' },
-                      },
-                      c.code,
-                    ),
-                    h('span', { style: { fontWeight: '500', color: '#1e293b' } }, c.text),
-                  ),
-                  h(
-                    Badge,
-                    {
-                      variant: 'danger',
-                      style: { fontWeight: '700', padding: '3px 8px' },
-                    },
-                    `-${c.deduction} pts`,
-                  ),
-                ),
-              ),
-            )
-          : h(
-              'div',
-              { style: { color: '#64748b', fontSize: '13px' } },
-              'Không có ràng buộc kỹ thuật nào.',
-            ),
-      ),
-
-    // Tab 3: Sample Test Cases
-    activeTab === 'tests' &&
-      lab.tests &&
-      h(
-        'div',
-        { className: 'animate-fade-in', style: { marginBottom: '16px' } },
-        h(
-          'div',
-          { style: { display: 'flex', flexDirection: 'column', gap: '10px' } },
-          lab.tests.map((t, idx) =>
-            h(
-              'div',
-              {
-                key: idx,
-                style: {
-                  padding: '12px 14px',
-                  backgroundColor: '#0b0f19',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
-                  color: '#e2e8f0',
-                },
-              },
-              h(
-                'div',
-                { style: { color: '#94a3b8', marginBottom: '4px' } },
-                `Test Case #${t.ordinal || idx + 1}:`,
-              ),
-              h('div', null, `Input: ${t.input || t.inputText || '—'}`),
-              h(
-                'div',
-                { style: { color: '#10b981', marginTop: '2px' } },
-                `Expected: ${t.expected || t.expectedOutput || '—'}`,
-              ),
-            ),
-          ),
-        ),
-      ),
-
-    // Staff Publish Action (matches Playwright getByRole('button', { name: 'Publish grades' }) and #publish)
+    activeTab === 'statement' && h(LabStatementView, { lab }),
+    activeTab === 'constraints' && h(LabConstraintsView, { constraints: lab.constraints }),
+    activeTab === 'tests' && h(LabTestCasesView, { tests: lab.tests }),
     isStaff &&
       h(
         'div',

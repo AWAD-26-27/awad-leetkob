@@ -30,7 +30,11 @@ export async function startApp(customDb, options = {}) {
       }
       return { status: res.status, type: res.headers.get('content-type'), body: json };
     };
-    return { get: (path) => call('GET', path), post: (path, body) => call('POST', path, body) };
+    return {
+      get: (path) => call('GET', path),
+      post: (path, body) => call('POST', path, body),
+      delete: (path) => call('DELETE', path),
+    };
   }
 
   const publishedAt = (lab) => {
