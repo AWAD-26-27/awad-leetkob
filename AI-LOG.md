@@ -563,3 +563,10 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
   - Ảnh chụp Điểm sinh viên sau công bố: `e2e_browser_student_published.png`
   - Video quay màn hình toàn bộ phiên kiểm thử: `e2e_full_workflow_walkthrough.mp4`
 
+## 2026-11-24 — Copilot — Merge main vào feat/e2e-app
+
+- Tool/model: Copilot coding agent; Git and npm.
+- Task: Merge the repository default branch `main` and resolve README and permissions conflicts.
+- Changed: Kept the PA3 application and project context in `README.md`, incorporating the relevant PA3 checker evidence. Kept the PA3 Free-tier project in `docs/permissions.md` and the existing boundary against sending student code. Explicitly retained the authorization for synthetic checks and public dev-set runs; unit, contract and CI tests remain offline.
+- Rejected: Did not retain the stale PA2 project and setup content from the conflicting README/permissions sections. Did not reformat unrelated frontend files.
+- Validation: `npm ci` succeeded with zero reported vulnerabilities. `npm run check` passed ESLint but stopped at Prettier warnings in five unmodified student component files. `npm test` passed 82/82 and `npm run contract` passed 58/58. `git diff --cached --check` passed; `README.md` and `docs/permissions.md` contain no conflict markers.

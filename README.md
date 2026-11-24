@@ -67,24 +67,12 @@ For browser testing, install Playwright Chromium once via `npx playwright instal
 ## Assistant and Security Rules
 
 Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real credentials out of Git and untrusted execution, use deterministic fixtures in tests, and record actual AI changes and decisions in [AI-LOG.md](AI-LOG.md). `.env` variants, common private-key files, and `secrets/` are ignored.
-## PA2 model and budget
 
 ## Model and Budget
 
 **Provider/model:** Google Gemini API, `gemini-3.8-flash`.
 
 **Paid spending limit: USD 0.** The dedicated **LeeTKOB PA3** project is configured in **Free tier with no billing account linked**. Its server key inherits that project status. Automated unit and contract tests use deterministic mock fixtures and make zero external network or model calls. See [model/budget documentation](docs/model-budget.md).
-The demo still makes **zero model calls**, so current model API cost per demo lab is **USD 0**. Future calls to this model in free tier are free within provider quotas; an 80-submission model run has not been measured or validated. No paid fallback is configured. Free-tier data may be used to improve Google's products: use synthetic/public fixtures only during setup, and decide data handling before sending real student code.
-
-The authorized key is stored only in ignored local `.env`. [.env.example](.env.example) leaves the key empty. Obtain a key through the project owner using the agreed private channel. This manual synthetic check uses Node's built-in fetch and sends no student data:
-
-```sh
-node --env-file=.env scripts/model-smoke.js
-```
-
-It verifies the exact configured model using a short `OK` request and never prints the key or provider error bodies. It is **not** part of unit/contract tests or CI and must stay separate from `npm run check`. A failed provider call must not be hidden or turned into a passing automated test. At setup, model listing returned HTTP 200 with this model, while generation returned 503 then timed out; inference availability remains unverified.
-
-Codex assisted Nam Anh's harness work, as recorded in AI-LOG.md; it is separate from the product model. See [official Gemini billing](https://aistudio.google.com/docs/billing#projects-api-keys) and [pricing](https://aistudio.google.com/docs/pricing#gemini-3.8-flash), checked 10 November 2026.
 
 ## PA3 checker
 
@@ -92,7 +80,7 @@ The shared `evaluateSubmission` API, C1/C2 worker fixture, offline CLI/Docker co
 
 The live checker log records request ID, model, prompt and completion tokens, latency and per-attempt cost. The [reproduction commands and worker settings](docs/checker.md#live-evaluation-and-budget) give the locations for the predictions, eval report and call log. Gemini 3.8 and 3.7 returned HTTP 503. Gemini 3.6 timed out on five of its first ten dev-set calls, so the checker uses 3.5 Flash-Lite. [Provider checks](evidence/pa3-checker/gemini-3.8-probes.md)
 
-The live run wrote all 102 predictions. It attempted 47 semantic calls at USD 0 per call. Google returned 30 request IDs and 17 HTTP 503s. The official scorer measured **1 wrongful deduction, 75.7% recall and 16.7% unsure**. [Predictions](evidence/pa3-checker/live/predictions.jsonl) · [Eval report](evidence/pa3-checker/live/eval.json) · [Sanitized call log](evidence/pa3-checker/live/calls.jsonl)
+The live run wrote all 102 predictions and attempted 47 semantic calls at USD 0 per call. Google returned 30 request IDs and 17 HTTP 503s. The official scorer measured **1 wrongful deduction, 75.7% recall and 16.7% unsure**. [Predictions](evidence/pa3-checker/live/predictions.jsonl) · [Eval report](evidence/pa3-checker/live/eval.json) · [Sanitized call log](evidence/pa3-checker/live/calls.jsonl)
 
 ```sh
 MODEL_OFF=1 node src/checker/cli.js eval/dev /tmp/leetkob-predictions.jsonl
