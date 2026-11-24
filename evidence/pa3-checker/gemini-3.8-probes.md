@@ -11,4 +11,16 @@
 | Synthetic generation with `thinkingLevel: LOW` and with provider defaults | Both returned HTTP 503 `UNAVAILABLE`. The response indicated high demand. |
 | Synthetic generation via stable `v1` and via `v1beta` streaming | Both returned HTTP 503. The `v1` response indicated high demand. |
 
-The Gemini 3.8 dev-set run remains pending a successful synthetic request with provider metadata. [Worker and CLI commands](../../docs/checker.md#live-evaluation-and-budget)
+## Fresh project and model selection
+
+Created LeeTKOB PA3 Gemini in Cloud Console. Google automatically linked the new project to the signed-in account's billing account. We disabled that link before key creation or inference, then confirmed the project billing page showed no linked account. We enabled the Gemini API, created a dedicated service account and bound a Gemini-restricted key to it. The key is stored in a private local environment file.
+
+| Requested model | Existing free-tier project | New unbilled project |
+| --- | --- | --- |
+| `gemini-3.8-flash` | HTTP 503 | HTTP 503 |
+| `gemini-3.7-flash` | HTTP 503 | HTTP 503 |
+| `gemini-3.6-flash` | Timed out at 20 s | Initially timed out. A direct retry returned HTTP 200 and a valid verdict with request ID `h4kFa9WIEcr31e8PvOzW8AY` in 9,425 ms. |
+| `gemini-3.5-flash` | Timed out at 20 s | HTTP 200. Provider reported `gemini-3.6-flash` as the serving model. |
+| `gemini-3.5-flash-lite` | HTTP 200 with a valid verdict and provider ID | First ten dev-set attempts returned three HTTP 200s, five HTTP 503s and two timeouts. |
+
+Gemini 3.6 answered five of its first ten dev-set requests and hit the 20-second timeout on the other five. Gemini 3.5 Flash reported 3.6 as its serving model. The [worker settings and public evaluation command](../../docs/checker.md#live-evaluation-and-budget) use Gemini 3.5 Flash-Lite on the original unbilled project.

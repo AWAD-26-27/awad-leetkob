@@ -223,6 +223,15 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Flash-Lite đã chạy thử, sau đó Nam Anh chọn Gemini 3.8. Giữ artifacts Flash-Lite ngoài repo để bằng chứng nộp bài khớp model triển khai. Khi Gemini 3.8 trả 503 liên tục, dừng ở synthetic probes và ghi nhận lỗi provider. [Bằng chứng probe](evidence/pa3-checker/gemini-3.8-probes.md)
 - Validation: `npm run check` đạt 17 unit và 12 contract tests. `npm run e2e` đạt 1 test. Docker `--network none` tạo predictions giống lần offline đã merge và call log rỗng. SHA-256 của `eval.mjs` và `labels.jsonl` khớp rubric. Ghi lệnh tái hiện và cấu hình handoff trong [checker guide](docs/checker.md#live-evaluation-and-budget). Predictions, báo cáo và call log của Gemini 3.8 sẽ có sau khi inference hoạt động.
 
+## 2026-11-24 — Nam Anh — Chạy dev set thật và chốt budget PA3
+
+- Tool: Codex, Google Cloud Console, AI Studio, Gemini API, Node 22 và Docker.
+- Changed: Tạo project thử Gemini 3.8 với key giới hạn vào Gemini API và xác minh project không còn liên kết billing trước khi gọi. Thử lần lượt 3.8, 3.7, 3.6 và 3.5. Thêm khoảng cách 4 giây giữa các lần gửi CLI để giảm burst và ghi latency từ lúc gửi request. [Lịch sử probe](evidence/pa3-checker/gemini-3.8-probes.md)
+- Rejected: Gemini 3.8 và 3.7 trả 503 trên cả hai project. Gemini 3.6 chỉ trả lời 5 trong 10 request đầu của dev set, còn alias 3.5 Flash báo model 3.6. Chạy bằng `gemini-3.5-flash-lite` trên project LeeTKOB PA2 đã xác nhận Free Tier. Giữ nguyên kết quả sai của model theo scorer gốc.
+- Chi phí: Lượt chạy thật gửi 47 request semantic × 0 USD = 0 USD. Model trả 30 request ID, 26,452 prompt tokens và 3,089 completion tokens. 17 lượt 503 thiếu metadata nên để `null`. Ngân sách model của nhóm là 0 USD với billing không liên kết. Lab `sort-merge`: 80 bài Accepted × 1 constraint semantic × 1 lượt = 80 request. Trong quota Free Tier, 80 × 0 USD = 0 USD dự kiến. Cap worker là 80 lượt theo lab, bao gồm lượt lỗi.
+- Validation: Kiểm đủ 102 prediction và 47 cặp semantic, evidence trùng dòng gốc, prompt đã làm sạch và 30 request ID duy nhất. Scorer trả 1 với 1 wrongful deduction, recall 75.7% và unsure 16.7%. Worker cục bộ qua Docker lưu semantic `pass`, request ID và chi phí 0 USD vào SQLite, rồi chặn lượt thứ 81. `npm run check`, Playwright, Docker model-off và bài test restart worker trên Linux đều đạt.
+- Evidence: [Lệnh tái hiện và cấu hình worker](docs/checker.md#live-evaluation-and-budget), [predictions](evidence/pa3-checker/live/predictions.jsonl), [eval report](evidence/pa3-checker/live/eval.json) và [call log](evidence/pa3-checker/live/calls.jsonl).
+
 ## 2026-11-23 — Tú — Kiểm chứng sandbox trên CI
 
 - Tool: Codex, Node.js test runner, Docker và Git.
