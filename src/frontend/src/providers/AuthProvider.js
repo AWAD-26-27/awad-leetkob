@@ -1,7 +1,7 @@
 import { h, createContext, useContext, useState, useEffect } from '../lib/react.js';
 import { ALL_USERS, GUEST_USER } from '../config/constants.js';
 import { setAuthToken } from '../lib/apiClient.js';
-import { loginApi, logoutApi, changePasswordApi, fetchMe } from '../features/auth/api/authApi.js';
+import { loginApi, logoutApi, changePasswordApi, fetchMe } from '../features/auth/index.js';
 
 export const AuthContext = createContext({
   user: GUEST_USER,

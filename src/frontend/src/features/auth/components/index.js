@@ -1,5 +1,6 @@
 export * from './NavbarBrand.js';
 export * from './UserMenu.js';
+export * from './UserDropdownMenu.js';
 export * from './PlaywrightUserSelector.js';
 export * from './Navbar.js';
 export * from './LoginModal.js';

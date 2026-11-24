@@ -87,10 +87,10 @@ function AppContent() {
       {
         style: {
           flex: 1,
-          maxWidth: '1200px',
+          maxWidth: '1280px',
           width: '100%',
           margin: '0 auto',
-          padding: '24px 20px',
+          padding: '28px 24px',
         },
       },
       // Status message element (strictly satisfies Playwright CI getByRole('status') & #status)
@@ -100,7 +100,7 @@ function AppContent() {
           id: 'status',
           role: 'status',
           style: {
-            fontSize: '14px',
+            fontSize: '15px',
             fontWeight: '600',
             color: 'var(--color-primary)',
             minHeight: '20px',
@@ -138,33 +138,50 @@ function AppContent() {
       onClose: () => setShowLoginModal(false),
     }),
 
-    // Modern SaaS Footer
+    // Professional Academic & Modern Footer
     h(
       'footer',
       {
         style: {
-          padding: '18px 24px',
-          borderTop: '1px solid var(--color-border)',
+          padding: '20px 32px',
+          borderTop: '1px solid #e2e8f0',
           backgroundColor: '#ffffff',
           color: '#64748b',
-          fontSize: '12px',
+          fontSize: '13.5px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: '12px',
+          gap: '16px',
         },
       },
       h(
         'div',
         { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-        h('span', { style: { color: '#10b981', fontWeight: '700' } }, '● System Operational'),
-        h('span', null, '|'),
-        h('span', null, 'SQLite WAL Mode Engine'),
-        h('span', null, '|'),
-        h('span', null, 'C++20 GCC Sandbox'),
+        h('span', { style: { fontWeight: '700', color: '#0f172a' } }, 'LeeTKOB'),
+        h('span', { style: { color: '#cbd5e1' } }, '—'),
+        h('span', null, 'Nền tảng thực hành & thẩm định bài tập C++'),
       ),
-      h('div', null, 'LeeTKOB Automated Code Quality Gate & Grading System'),
+      h(
+        'div',
+        { style: { display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' } },
+        h(
+          'div',
+          { style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+          h('span', {
+            style: {
+              display: 'inline-block',
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: '#10b981',
+            },
+          }),
+          h('span', { style: { fontWeight: '600', color: '#059669', fontSize: '13px' } }, 'Hệ thống hoạt động'),
+        ),
+        h('span', { style: { color: '#cbd5e1' } }, '•'),
+        h('span', { style: { fontSize: '12.5px', color: '#94a3b8' } }, 'AWAD 2609 • Node.js & C++20'),
+      ),
     ),
   );
 }

@@ -24,17 +24,17 @@ export function ClassStudentTable({ classStudents, onRemove }) {
     { style: { overflowX: 'auto' } },
     h(
       'table',
-      { style: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' } },
+      { style: { width: '100%', borderCollapse: 'collapse', fontSize: '14.5px' } },
       h(
         'thead',
         null,
         h(
           'tr',
           { style: { backgroundColor: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' } },
-          h('th', { style: { padding: '8px 12px', color: '#64748b' } }, 'ID'),
-          h('th', { style: { padding: '8px 12px', color: '#64748b' } }, 'Họ và Tên'),
-          h('th', { style: { padding: '8px 12px', color: '#64748b' } }, 'Tên đăng nhập (Username)'),
-          h('th', { style: { padding: '8px 12px', color: '#64748b', textAlign: 'right' } }, 'Thao tác'),
+          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '13.5px' } }, 'ID'),
+          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '13.5px' } }, 'Họ và Tên'),
+          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '13.5px' } }, 'Tên đăng nhập (Username)'),
+          h('th', { style: { padding: '10px 14px', color: '#64748b', fontSize: '13.5px', textAlign: 'right' } }, 'Thao tác'),
         ),
       ),
       h(
@@ -44,20 +44,20 @@ export function ClassStudentTable({ classStudents, onRemove }) {
           h(
             'tr',
             { key: stu.id, style: { borderBottom: '1px solid #f1f5f9' } },
-            h('td', { style: { padding: '10px 12px', fontWeight: '600' } }, `#${stu.id}`),
-            h('td', { style: { padding: '10px 12px', fontWeight: '600', color: '#0f172a' } }, stu.name),
-            h('td', { style: { padding: '10px 12px', fontFamily: 'monospace', color: '#475569' } }, `@${stu.username}`),
+            h('td', { style: { padding: '12px 14px', fontWeight: '600' } }, `#${stu.id}`),
+            h('td', { style: { padding: '12px 14px', fontWeight: '600', color: '#0f172a' } }, stu.name),
+            h('td', { style: { padding: '12px 14px', fontFamily: 'monospace', color: '#475569' } }, `@${stu.username}`),
             h(
               'td',
-              { style: { padding: '10px 12px', textAlign: 'right' } },
+              { style: { padding: '12px 14px', textAlign: 'right' } },
               h(
                 'button',
                 {
                   type: 'button',
                   onClick: () => onRemove(stu.id, stu.name),
                   style: {
-                    padding: '4px 10px',
-                    fontSize: '11px',
+                    padding: '6px 12px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     color: '#dc2626',
                     backgroundColor: '#fef2f2',

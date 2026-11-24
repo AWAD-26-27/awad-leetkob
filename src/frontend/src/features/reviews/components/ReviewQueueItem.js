@@ -44,7 +44,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
         { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
         h(
           'span',
-          { style: { fontWeight: '800', fontSize: '14.5px', letterSpacing: '-0.01em' } },
+          { style: { fontWeight: '800', fontSize: '16px', letterSpacing: '-0.01em' } },
           `${studentName}: ${item.verdict || 'PENDING'}`,
         ),
         item.constraintCode && h(Badge, { variant: 'info' }, `Rule ${item.constraintCode}`),
@@ -61,13 +61,13 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
                   item.decision === 'confirm' || item.reviewStatus === 'confirmed'
                     ? 'success'
                     : 'warning',
-                style: { fontWeight: '700', padding: '4px 10px' },
+                style: { fontWeight: '700', padding: '5px 12px' },
               },
               `Decision: ${(item.decision || item.reviewStatus || '').toUpperCase()}`,
             )
           : h(
               Badge,
-              { variant: 'warning', style: { fontWeight: '700', padding: '4px 10px' } },
+              { variant: 'warning', style: { fontWeight: '700', padding: '5px 12px' } },
               '⏳ Pending Review',
             ),
       ),
@@ -83,7 +83,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
             border: '1px solid rgba(255, 255, 255, 0.1)',
             borderLeft: '4px solid #ef4444',
             fontFamily: 'var(--font-mono)',
-            fontSize: '12.5px',
+            fontSize: '14px',
             color: '#e2e8f0',
             boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.4)',
           },
@@ -93,7 +93,7 @@ export function ReviewQueueItem({ item, processingId, onAction }) {
           {
             style: {
               color: '#94a3b8',
-              fontSize: '11px',
+              fontSize: '12px',
               fontWeight: '700',
               textTransform: 'uppercase',
               letterSpacing: '0.05em',

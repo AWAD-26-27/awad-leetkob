@@ -16,7 +16,13 @@ export function LoginModal({ isOpen, onClose }) {
       setUsername('');
       setPassword('');
       setLoading(false);
+      return;
     }
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && onClose) onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -68,9 +74,9 @@ export function LoginModal({ isOpen, onClose }) {
         className: 'animate-fade-in',
         style: {
           backgroundColor: '#ffffff',
-          borderRadius: '10px',
+          borderRadius: '12px',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-          maxWidth: '440px',
+          maxWidth: '460px',
           width: '100%',
           overflow: 'hidden',
           border: '1px solid #e2e8f0',
@@ -81,7 +87,7 @@ export function LoginModal({ isOpen, onClose }) {
         'div',
         {
           style: {
-            padding: '18px 24px',
+            padding: '20px 24px',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
             alignItems: 'center',
@@ -92,8 +98,8 @@ export function LoginModal({ isOpen, onClose }) {
         h(
           'div',
           null,
-          h('div', { style: { fontWeight: '700', fontSize: '16px', color: '#0f172a' } }, 'Đăng nhập tài khoản'),
-          h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, 'Hệ thống LeeTKOB'),
+          h('div', { style: { fontWeight: '700', fontSize: '18px', color: '#0f172a' } }, 'Đăng nhập tài khoản'),
+          h('div', { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } }, 'Hệ thống LeeTKOB'),
         ),
         h(
           'button',

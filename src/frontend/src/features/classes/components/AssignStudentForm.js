@@ -34,7 +34,7 @@ export function AssignStudentForm({
     },
     h(
       'span',
-      { style: { fontSize: '13px', fontWeight: '600', color: '#334155' } },
+      { style: { fontSize: '14.5px', fontWeight: '600', color: '#334155' } },
       'Thêm sinh viên vào lớp:',
     ),
     h(
@@ -44,11 +44,11 @@ export function AssignStudentForm({
         onChange: (e) => setSelectedStudentId(e.target.value),
         style: {
           flex: 1,
-          minWidth: '220px',
-          padding: '8px 12px',
+          minWidth: '240px',
+          padding: '9px 14px',
           borderRadius: '8px',
           border: '1px solid #cbd5e1',
-          fontSize: '13px',
+          fontSize: '14px',
           backgroundColor: '#ffffff',
         },
       },

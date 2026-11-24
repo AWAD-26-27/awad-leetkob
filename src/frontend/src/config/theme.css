@@ -145,13 +145,38 @@
   padding: 0;
 }
 
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 16.5px;
+  }
+}
+
+@media (min-width: 1440px) {
+  html {
+    font-size: 17px;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   background-color: var(--bg-main);
   color: var(--text-main);
   line-height: 1.6;
+  font-size: 1rem;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Base button styles */
@@ -162,8 +187,8 @@ body {
   gap: 0.5rem;
   font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 0.88rem;
-  padding: 0.55rem 1.15rem;
+  font-size: 0.95rem;
+  padding: 0.62rem 1.25rem;
   border-radius: var(--radius-sm);
   border: 1px solid transparent;
   cursor: pointer;
@@ -216,8 +241,8 @@ body {
 }
 
 .btn-sm {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8rem;
+  padding: 0.42rem 0.85rem;
+  font-size: 0.85rem;
   border-radius: 6px;
 }
 
@@ -277,15 +302,15 @@ body {
 
 .code-window-title {
   color: #94a3b8;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-family: var(--font-mono);
   font-weight: 500;
 }
 
 .code-window-content {
-  padding: 1rem;
+  padding: 1.15rem;
   font-family: var(--font-mono);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: var(--code-text);
   line-height: 1.65;
   tab-size: 2;
@@ -297,9 +322,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.2rem 0.65rem;
+  padding: 0.28rem 0.75rem;
   border-radius: var(--radius-pill);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
   line-height: 1.3;
 }

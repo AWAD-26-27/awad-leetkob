@@ -33,7 +33,11 @@ export function ChangePasswordTab({ onChangePassword, onSuccess }) {
       setConfirmPassword('');
       if (onSuccess) onSuccess();
     } catch (err) {
-      toast.error(err.detail || err.message || 'Đổi mật khẩu thất bại');
+      const errMsg =
+        err?.title === 'Incorrect current password'
+          ? 'Mật khẩu hiện tại không chính xác'
+          : err?.detail || err?.title || err?.message || 'Đổi mật khẩu thất bại';
+      toast.error(errMsg);
     } finally {
       setUpdatingPassword(false);
     }
@@ -43,6 +47,7 @@ export function ChangePasswordTab({ onChangePassword, onSuccess }) {
     'form',
     { onSubmit: handleSubmit, style: { display: 'flex', flexDirection: 'column', gap: '14px' } },
     h(Input, {
+      id: 'current-password',
       type: 'password',
       label: 'Mật khẩu hiện tại (Current Password)',
       placeholder: 'Nhập mật khẩu hiện tại...',
@@ -51,6 +56,7 @@ export function ChangePasswordTab({ onChangePassword, onSuccess }) {
       required: true,
     }),
     h(Input, {
+      id: 'new-password',
       type: 'password',
       label: 'Mật khẩu mới (New Password)',
       placeholder: 'Tối thiểu 6 ký tự...',
@@ -59,6 +65,7 @@ export function ChangePasswordTab({ onChangePassword, onSuccess }) {
       required: true,
     }),
     h(Input, {
+      id: 'confirm-password',
       type: 'password',
       label: 'Xác nhận mật khẩu mới',
       placeholder: 'Nhập lại mật khẩu mới...',
@@ -72,6 +79,7 @@ export function ChangePasswordTab({ onChangePassword, onSuccess }) {
         type: 'submit',
         variant: 'primary',
         loading: updatingPassword,
+        onClick: handleSubmit,
         style: { marginTop: '8px', padding: '10px', fontWeight: '700' },
       },
       'Lưu Thay Đổi Mật Khẩu',

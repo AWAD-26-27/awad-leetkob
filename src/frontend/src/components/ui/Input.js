@@ -6,6 +6,7 @@ export function Input({
   type = 'text',
   value,
   onChange,
+  onInput,
   placeholder = '',
   helperText,
   error,
@@ -22,7 +23,7 @@ export function Input({
         'label',
         {
           htmlFor: id,
-          style: { fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' },
+          style: { fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-secondary)' },
         },
         label,
         required && h('span', { style: { color: 'var(--danger)', marginLeft: '4px' } }, '*'),
@@ -33,12 +34,13 @@ export function Input({
       className,
       value: value ?? '',
       onChange,
+      onInput,
       placeholder,
       disabled,
       style: {
         fontFamily: 'var(--font-sans)',
-        fontSize: '0.9rem',
-        padding: '0.55rem 0.85rem',
+        fontSize: '0.98rem',
+        padding: '0.62rem 0.95rem',
         borderRadius: 'var(--radius-sm)',
         border: error ? '1px solid var(--danger)' : '1px solid var(--card-border)',
         outline: 'none',
@@ -49,8 +51,8 @@ export function Input({
       ...props,
     }),
     error
-      ? h('span', { style: { fontSize: '0.78rem', color: 'var(--danger)' } }, error)
+      ? h('span', { style: { fontSize: '0.85rem', color: 'var(--danger)' } }, error)
       : helperText &&
-          h('span', { style: { fontSize: '0.78rem', color: 'var(--text-muted)' } }, helperText),
+          h('span', { style: { fontSize: '0.85rem', color: 'var(--text-muted)' } }, helperText),
   );
 }

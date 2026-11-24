@@ -69,5 +69,13 @@ export function ToastProvider({ children }) {
 
 export function useToast() {
   const ctx = useContext(ToastContext);
-  return ctx.toast;
+  const toastObj = ctx?.toast || {
+    success: () => {},
+    error: () => {},
+    info: () => {},
+  };
+  return {
+    ...toastObj,
+    toast: toastObj,
+  };
 }

@@ -51,12 +51,12 @@ export function LandingDemoAccounts({ onQuickLogin }) {
       },
       h(
         'h2',
-        { style: { fontSize: '17px', fontWeight: '700', color: '#1e293b', margin: '0 0 6px 0' } },
+        { style: { fontSize: '22px', fontWeight: '700', color: '#1e293b', margin: '0 0 8px 0' } },
         'Tài khoản thử nghiệm hệ thống',
       ),
       h(
         'p',
-        { style: { fontSize: '13px', color: '#64748b', margin: 0 } },
+        { style: { fontSize: '14.5px', color: '#64748b', margin: 0 } },
         'Chọn tài khoản mẫu để đăng nhập và trải nghiệm các vai trò trong hệ thống:',
       ),
     ),
@@ -65,8 +65,8 @@ export function LandingDemoAccounts({ onQuickLogin }) {
       {
         style: {
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '16px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '18px',
         },
       },
       accounts.map((acc) =>
@@ -78,9 +78,9 @@ export function LandingDemoAccounts({ onQuickLogin }) {
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              padding: '18px',
+              padding: '22px',
               border: '1px solid #e2e8f0',
-              borderRadius: '10px',
+              borderRadius: '12px',
             },
           },
           h(
@@ -93,19 +93,19 @@ export function LandingDemoAccounts({ onQuickLogin }) {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  marginBottom: '10px',
+                  marginBottom: '12px',
                 },
               },
               h(
                 'span',
                 {
                   style: {
-                    fontSize: '11px',
+                    fontSize: '12.5px',
                     fontWeight: '600',
                     color: acc.badgeColor,
                     backgroundColor: acc.badgeBg,
-                    padding: '2px 8px',
-                    borderRadius: '4px',
+                    padding: '3px 10px',
+                    borderRadius: '5px',
                     border: `1px solid ${acc.badgeColor}33`,
                   },
                 },
@@ -115,7 +115,7 @@ export function LandingDemoAccounts({ onQuickLogin }) {
                 'span',
                 {
                   style: {
-                    fontSize: '11.5px',
+                    fontSize: '13px',
                     color: '#64748b',
                     fontWeight: '500',
                   },
@@ -125,12 +125,12 @@ export function LandingDemoAccounts({ onQuickLogin }) {
             ),
             h(
               'h3',
-              { style: { fontSize: '14.5px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0' } },
+              { style: { fontSize: '16.5px', fontWeight: '700', color: '#0f172a', margin: '0 0 8px 0' } },
               acc.title,
             ),
             h(
               'p',
-              { style: { fontSize: '12.5px', color: '#64748b', lineHeight: 1.5, margin: '0 0 16px 0' } },
+              { style: { fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: '0 0 18px 0' } },
               acc.desc,
             ),
           ),
@@ -143,8 +143,8 @@ export function LandingDemoAccounts({ onQuickLogin }) {
               style: {
                 width: '100%',
                 fontWeight: '600',
-                fontSize: '12px',
-                padding: '7px 12px',
+                fontSize: '13.5px',
+                padding: '9px 14px',
                 backgroundColor: '#ffffff',
                 color: '#334155',
                 borderColor: '#cbd5e1',

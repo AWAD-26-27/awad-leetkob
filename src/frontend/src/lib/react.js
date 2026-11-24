@@ -280,9 +280,28 @@ export function createDOM(vnode, parentPath = 'root') {
 
 function updateDOM(container, vnode) {
   if (typeof document === 'undefined' || !container) return;
+  const activeEl = document.activeElement;
+  const activeId = activeEl?.id || null;
+  const selStart = typeof activeEl?.selectionStart === 'number' ? activeEl.selectionStart : null;
+  const selEnd = typeof activeEl?.selectionEnd === 'number' ? activeEl.selectionEnd : null;
+
   const newDOM = createDOM(vnode, 'root');
   container.innerHTML = '';
   container.appendChild(newDOM);
+
+  if (activeId) {
+    const nextEl = document.getElementById(activeId);
+    if (nextEl) {
+      nextEl.focus();
+      if (selStart !== null && selEnd !== null && typeof nextEl.setSelectionRange === 'function') {
+        try {
+          nextEl.setSelectionRange(selStart, selEnd);
+        } catch {
+          // Ignore unsupported element types
+        }
+      }
+    }
+  }
 }
 
 export function render(vnode, container) {

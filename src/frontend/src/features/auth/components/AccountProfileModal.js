@@ -6,24 +6,35 @@ import { ProfileDetailsTab } from './ProfileDetailsTab.js';
 import { ChangePasswordTab } from './ChangePasswordTab.js';
 import { AdminDirectoryTab } from './AdminDirectoryTab.js';
 
-export function AccountProfileModal({ isOpen, onClose }) {
+export function AccountProfileModal({ isOpen, onClose, initialTab = 'profile' }) {
   const { user, logout, changePassword } = useAuth();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(initialTab || 'profile');
   const [usersList, setUsersList] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
-    if (isOpen && user.role === 'admin') {
+    if (isOpen) {
+      setActiveTab(initialTab || 'profile');
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape' && onClose) onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isOpen, initialTab]);
+
+  useEffect(() => {
+    if (isOpen && user?.role === 'admin') {
       setLoadingUsers(true);
       fetchUsersList()
         .then((res) => {
           if (res?.items) setUsersList(res.items);
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setLoadingUsers(false));
     }
-  }, [isOpen, user.role]);
+  }, [isOpen, user?.role]);
 
   if (!isOpen) return null;
 
@@ -34,7 +45,7 @@ export function AccountProfileModal({ isOpen, onClose }) {
   };
 
   const roleColor =
-    user.role === 'admin' ? '#8b5cf6' : user.role === 'ta' ? '#3b82f6' : '#10b981';
+    user?.role === 'admin' ? '#8b5cf6' : user?.role === 'ta' ? '#3b82f6' : '#10b981';
 
   return h(
     'div',
@@ -62,8 +73,11 @@ export function AccountProfileModal({ isOpen, onClose }) {
           backgroundColor: '#ffffff',
           borderRadius: 'var(--radius-lg)',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          maxWidth: '520px',
+          maxWidth: '560px',
           width: '100%',
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column',
           overflow: 'hidden',
           border: '1px solid rgba(226, 232, 240, 0.8)',
         },
@@ -83,8 +97,8 @@ export function AccountProfileModal({ isOpen, onClose }) {
         h(
           'div',
           null,
-          h('div', { style: { fontWeight: '800', fontSize: '18px', color: '#0f172a' } }, 'Quản Lý Tài Khoản'),
-          h('div', { style: { fontSize: '12px', color: '#64748b', marginTop: '2px' } }, `${user.name} (@${user.username})`),
+          h('div', { style: { fontWeight: '800', fontSize: '20px', color: '#0f172a' } }, 'Quản Lý Tài Khoản'),
+          h('div', { style: { fontSize: '13px', color: '#64748b', marginTop: '2px' } }, `${user?.name || 'User'} (@${user?.username || ''})`),
         ),
         h(
           'button',
@@ -94,7 +108,7 @@ export function AccountProfileModal({ isOpen, onClose }) {
             style: {
               background: 'transparent',
               border: 'none',
-              fontSize: '20px',
+              fontSize: '22px',
               color: '#64748b',
               cursor: 'pointer',
               lineHeight: 1,
@@ -111,77 +125,53 @@ export function AccountProfileModal({ isOpen, onClose }) {
             borderBottom: '1px solid var(--color-border)',
             backgroundColor: '#ffffff',
             padding: '0 16px',
+            gap: '8px',
           },
         },
-        h(
-          'button',
-          {
-            type: 'button',
-            onClick: () => setActiveTab('profile'),
-            style: {
-              padding: '12px 16px',
-              border: 'none',
-              borderBottom: activeTab === 'profile' ? '2px solid #3b82f6' : '2px solid transparent',
-              color: activeTab === 'profile' ? '#1d4ed8' : '#64748b',
-              fontWeight: activeTab === 'profile' ? '700' : '500',
-              fontSize: '13px',
-              background: 'transparent',
-              cursor: 'pointer',
-            },
-          },
-          'Thông tin tài khoản',
-        ),
-        h(
-          'button',
-          {
-            type: 'button',
-            onClick: () => setActiveTab('security'),
-            style: {
-              padding: '12px 16px',
-              border: 'none',
-              borderBottom: activeTab === 'security' ? '2px solid #3b82f6' : '2px solid transparent',
-              color: activeTab === 'security' ? '#1d4ed8' : '#64748b',
-              fontWeight: activeTab === 'security' ? '700' : '500',
-              fontSize: '13px',
-              background: 'transparent',
-              cursor: 'pointer',
-            },
-          },
-          'Đổi mật khẩu',
-        ),
-        user.role === 'admin' &&
+        [
+          { id: 'profile', label: '👤 Xem hồ sơ' },
+          { id: 'security', label: '🔑 Đổi mật khẩu' },
+          ...(user?.role === 'admin' ? [{ id: 'directory', label: '👥 Quản lý người dùng' }] : []),
+        ].map((tab) =>
           h(
             'button',
             {
+              key: tab.id,
               type: 'button',
-              onClick: () => setActiveTab('directory'),
+              onClick: () => setActiveTab(tab.id),
               style: {
-                padding: '12px 16px',
+                padding: '13px 18px',
                 border: 'none',
-                borderBottom: activeTab === 'directory' ? '2px solid #3b82f6' : '2px solid transparent',
-                color: activeTab === 'directory' ? '#1d4ed8' : '#64748b',
-                fontWeight: activeTab === 'directory' ? '700' : '500',
-                fontSize: '13px',
+                borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+                color: activeTab === tab.id ? '#1d4ed8' : '#64748b',
+                fontWeight: activeTab === tab.id ? '700' : '500',
+                fontSize: '14px',
                 background: 'transparent',
                 cursor: 'pointer',
               },
             },
-            'Quản lý người dùng',
+            tab.label,
           ),
+        ),
       ),
       h(
         'div',
-        { style: { padding: '24px' } },
+        { style: { padding: '24px', overflowY: 'auto', flex: 1 } },
         activeTab === 'profile' &&
-          h(ProfileDetailsTab, { user, roleColor, onLogout: handleLogout }),
+        h(ProfileDetailsTab, {
+          user,
+          roleColor,
+          onLogout: handleLogout,
+          onGoToPassword: () => setActiveTab('security'),
+        }),
         activeTab === 'security' &&
-          h(ChangePasswordTab, {
-            onChangePassword: changePassword,
-            onSuccess: () => setActiveTab('profile'),
-          }),
+        h(ChangePasswordTab, {
+          onChangePassword: changePassword,
+          onSuccess: () => setActiveTab('profile'),
+        }),
         activeTab === 'directory' &&
-          user.role === 'admin' &&
-          h(AdminDirectoryTab, { usersList, loadingUsers }),
+        user?.role === 'admin' &&
+        h(AdminDirectoryTab, { usersList, loadingUsers }),
       ),
     ),
   );

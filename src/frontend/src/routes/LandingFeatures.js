@@ -43,8 +43,8 @@ export function LandingFeatures() {
           {
             key: idx,
             style: {
-              padding: '20px',
-              borderRadius: '10px',
+              padding: '22px',
+              borderRadius: '12px',
               backgroundColor: '#ffffff',
               border: '1px solid #e2e8f0',
             },
@@ -53,17 +53,17 @@ export function LandingFeatures() {
             'div',
             {
               style: {
-                width: '32px',
-                height: '32px',
-                borderRadius: '6px',
+                width: '38px',
+                height: '38px',
+                borderRadius: '8px',
                 backgroundColor: '#f1f5f9',
                 color: '#2563eb',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
+                fontSize: '13.5px',
                 fontWeight: '700',
-                marginBottom: '12px',
+                marginBottom: '14px',
                 border: '1px solid #e2e8f0',
               },
             },
@@ -71,12 +71,12 @@ export function LandingFeatures() {
           ),
           h(
             'h4',
-            { style: { fontSize: '14.5px', fontWeight: '700', color: '#0f172a', margin: '0 0 6px 0' } },
+            { style: { fontSize: '16.5px', fontWeight: '700', color: '#0f172a', margin: '0 0 8px 0' } },
             f.title,
           ),
           h(
             'p',
-            { style: { fontSize: '12.5px', color: '#64748b', lineHeight: 1.55, margin: 0 } },
+            { style: { fontSize: '13.5px', color: '#64748b', lineHeight: 1.6, margin: 0 } },
             f.desc,
           ),
         ),

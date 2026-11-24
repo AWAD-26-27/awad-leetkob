@@ -66,12 +66,12 @@ export function ClassStudentRoster({ classId, className }) {
           null,
           h(
             'h3',
-            { style: { margin: 0, fontSize: '16px', fontWeight: '700', color: '#0f172a' } },
+            { style: { margin: 0, fontSize: '18px', fontWeight: '700', color: '#0f172a' } },
             `Quản Lý Sinh Viên — Lớp Phụ Trách: ${className || `Class ${classId}`}`,
           ),
           h(
             'p',
-            { style: { margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' } },
+            { style: { margin: '3px 0 0 0', fontSize: '13.5px', color: '#64748b' } },
             `Hiện có ${classStudents.length} sinh viên đã ghi danh vào lớp.`,
           ),
         ),
@@ -83,9 +83,9 @@ export function ClassStudentRoster({ classId, className }) {
           'span',
           {
             style: {
-              fontSize: '12px',
+              fontSize: '13px',
               fontWeight: '700',
-              padding: '2px 8px',
+              padding: '3px 10px',
               borderRadius: '6px',
               background: '#e0e7ff',
               color: '#3730a3',

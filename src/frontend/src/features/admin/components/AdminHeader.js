@@ -29,7 +29,7 @@ export function AdminHeader({ onRefresh, loading }) {
             alignItems: 'center',
             gap: '10px',
             fontWeight: '800',
-            fontSize: '22px',
+            fontSize: '24px',
             letterSpacing: '-0.02em',
           },
         },
@@ -38,8 +38,8 @@ export function AdminHeader({ onRefresh, loading }) {
           'span',
           {
             style: {
-              fontSize: '11px',
-              padding: '2px 8px',
+              fontSize: '12px',
+              padding: '3px 9px',
               borderRadius: '6px',
               background: '#8b5cf6',
               color: '#ffffff',
@@ -54,7 +54,7 @@ export function AdminHeader({ onRefresh, loading }) {
         {
           style: {
             margin: '6px 0 0 0',
-            fontSize: '13px',
+            fontSize: '14.5px',
             color: '#94a3b8',
             maxWidth: '650px',
           },

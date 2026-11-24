@@ -1,5 +1,6 @@
-import { h } from '../../../lib/react.js';
+import { h, useState, useEffect } from '../../../lib/react.js';
 import { Button } from '../../../components/ui/index.js';
+import { UserDropdownMenu } from './UserDropdownMenu.js';
 
 export function UserMenu({
   user,
@@ -11,6 +12,26 @@ export function UserMenu({
   onOpenProfile,
   onLogout,
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('#user-menu-dropdown-container')) {
+        setIsOpen(false);
+      }
+    };
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('click', handleOutsideClick);
+    window.addEventListener('keydown', handleEsc);
+    return () => {
+      document.removeEventListener('click', handleOutsideClick);
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, [isOpen]);
+
   if (isGuest) {
     return h(
       Button,
@@ -21,33 +42,40 @@ export function UserMenu({
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          padding: '8px 18px',
+          padding: '8px 20px',
           fontWeight: '600',
-          fontSize: '13px',
+          fontSize: '14px',
+          borderRadius: '8px',
         },
       },
       'Đăng nhập',
     );
   }
 
+  const safeName = (user && user.name) || 'User';
+
   return h(
     'div',
-    { style: { display: 'flex', alignItems: 'center', gap: '12px' } },
+    {
+      id: 'user-menu-dropdown-container',
+      style: { position: 'relative', display: 'inline-block' },
+    },
     h(
-      'div',
+      'button',
       {
-        onClick: onOpenProfile,
-        title: 'Nhấn để xem Hồ sơ & Đổi mật khẩu',
+        type: 'button',
+        onClick: () => setIsOpen(!isOpen),
         style: {
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
-          padding: '6px 12px',
-          borderRadius: '8px',
-          backgroundColor: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          padding: '5px 14px 5px 6px',
+          borderRadius: '9999px',
+          border: isOpen ? '1px solid #3b82f6' : '1px solid #e2e8f0',
+          backgroundColor: isOpen ? '#f8fafc' : '#ffffff',
           cursor: 'pointer',
           transition: 'all 0.15s ease',
+          boxShadow: isOpen ? '0 0 0 3px rgba(59, 130, 246, 0.15)' : '0 1px 2px rgba(0,0,0,0.04)',
         },
       },
       h(
@@ -63,70 +91,49 @@ export function UserMenu({
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: '700',
-            fontSize: '13px',
+            fontSize: '13.5px',
           },
         },
-        (user.name || 'U').charAt(0).toUpperCase(),
+        safeName.charAt(0).toUpperCase(),
       ),
       h(
         'div',
-        null,
+        { style: { textAlign: 'left', display: 'flex', flexDirection: 'column' } },
         h(
-          'div',
-          { style: { fontSize: '13px', fontWeight: '700', color: '#0f172a', lineHeight: 1.2 } },
-          user.name,
+          'span',
+          { style: { fontSize: '13.5px', fontWeight: '700', color: '#0f172a', lineHeight: 1.2 } },
+          safeName,
         ),
         h(
-          'div',
-          { style: { display: 'flex', alignItems: 'center', gap: '6px', marginTop: '3px' } },
-          h(
-            'span',
-            {
-              style: {
-                fontSize: '10.5px',
-                padding: '1px 6px',
-                borderRadius: '4px',
-                fontWeight: '600',
-                color: roleColor,
-                backgroundColor: roleBadgeBg,
-                border: `1px solid ${roleColor}33`,
-              },
-            },
-            roleLabel,
-          ),
-          user.classId &&
-            h(
-              'span',
-              {
-                style: {
-                  fontSize: '10.5px',
-                  padding: '1px 6px',
-                  borderRadius: '4px',
-                  fontWeight: '500',
-                  color: '#475569',
-                  backgroundColor: '#f1f5f9',
-                },
-              },
-              `Lớp ${user.classId}`,
-            ),
+          'span',
+          { style: { fontSize: '11px', color: '#64748b', fontWeight: '500' } },
+          roleLabel + (user?.classId ? ` • Lớp ${user.classId}` : ''),
         ),
       ),
-    ),
-    h(
-      Button,
-      {
-        variant: 'secondary',
-        size: 'sm',
-        onClick: onLogout,
-        style: {
-          color: '#475569',
-          borderColor: '#cbd5e1',
-          backgroundColor: '#ffffff',
-          fontSize: '12px',
-          padding: '6px 12px',
+      h(
+        'span',
+        {
+          style: {
+            fontSize: '10px',
+            color: '#94a3b8',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.15s ease',
+            marginLeft: '4px',
+          },
         },
-      },
-      'Đăng xuất',
+        '▼',
+      ),
     ),
+    isOpen &&
+      h(UserDropdownMenu, {
+        user,
+        safeName,
+        roleLabel,
+        roleColor,
+        roleBadgeBg,
+        onOpenProfile,
+        onLogout,
+        onClose: () => setIsOpen(false),
+      }),
   );
 }

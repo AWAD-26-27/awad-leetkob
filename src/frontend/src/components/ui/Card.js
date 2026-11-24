@@ -38,7 +38,7 @@ export function Card({
               'h3',
               {
                 style: {
-                  fontSize: '1.05rem',
+                  fontSize: '1.2rem',
                   fontWeight: 700,
                   color: 'var(--text-main)',
                   letterSpacing: '-0.01em',
@@ -49,7 +49,7 @@ export function Card({
           subtitle &&
             h(
               'p',
-              { style: { fontSize: '0.82rem', color: 'var(--text-muted)', marginTop: '2px' } },
+              { style: { fontSize: '0.92rem', color: 'var(--text-muted)', marginTop: '4px' } },
               subtitle,
             ),
         ),
