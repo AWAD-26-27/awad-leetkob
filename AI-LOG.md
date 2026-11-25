@@ -647,3 +647,9 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Tool/model: Codex, Playwright and Chromium.
 - Changed: Display the time already formatted by the draft hook. The former extra formatting threw a browser error after autosave and prevented the submission history from updating.
 - Validation: The regression failed before the fix and passed afterward. It waits for the autosave message, submits code and verifies that the queued entry appears on the same lab screen.
+
+## 2026-11-25 — Tú — Record the PA3 public browser flow
+
+- Tool/model: Codex, Chromium, Playwright, FFmpeg and ffprobe.
+- Changed: Replaced the submission report's primary video link with a new browser recording from Azure Korea. The recording uses the seeded demo accounts and published evaluation fixtures.
+- Validation: Created lab #17 with all seven multiline test cases and deductions of 3 and 4 through the form. Saw `s01`, `s04` and `s09` queued or judging before `Accepted`, six verdicts in the TA queue, and the server's 404 on the lab screen for the other class. Verified the MP4 decodes and lasts 1:39. [Recording](evidence/pa3-deployment/korea-public-ui-demo.mp4)
