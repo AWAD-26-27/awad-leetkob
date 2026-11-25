@@ -24,9 +24,18 @@ function AppContent() {
 
   // Client-side Hash Router
   const { path: routePath, params: routeParams, navigate: navigateTo } = useHashRouter();
+  const routeLabId = routePath === '/labs/:labId' ? routeParams.labId : null;
 
   // Labs data & actions
-  const { labs, activeLabId, setActiveLabId, labDetails, refreshLabs, refreshDetails } = useLabs();
+  const {
+    labs,
+    activeLabId,
+    setActiveLabId,
+    labDetails,
+    labDetailError,
+    refreshLabs,
+    refreshDetails,
+  } = useLabs(routeLabId);
 
   // Synchronize route lab parameter with activeLabId
   useEffect(() => {
@@ -154,6 +163,7 @@ function AppContent() {
         labs,
         activeLabId,
         labDetails,
+        labDetailError: labDetailError?.labId === routeLabId ? labDetailError : null,
         setActiveLabId,
         refreshLabs,
         refreshDetails,

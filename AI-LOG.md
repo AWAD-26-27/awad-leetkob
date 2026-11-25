@@ -624,3 +624,13 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: Three public `sort-merge` submissions were judged `Accepted` in one attempt each. All three C1 outcomes matched the labels. The three model reservations yielded one successful C2 verdict and two logged errors, which became `unsure`. The cross-class queue response was 404. [Live API report](evidence/pa3-deployment/korea-public-live.json) · [Recording](evidence/pa3-deployment/korea-public-demo.mp4)
 - Validation: All nine public sandbox probes matched their expected outcomes. The probes used repository fixtures with the deployed wall-clock and output thresholds, a synthetic host canary, and a hard-rule constraint. Docker showed zero remaining sandbox containers and the probes made zero model calls. [Public sandbox evidence](evidence/pa3-deployment/korea-public-sandbox.json)
 - Release evidence: Merged PR #20 after its three CI jobs passed and created `pa3` at `ec6ef8d9b616fed709478d854edc52bf968f75b5`. Verified that the tag push triggered CI and that the submitted video can be downloaded from the tag. [Tagged CI run](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45621675509)
+
+## 2026-11-25 — Tú — Show cross-class access errors in the PA3 browser UI
+
+- Tool/model: Codex, Playwright and Chromium.
+- Task: Show the lab endpoint's access error to a TA who opens another class's lab via its URL.
+- Changed: Retain the requested lab until its details response is resolved. Ignore superseded detail requests. Render the backend's 403 or 404 on the actual lab screen and provide a way back to the class list.
+- Decision: Kept the existing backend class-isolation contract and used its response status in the frontend.
+- Validation: `npm run check` passed. Both Chromium tests passed, including the new cross-class test that checks the actual 404 response, visible UI message and absence of the Publish action.
+- Changed: The browser form rehearsals exposed that single-line test fields discarded line breaks. Switched the test input and output fields to textareas and handled input events while typing so the custom renderer no longer replaces action buttons during blur. Added stable input IDs for focus restoration.
+- Validation: The browser regression creates a lab with multiline test cases and two constraints, checks the real submission body, and then checks that the other TA sees HTTP 404 on the lab screen. This regression, the existing Publish browser test and `npm run check` passed.

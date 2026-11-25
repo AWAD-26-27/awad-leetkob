@@ -1,5 +1,5 @@
 import { h } from '../../../lib/react.js';
-import { Button, Input } from '../../../components/ui/index.js';
+import { Button, Textarea } from '../../../components/ui/index.js';
 
 export function TestCaseInputs({ testCases, onAdd, onRemove, onUpdate }) {
   return h(
@@ -37,15 +37,19 @@ export function TestCaseInputs({ testCases, onAdd, onRemove, onUpdate }) {
             marginBottom: '8px',
           },
         },
-        h(Input, {
+        h(Textarea, {
+          id: `test-case-input-${idx}`,
+          rows: 2,
           placeholder: 'Dữ liệu đầu vào (Input)',
           value: tc.input,
-          onChange: (e) => onUpdate(idx, 'input', e.target.value),
+          onInput: (e) => onUpdate(idx, 'input', e.target.value),
         }),
-        h(Input, {
+        h(Textarea, {
+          id: `test-case-output-${idx}`,
+          rows: 2,
           placeholder: 'Kết quả kỳ vọng (Output)',
           value: tc.output,
-          onChange: (e) => onUpdate(idx, 'output', e.target.value),
+          onInput: (e) => onUpdate(idx, 'output', e.target.value),
         }),
         testCases.length > 1 &&
           h(
