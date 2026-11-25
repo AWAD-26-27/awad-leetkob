@@ -596,3 +596,5 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Captured the provider error code and a message category in an isolated one-request checker run. The persisted report excludes the key, prompt and raw provider error body.
 - Rejected: Deferred starting the public worker in live mode after the provider rejected the Azure request.
 - Validation: The single request returned HTTP 400 and Google status `FAILED_PRECONDITION`. The error message referred to region support. C1 passed and C2 was `unsure`. [Azure key retest](evidence/pa3-deployment/azure-gemini-key-retest.json)
+
+- Follow-up: A separately authorized one-request retest with the previous key restored on the same VM returned HTTP 400 and `FAILED_PRECONDITION` with the same region-related error category. The checker recorded C2 as `unsure`. [Previous key retest](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
