@@ -20,7 +20,7 @@
 - Lượt thử Gemini trên East Asia dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên East Asia](evidence/pa3-deployment/azure-gemini-smoke.json)
 - Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
 - Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
-- CI chạy trên tag `pa3` tại commit `ec6ef8d9b616fed709478d854edc52bf968f75b5` gồm `gates`, `e2e` và `sandbox-tests`. [CI của tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45621675509)
+- CI của bản nộp là lượt push `pa3` mới nhất trong danh sách đã lọc, gồm `gates`, `e2e` và `sandbox-tests`. [CI của tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/workflows/ci.yml?query=branch%3Apa3+event%3Apush)
 - Video giao diện public dài 1:39 trên lab `sort-merge` #17. TA lớp A tạo lab với 7 test case và C1/C2 (0:00), sinh viên nộp `s01`, `s04`, `s09` và thấy từng bài chuyển sang `Accepted` (0:15), TA lớp A xem 6 verdict và bằng chứng (1:07), TA lớp B mở lab lớp A và thấy `404` ngay trên trang (1:26). [Video giao diện MP4](https://raw.githubusercontent.com/AWAD-26-27/awad-leetkob/refs/heads/main/evidence/pa3-deployment/korea-public-ui-demo.mp4)
 
 ### Checker và eval
@@ -183,26 +183,11 @@ sequenceDiagram
 
 ---
 
-## 5. FAQ về hành vi của sản phẩm dành cho sinh viên
+## 5. Sinh viên thấy gì trước khi công bố điểm
 
-Đối chiếu mục FAQ của Product Owners trên Classroom và thêm trích dẫn chính thức trước khi nộp.
+FAQ-08 của Product Owners quy định trước khi công bố, sinh viên xem kết quả chấm test. Kết quả soát của luật cứng và model được giữ kín. Sau công bố, sinh viên xem các khoản trừ đã được TA xác nhận trên bài của mình. [LeeTKOB FAQ-08](https://github.com/tkob-team/LeeTKOB-FAQ/blob/main/FAQ.md#faq-08)
 
-Mục này được trích xuất chính thức từ tài liệu môn học để giải đáp cho sinh viên:
-
-### Q1: Tại sao em đã nộp bài thành công và nhận được "Accepted (AC)" nhưng điểm số và chi tiết vi phạm vẫn hiển thị trạng thái "Chờ xét duyệt" hoặc chưa có điểm?
-> **Trả lời:**  
-> Hệ thống LeeTKOB áp dụng quy trình đánh giá 2 bước độc lập:  
-> 1. **Bước 1 — Đánh giá chức năng tự động (Sandbox Runner):** Kiểm tra tính đúng đắn về mặt thuật toán (Test Cases, thời gian chạy, bộ nhớ). Khi mã nguồn vượt qua toàn bộ ca kiểm thử, hệ thống sẽ trả về ngay kết quả judge là `Accepted`.  
-> 2. **Bước 2 — Thẩm định ràng buộc kỹ thuật (Constraint & AST Evaluation):** Hệ thống phân tích cú pháp AST để phát hiện các mẫu vi phạm quy tắc kỹ thuật của đề bài (ví dụ: cấm dùng thư viện `std::min`, bắt buộc dùng giải thuật đệ quy,...).  
-> **Theo Hợp đồng Đảm bảo Tính Riêng tư (Student Privacy Invariant):** Toàn bộ bằng chứng vi phạm kỹ thuật và mức điểm trừ sẽ được chuyển vào **Hàng đợi xét duyệt (Review Queue)** dành riêng cho Giảng viên/TA. Điểm số chính thức chỉ được công bố sau khi Giảng viên trực tiếp xem xét, xác nhận (`confirm`) hoặc bác bỏ (`overturn`) các vi phạm. Điều này nhằm bảo vệ sinh viên khỏi các lỗi nhận định sai của công cụ tự động và đảm bảo tính công bằng học thuật.
-
-### Q2: Em có thể xem trước các lỗi vi phạm ràng buộc code của mình trước khi Giảng viên công bố điểm không?
-> **Trả lời:**  
-> Không. Nhằm đảm bảo tính trung thực học thuật và ngăn chặn việc thử-sai (brute-force) để lách các quy tắc ràng buộc, sinh viên chỉ nhìn thấy trạng thái bài nộp (`queued` $\rightarrow$ `judging` $\rightarrow$ `judged`) và kết quả testcases (`Accepted`, `WA`, `TLE`, v.v.). Chi tiết các dòng code vi phạm, lý do trừ điểm và điểm số cuối cùng sẽ được hiển thị đồng loạt khi Giảng viên bấm **Công bố điểm (Publish grades)**.
-
-### Q3: Nếu em cho rằng hệ thống tự động phát hiện vi phạm chưa chính xác (False Positive), em phải làm gì?
-> **Trả lời:**  
-> Toàn bộ các cảnh báo của hệ thống tự động ban đầu đều ở trạng thái `pending`. Giảng viên phụ trách lớp của bạn sẽ kiểm tra lại từng bằng chứng dòng mã (evidence snippet) trước khi đưa ra quyết định cuối cùng. Nếu công cụ tự động đánh dấu nhầm, Giảng viên sẽ chọn `overturn` để không trừ điểm của bạn.
+Trong PA#3, sinh viên xem trạng thái và verdict chấm tổng của bài mình. Verdict ràng buộc, bằng chứng và khoản trừ của từng bài chỉ nằm trong hàng đợi TA có quyền. API Publish trả `409` khi còn mục chưa duyệt và deployment demo chặn Publish. Trang lab hiện input/output của bộ test và lịch sử mới có verdict tổng. FAQ-02 mô tả hành vi mục tiêu là giữ kín input/output và hiện verdict từng test. [Contract Publish](docs/contract/publish.md) · [LeeTKOB FAQ-02](https://github.com/tkob-team/LeeTKOB-FAQ/blob/main/FAQ.md#faq-02)
 
 ---
 
