@@ -570,3 +570,56 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Kept the PA3 application and project context in `README.md`, incorporating the relevant PA3 checker evidence. Kept the PA3 Free-tier project in `docs/permissions.md` and the existing boundary against sending student code. Explicitly retained the authorization for synthetic checks and public dev-set runs; unit, contract and CI tests remain offline.
 - Rejected: Did not retain the stale PA2 project and setup content from the conflicting README/permissions sections. Did not reformat unrelated frontend files.
 - Validation: `npm ci` succeeded with zero reported vulnerabilities. `npm run check` passed ESLint but stopped at Prettier warnings in five unmodified student component files. `npm test` passed 82/82 and `npm run contract` passed 58/58. `git diff --cached --check` passed; `README.md` and `docs/permissions.md` contain no conflict markers.
+
+## 2026-11-25 — Tú — Azure deployment and PA3 rehearsal
+
+- Tool/model: Codex with SSH, Node.js, Docker, PM2, systemd, Caddy, tcpdump, nftables, curl and Python.
+- Task: Deploy the integrated PA3 worker and verify the public path from a queued C++ submission to the TA review queue.
+- Changed: Built the sandbox image on Azure at `1ce5953`. Started the worker with PM2 executing Node directly and set both processes to use `/home/azureuser/app/data/leetkob.db`. Saved the offline process list and enabled the PM2 systemd startup unit. A PM2 fork start appeared online but had skipped the worker entrypoint. Direct Node execution logged `PA3 worker ready` and drained the queued jobs.
+- Changed: Captured the probe's TCP 443 traffic, observed larger TLS segments missing in transit, and verified a temporary two-way MSS limit. Persisted the working limit for IPv4 TCP 443 in `leetkob-https-mss.service`. HTTPS over new TCP connections and HTTP/3 returned 200. Applied the PA3 public Publish gate at Caddy and checked its 403 response.
+- Rejected: Kept the worker offline for the rehearsal and kept the public grading flow at the review queue. Kept HTTP/3 available after restoring TCP HTTPS. A host-wide MTU change was unnecessary.
+- Changed: Restored `eval/dev/README.md` from the published dev-set revision `552c811` after the integration merge altered its first paragraph. Compared the replacement byte for byte with the lecturer's file and checked that the dev set matched the pre-merge snapshot.
+- Validation: On the VM the Docker sandbox and worker restart tests passed 10/10 with zero skips. A separate public rehearsal created lab #4 and queued submissions #7–9 via HTTPS. All became `Accepted` with six queue entries and cross-class queue access returned 404. The five demo logins succeeded. A new Chromium context with QUIC disabled loaded the public home and health endpoints. Local `npm run check` passed. [Docker log](evidence/pa3-deployment/vm-sandbox.txt) · [Public rehearsal](evidence/pa3-deployment/public-offline.json)
+
+## 2026-11-25 — Tú — Isolated Gemini verification on Azure
+
+- Tool/model: Codex, SSH, Node.js, Docker and Gemini `gemini-3.5-flash-lite`.
+- Task: Run the three public `sort-merge` fixtures through the Azure worker with the approved Free tier credentials and a three-request cap.
+- Changed: Recovered from an SSH interruption by storing the next authorized run's report on Azure before retrieving it. Used a separate SQLite database and normalized the private deploy setting to the confirmed cap of 80. The temporary worker reserved exactly 3 requests.
+- Rejected: Deferred enabling Gemini in the public worker while the isolated requests returned HTTP 400.
+- Validation: All three submissions reached `Accepted`; all three C1 hard-rule verdicts matched the dev labels. All three C2 calls returned HTTP 400 with no provider request ID, and the worker recorded `unsure` from the guardrail. [Azure smoke report](evidence/pa3-deployment/azure-gemini-smoke.json)
+
+## 2026-11-25 — Tú — Azure Gemini key retest
+
+- Tool/model: Codex, SSH, Node.js and Gemini `gemini-3.5-flash-lite`.
+- Task: Retest the updated key from Azure with the public `sort-merge/s01` fixture.
+- Changed: Captured the provider error code and a message category in an isolated one-request checker run. The persisted report excludes the key, prompt and raw provider error body.
+- Rejected: Deferred starting the public worker in live mode after the provider rejected the Azure request.
+- Validation: The single request returned HTTP 400 and Google status `FAILED_PRECONDITION`. The error message referred to region support. C1 passed and C2 was `unsure`. [Azure key retest](evidence/pa3-deployment/azure-gemini-key-retest.json)
+
+- Follow-up: A separately authorized one-request retest with the previous key restored on the same VM returned HTTP 400 and `FAILED_PRECONDITION` with the same region-related error category. The checker recorded C2 as `unsure`. [Previous key retest](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
+
+## 2026-11-25 — Tú — PA3 deployment in Korea Central
+
+- Tool/model: Codex, SSH, Git, Node.js, npm, Docker, Caddy, PM2, systemd, Chromium and Python.
+- Task: Deploy the integrated PA3 application to the new Korea Central VM and repeat the East Asia infrastructure checks.
+- Changed: Connected to the pinned Korea host on SSH port 22. Bypassed a local system SSH include with invalid permissions by selecting the user config with `ssh -F`. Cloned the verified `main` commit `1ce5953` and ran `npm ci` beside its lockfile.
+- Changed: Built the C++ sandbox, started the web on `127.0.0.1:3007` and the worker through PM2's direct Node invocation. Used a new shared SQLite WAL database and enabled systemd startup. Added the PA3 Publish gate to the existing Caddy HTTPS proxy.
+- Decision: Kept the public worker offline pending the private Gemini configuration. The Korea connection passed TLS on a new TCP session, so the East Asia MSS adjustment was unnecessary here.
+- Validation: All 10 Docker and restart checks passed on the VM with no skips. Public HTTPS and a fresh Chromium context without QUIC loaded the service. A new `sort-merge` lab accepted all three submitted fixtures, exposed six verdicts only to the authorized TA, rejected the cross-class queue request with 404, and refused Publish with 403. [Korea sandbox log](evidence/pa3-deployment/korea-vm-sandbox.txt) · [Korea public rehearsal](evidence/pa3-deployment/korea-public-offline.json)
+
+## 2026-11-25 — Tú — Live Gemini smoke in Korea Central
+
+- Tool/model: Codex, SSH, Node.js, Docker and Gemini `gemini-3.5-flash-lite`.
+- Task: Verify the provided Free tier configuration with one authorized request using an isolated database and the public `sort-merge/s01` fixture.
+- Changed: Started a separate worker with a one-request cap. Parsed the mode-600 configuration without disclosing the key and verified the configured deployment cap of 80.
+- Decision: Ran the model smoke separately from the public worker.
+- Validation: Docker judged the fixture `Accepted`. The checker recorded C1 `pass` from the hard rule and C2 `pass` from the model. The one C2 request returned HTTP 200 with a provider request ID, 1,211 prompt tokens, 241 completion tokens, and 2,104 ms recorded latency. The verdict matched the pass label and included original source lines while that dev label leaves its evidence list empty. [Korea Gemini smoke](evidence/pa3-deployment/korea-gemini-smoke.json)
+
+## 2026-11-25 — Tú — PA3 public model and hand-in evidence
+
+- Tool/model: Codex, SSH, PM2, SQLite, Docker, Playwright, Chromium, FFmpeg and Gemini `gemini-3.5-flash-lite`.
+- Task: Enable the demo worker's model and verify PA3 through public HTTPS.
+- Changed: Verified the public database contained only seeded demo accounts and no pending jobs before the worker switch. Used Node's runtime env file with the verified Free tier settings and cap of 80. Saved the PM2 startup state after checking its environment metadata for provider credentials.
+- Validation: Three public `sort-merge` submissions were judged `Accepted` in one attempt each. All three C1 outcomes matched the labels. The three model reservations yielded one successful C2 verdict and two logged errors, which became `unsure`. The cross-class queue response was 404. [Live API report](evidence/pa3-deployment/korea-public-live.json) · [Recording](evidence/pa3-deployment/korea-public-demo.mp4)
+- Validation: All nine public sandbox probes matched their expected outcomes. The probes used repository fixtures with the deployed wall-clock and output thresholds, a synthetic host canary, and a hard-rule constraint. Docker showed zero remaining sandbox containers and the probes made zero model calls. [Public sandbox evidence](evidence/pa3-deployment/korea-public-sandbox.json)

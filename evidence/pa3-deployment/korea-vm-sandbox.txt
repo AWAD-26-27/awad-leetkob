@@ -1,0 +1,22 @@
+Commit: 1ce5953314cfef1917d384fc779bbc3fb9589d91
+Sandbox image ID: sha256:a2f3ad098a90d92a19f1d78d8cfecd05d522294bce166a4ae2bfe03b0d504982
+✔ 01 no network namespace interfaces other than loopback (3345.718103ms)
+✔ 02 CPU time stops a finite CPU workload before the wall deadline (1816.274423ms)
+✔ 03 wall time removes the entire running container (3653.124594ms)
+✔ 04 memory is limited, swap is disabled, and the fixture reads its allocation (1235.305409ms)
+✔ 05 the kernel limits the sandbox to 64 processes (964.70443ms)
+✔ 06 stdout and stderr share the same byte limit (702.026515ms)
+✔ 07 the C++ program runs as non-root (UID 10001) (655.576771ms)
+✔ 08 sandbox has no host bind mounts and no Docker socket (1773.30688ms)
+✔ 09 the compiler and program cannot see host canaries (1809.264874ms)
+(node:7253) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ stopped worker recovers queued and expired jobs exactly once through Docker and checker (2522.604005ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18723.712258

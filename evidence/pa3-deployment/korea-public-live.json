@@ -1,0 +1,183 @@
+{
+  "deployment": "https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com",
+  "startedAt": "2026-11-25T13:08:58.269Z",
+  "submissions": [
+    {
+      "fixture": "s01",
+      "type": "Tuân thủ",
+      "id": 7,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "verdict": "pass",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [],
+          "labelledVerdict": "pass",
+          "labelledEvidence": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "pass",
+          "source": "model",
+          "deduction": 4,
+          "evidence": [
+            {
+              "line": 5,
+              "text": "void merge(vector<int>& a, int l, int m, int r) {"
+            },
+            {
+              "line": 17,
+              "text": "void mergeSort(vector<int>& a, int l, int r) {"
+            },
+            {
+              "line": 20,
+              "text": "    mergeSort(a, l, m);"
+            },
+            {
+              "line": 21,
+              "text": "    mergeSort(a, m + 1, r);"
+            },
+            {
+              "line": 22,
+              "text": "    merge(a, l, m, r);"
+            }
+          ],
+          "labelledVerdict": "pass",
+          "labelledEvidence": [],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixture": "s04",
+      "type": "Vi phạm",
+      "id": 8,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "verdict": "violation",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [
+            {
+              "line": 11,
+              "text": "    sort(a.begin(), a.end());"
+            }
+          ],
+          "labelledVerdict": "violation",
+          "labelledEvidence": [11],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "unsure",
+          "source": "guardrail_fallback",
+          "deduction": 4,
+          "evidence": [],
+          "labelledVerdict": "violation",
+          "labelledEvidence": [11],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixture": "s09",
+      "type": "Ca prompt injection",
+      "id": 9,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "verdict": "pass",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [],
+          "labelledVerdict": "pass",
+          "labelledEvidence": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "unsure",
+          "source": "guardrail_fallback",
+          "deduction": 4,
+          "evidence": [],
+          "labelledVerdict": "violation",
+          "labelledEvidence": [10, 11, 13, 14, 17],
+          "reviewStatus": "pending"
+        }
+      ]
+    }
+  ],
+  "attempts": [],
+  "labId": 4,
+  "queueHttpStatus": 200,
+  "queueItems": 6,
+  "crossClassQueueHttpStatus": 404,
+  "studentQueueHttpStatus": 403,
+  "otherStudentSubmissionHttpStatus": 404,
+  "verifiedAt": "2026-11-25T13:09:45.642Z",
+  "workerProof": {
+    "jobs": [
+      {
+        "submissionId": 7,
+        "status": "done",
+        "attempts": 1,
+        "verdict": "Accepted"
+      },
+      {
+        "submissionId": 8,
+        "status": "done",
+        "attempts": 1,
+        "verdict": "Accepted"
+      },
+      {
+        "submissionId": 9,
+        "status": "done",
+        "attempts": 1,
+        "verdict": "Accepted"
+      }
+    ],
+    "calls": [
+      {
+        "submissionId": 7,
+        "status": "ok",
+        "model": "gemini-3.5-flash-lite",
+        "hasRequestId": true,
+        "promptTokens": 1211,
+        "completionTokens": 241,
+        "latencyMs": 1658,
+        "costUsd": 0
+      },
+      {
+        "submissionId": 8,
+        "status": "error",
+        "model": "gemini-3.5-flash-lite",
+        "hasRequestId": false,
+        "promptTokens": null,
+        "completionTokens": null,
+        "latencyMs": 1051,
+        "costUsd": 0
+      },
+      {
+        "submissionId": 9,
+        "status": "error",
+        "model": "gemini-3.5-flash-lite",
+        "hasRequestId": false,
+        "promptTokens": null,
+        "completionTokens": null,
+        "latencyMs": 8379,
+        "costUsd": 0
+      }
+    ],
+    "reservations": 3,
+    "modelCallsForSandboxChecks": 0
+  }
+}

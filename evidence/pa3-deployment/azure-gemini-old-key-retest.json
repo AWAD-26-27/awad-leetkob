@@ -1,0 +1,31 @@
+{
+  "startedAt": "2026-11-25T08:51:14.030Z",
+  "verifiedAt": "2026-11-25T08:51:14.807Z",
+  "commit": "1ce5953314cfef1917d384fc779bbc3fb9589d91",
+  "fixture": "sort-merge/s01",
+  "model": "gemini-3.5-flash-lite",
+  "requests": 1,
+  "response": {
+    "httpStatus": 400,
+    "bodyKind": "json",
+    "googleCode": 400,
+    "googleStatus": "FAILED_PRECONDITION",
+    "reasons": [],
+    "messageCategories": ["region_not_supported"]
+  },
+  "verdicts": [
+    {
+      "constraint": "C1",
+      "verdict": "pass",
+      "source": "hard_rule"
+    },
+    {
+      "constraint": "C2",
+      "verdict": "unsure",
+      "source": "guardrail_fallback"
+    }
+  ],
+  "callStatus": "error",
+  "hasProviderRequestId": false,
+  "latencyMs": 688
+}

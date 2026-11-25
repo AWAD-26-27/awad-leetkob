@@ -9,19 +9,35 @@
 
 ---
 
-## 1. THÔNG TIN BÀN GIAO & TRẠNG THÁI CI
+## 1. Deployment và hồ sơ PA3
 
-- **Repository:** `awad-leetkob`
-- **Branch:** `feat/e2e-app` (hoặc `main` sau khi merge)
-- **Deployment Commit SHA:** `03ac50a` (`03ac50abe4febf5b28868ea3c3b51bedf2137f6f`)
-- **Pull Request:** [PR #3 — Integration & Deployment Ready](https://github.com/AWAD-26-27/awad-leetkob/pull/3)
-- **Trạng thái Quality Gates (CI): Xanh 100%**
-  - `npm run lint` (`eslint .`): **0 errors, 0 warnings**
-  - `npm run format:check` (`prettier --check .`): **All matched files use Prettier code style!**
-  - `npm test` (`node --test test/unit/**/*.test.js`): **82/82 unit tests passed** (100% bao gồm kịch bản vòng đời lớp học: Admin tạo lớp & gán GV/SV, GV tạo 3 bài lab, 3 SV nộp bài, Worker chấm AST & GV duyệt review/publish)
-  - `npm run contract` (`node --test test/contract/**/*.test.js`): **58/58 contract tests passed** (100%)
-  - `npm run e2e` (`playwright test`): **1/1 e2e test passed** (`e2e/publish.spec.js` chạy trên headless browser hoàn tất trong 1.8s)
-  - **Quy chuẩn mã nguồn:** 100% các component giao diện trong `src/frontend/src/` tuân thủ nghiêm ngặt giới hạn dưới 200 dòng code.
+- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) chạy ứng dụng ở commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker public dùng `gemini-3.5-flash-lite` Free tier, giới hạn 80 yêu cầu mỗi lab. Bản chấm PA3 dùng lớp demo và dữ liệu mẫu.
+- Lab live `sort-merge` #4 nhận 3 bài qua HTTPS. Cả ba chuyển `queued` → `judged` và đều `Accepted`. Queue TA có 6 verdict và mức trừ điểm do TA đặt. Cả ba verdict C1 khớp nhãn dev. C2 của `s01` là `pass` từ model với request ID. Hai lượt C2 còn lại được ghi `error` và trả `unsure`. TA lớp B nhận `404` khi đọc queue. [Kết quả live và metadata](evidence/pa3-deployment/korea-public-live.json)
+- Lab `sort-merge` #3 được tạo qua HTTPS public trên Korea với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra Korea](evidence/pa3-deployment/korea-public-offline.json)
+- Trên VM Korea, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Korea](evidence/pa3-deployment/korea-vm-sandbox.txt)
+- Cả 9 fixture kiểm tra sandbox qua API public đều đạt. Kiểm tra CPU và wall-clock trả `TLE`, bộ nhớ trả `MLE`, output trả `OLE`. Các fixture xác minh cấu hình còn lại đạt `Accepted`. [Kết quả sandbox public](evidence/pa3-deployment/korea-public-sandbox.json)
+- Lượt thử Gemini trên Korea dùng worker và SQLite riêng, giới hạn một request. `sort-merge/s01` đạt `Accepted`. C1 là `pass` từ hard rule và C2 là `pass` từ `gemini-3.5-flash-lite`. Google trả HTTP `200` và request ID. Model dẫn thêm các dòng mã gốc cho verdict `pass`; nhãn dev chỉ định verdict và để danh sách bằng chứng trống. [Lượt thử Gemini trên Korea](evidence/pa3-deployment/korea-gemini-smoke.json)
+- Lượt thử Gemini trên East Asia dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên East Asia](evidence/pa3-deployment/azure-gemini-smoke.json)
+- Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
+- Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
+- CI của commit ứng dụng đã đạt `gates`, `e2e` và `sandbox-tests`. Xem lượt push của tag `pa3` trong [CI dành cho tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/workflows/ci.yml?query=event%3Apush+branch%3Apa3).
+- Video diễn tập dài 50 giây, ghi lại tạo lab, nộp 3 bài, đọc hàng đợi TA và kiểm tra quyền qua API public. [Video MP4](evidence/pa3-deployment/korea-public-demo.mp4?raw=true)
+
+### Checker và eval
+
+```sh
+npm ci
+mkdir -p /tmp/leetkob-eval
+MODEL_OFF=1 node src/checker/cli.js eval/dev /tmp/leetkob-eval/dev.jsonl
+docker build -f checker.Dockerfile -t leetkob-checker:pa3 .
+docker run --rm --network none -e MODEL_OFF=1 \
+  --user "$(id -u):$(id -g)" \
+  --mount "type=bind,source=$PWD/eval/dev,target=/dataset,readonly" \
+  --mount "type=bind,source=/tmp/leetkob-eval,target=/out" \
+  leetkob-checker:pa3 /dataset /out/dev.jsonl
+```
+
+Bản eval thật trong `evidence/pa3-checker/live/` dùng `gemini-3.5-flash-lite`. Scorer ghi nhận 1 khấu trừ sai, recall 75,7% và unsure 16,7%. [Predictions](evidence/pa3-checker/live/predictions.jsonl) · [Báo cáo scorer](evidence/pa3-checker/live/eval.json) · [Log lời gọi](evidence/pa3-checker/live/calls.jsonl) · [Hướng dẫn checker](docs/checker.md)
 
 ---
 
@@ -31,11 +47,11 @@ Hệ thống được khởi tạo sẵn với 2 lớp học rỗng (`Class A` -
 
 | STT | Tên tài khoản (Username) | Mật khẩu (Password) | Vai trò (Role) | Phạm vi Lớp (Scope) | Token Bearer Demo | Ghi chú quyền hạn |
 | :---: | :---: | :---: | :---: | :---: | :---: | :--- |
-| **1** | `admin` | `password123` *(hoặc `admin`)* | `admin` | Toàn quyền (All Classes) | `tok-admin` | Quản trị viên: Quản lý người dùng, tạo/gán lớp, không sửa lab |
-| **2** | `ta_a` | `password123` *(hoặc `ta_a`)* | `ta` | Class A (ID: 1) | `tok-ta-a` | Giảng viên Lớp A: Tạo bài lab, duyệt hàng đợi review, công bố điểm |
-| **3** | `ta_b` | `password123` *(hoặc `ta_b`)* | `ta` | Class B (ID: 2) | `tok-ta-b` | Giảng viên Lớp B: Phân lập độc lập, nhận `404` nếu xem Lab Lớp A |
-| **4** | `student_1` | `password123` *(hoặc `student_1`)* | `student` | Class A (ID: 1) | `tok-student-1` | Sinh viên 1 Lớp A: Làm bài, nộp code C++, tra cứu kết quả cá nhân |
-| **5** | `student_2` | `password123` *(hoặc `student_2`)* | `student` | Class A (ID: 1) | `tok-student-2` | Sinh viên 2 Lớp A: Sinh viên cùng lớp, nhận `404` nếu xem bài nộp của bạn |
+| **1** | `admin` | `password123` | `admin` | Toàn quyền (All Classes) | `tok-admin` | Quản trị viên quản lý người dùng, tạo và gán lớp |
+| **2** | `ta_a` | `password123` | `ta` | Class A (ID: 1) | `tok-ta-a` | Giảng viên Lớp A tạo lab và duyệt hàng đợi review |
+| **3** | `ta_b` | `password123` | `ta` | Class B (ID: 2) | `tok-ta-b` | Giảng viên Lớp B nhận `404` khi xem queue Lab Lớp A |
+| **4** | `student_1` | `password123` | `student` | Class A (ID: 1) | `tok-student-1` | Sinh viên 1 Lớp A nộp C++ và tra cứu kết quả cá nhân |
+| **5** | `student_2` | `password123` | `student` | Class A (ID: 1) | `tok-student-2` | Sinh viên 2 Lớp A nhận `404` khi xem bài nộp của bạn |
 
 > *Ghi chú:* Endpoint đăng nhập `POST /api/login` chấp nhận cả password gốc và hashed; nếu nhập sai trả về `401 Unauthorized` dạng RFC 9457 Problem Details (`https://leetkob.example/problems/unauthenticated`).
 
@@ -49,32 +65,52 @@ Hệ thống được khởi tạo sẵn với 2 lớp học rỗng (`Class A` -
 | :--- | :--- | :--- | :--- | :--- |
 | `HOST` | Web Server | `127.0.0.1` | `127.0.0.1` | Caddy / Nginx reverse proxy chuyển tiếp HTTPS về host này |
 | `PORT` | Web Server | `3007` | `3007` | Cổng HTTP lắng nghe của Web API |
-| `DB_PATH` | Web & Worker | `/var/lib/leetkob/leetkob.db` *(tuyệt đối)* | `./data/leetkob.db` hoặc `:memory:` | Đường dẫn tệp SQLite WAL mode dùng chung |
-| `MODEL_OFF` | Worker & CLI | `1` | `1` | Chế độ chấm offline (AST hard rules, semantic unsure) |
+| `DB_PATH` | Web & Worker | `/home/azureuser/app/data/leetkob.db` | `./data/leetkob.db` hoặc `:memory:` | Đường dẫn tệp SQLite WAL dùng chung |
+| `MODEL_OFF` | Worker & CLI | Bỏ biến ở worker public | Đặt `1` để chạy offline | Hard rules dùng AST, semantic gọi Gemini ở chế độ live |
 | `SANDBOX_IMAGE`| Worker | `leetkob-cpp-sandbox:latest` | `leetkob-cpp-sandbox:latest` | Tên Docker Image biên dịch & thực thi sandbox C++20 |
 
 ### 3.2. Lệnh khởi tạo Cơ sở Dữ liệu & Tài khoản Demo
 
-Trước khi chạy worker lần đầu, chạy lệnh sau để khởi tạo toàn bộ schema và nạp 5 tài khoản demo:
+Trên VM mới, clone `main` vào `~/app/code` và tạo thư mục cha của DB trước khi chạy web. Web tự khởi tạo schema và nạp 5 tài khoản demo khi mở DB mới.
 
 ```bash
-# Khởi tạo schema và seed 5 tài khoản demo trên file SQLite dùng chung:
-DB_PATH=/var/lib/leetkob/leetkob.db node -e "import('./src/backend/db.js').then(m => m.open({ path: process.env.DB_PATH, seedUnassigned: false }))"
+mkdir -p "$HOME/app/data"
+git clone --branch main --single-branch https://github.com/AWAD-26-27/awad-leetkob.git "$HOME/app/code"
 ```
 
 ### 3.3. Lệnh chạy Web Server (Dịch vụ 1)
 
 ```bash
-# Khởi động Web API & Frontend Serving:
-HOST=127.0.0.1 PORT=3007 DB_PATH=/var/lib/leetkob/leetkob.db node src/server.js
+cd "$HOME/app/code"
+npm ci
+HOST=127.0.0.1 PORT=3007 DB_PATH="$HOME/app/data/leetkob.db" \
+  pm2 start src/server.js --name leetkob-web
 ```
 
 ### 3.4. Lệnh chạy Worker Offline (Dịch vụ 2)
 
 ```bash
-# Khởi động Worker nền xử lý hàng đợi chấm sandbox:
-DB_PATH=/var/lib/leetkob/leetkob.db MODEL_OFF=1 node src/worker.js
+cd "$HOME/app/code"
+docker build -t leetkob-cpp-sandbox:latest sandbox
+DB_PATH="$HOME/app/data/leetkob.db" MODEL_OFF=1 GEMINI_API_KEY='' \
+  pm2 start "$(command -v node)" --interpreter none --name leetkob-worker \
+  --kill-timeout 10000 -- "$PWD/src/worker.js"
+pm2 save
 ```
+
+PM2 gọi trực tiếp Node cho worker để entrypoint chạy `main()`. Dòng `PA3 worker ready` và việc xử lý một job thật xác nhận worker đã bắt đầu lấy job. Dịch vụ `pm2-azureuser.service` được bật để phục hồi cấu hình sau khi VM khởi động.
+
+Cấu hình riêng của worker đặt tại `~/app/.env`, quyền tệp `600`. Trên Korea, PM2 gọi Node trực tiếp với `--env-file` sau khi bỏ các biến model kế thừa. Tệp môi trường được đọc lúc chạy và key nằm ngoài danh sách tiến trình do PM2 lưu. Lượt thử riêng trên Korea dùng SQLite tách biệt và giới hạn một lần gọi.
+
+Caddy chuyển HTTPS về `127.0.0.1:3007` và trả `403` cho route Publish trên bản public theo [contract PA3](docs/contract/pa3-integration.md). Trên Korea, HTTP/2 và một phiên Chromium mới tắt QUIC tải được trang chủ và `/api/health`. Điều chỉnh MSS cho TCP 443 thuộc bản East Asia.
+
+| Triệu chứng | Cách kiểm tra hoặc xử lý |
+| --- | --- |
+| `Bad owner or permissions` ở cấu hình SSH hệ thống | Dùng `ssh -F ~/.ssh/config leetkob-kr` để nạp cấu hình người dùng. Korea dùng cổng 22. |
+| `npm ci` báo `EUSAGE` về lockfile | Chạy trong `~/app/code`, nơi có `package-lock.json`. |
+| Caddy trả `502` | Kiểm tra `curl http://127.0.0.1:3007/api/health` trên VM trước, rồi gọi HTTPS qua Caddy. |
+| Worker `online` nhưng bài còn `queued` | Kiểm tra log `PA3 worker ready`, cấu hình PM2 gọi trực tiếp Node và `DB_PATH` trùng web. |
+| HTTPS timeout ở phiên mới | Kiểm tra phiên Chromium tắt QUIC và HTTP/2 ngoài VM. Korea đã qua hai kiểm tra này. |
 
 ---
 
@@ -147,7 +183,9 @@ sequenceDiagram
 
 ---
 
-## 5. MỤC FAQ CHÍNH THỨC DÀNH CHO SINH VIÊN (STUDENT FAQ)
+## 5. FAQ về hành vi của sản phẩm dành cho sinh viên
+
+Đối chiếu mục FAQ của Product Owners trên Classroom và thêm trích dẫn chính thức trước khi nộp.
 
 Mục này được trích xuất chính thức từ tài liệu môn học để giải đáp cho sinh viên:
 
@@ -186,7 +224,9 @@ Bảng đánh dấu rõ ràng bước nào đã được kiểm thử với Dock
 
 ---
 
-## 7. BẰNG CHỨNG HÌNH ẢNH & VIDEO KIỂM THỬ TRÌNH DUYỆT (BROWSER ARTIFACTS)
+## 7. Danh sách hình ảnh và video kiểm thử local của Luồng 1
+
+Các tệp bên dưới được ghi lại trên máy kiểm thử của Luồng 1. Link video trên deployment sẽ được bổ sung ở mục 1.
 
 | Hạng mục | Đường dẫn tệp bằng chứng | Mô tả nội dung kiểm chứng |
 | :--- | :--- | :--- |

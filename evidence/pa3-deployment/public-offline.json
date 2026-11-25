@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-11-25T06:48:33+00:00",
+  "verifiedAt": "2026-11-25T06:48:58+00:00",
+  "deployment": "https://leetkob-awad-26.eastasia.cloudapp.azure.com/",
+  "deploymentCommit": "1ce5953314cfef1917d384fc779bbc3fb9589d91",
+  "transport": "HTTPS over new TCP connections",
+  "modelOff": true,
+  "labId": 4,
+  "judgeTestCases": 7,
+  "crossClassQueueHttpStatus": 404,
+  "studentQueueHttpStatus": 403,
+  "otherStudentSubmissionHttpStatus": 404,
+  "queueItems": 6,
+  "submissions": [
+    {
+      "fixture": "s01",
+      "submissionId": 7,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "constraints": [
+        {
+          "constraint": "C1",
+          "verdict": "pass",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "unsure",
+          "source": "model_off",
+          "deduction": 4,
+          "evidence": [],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixture": "s04",
+      "submissionId": 8,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "constraints": [
+        {
+          "constraint": "C1",
+          "verdict": "violation",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [
+            {
+              "line": 11,
+              "text": "    sort(a.begin(), a.end());"
+            }
+          ],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "unsure",
+          "source": "model_off",
+          "deduction": 4,
+          "evidence": [],
+          "reviewStatus": "pending"
+        }
+      ]
+    },
+    {
+      "fixture": "s09",
+      "submissionId": 9,
+      "states": ["queued", "judged"],
+      "judgeVerdict": "Accepted",
+      "constraints": [
+        {
+          "constraint": "C1",
+          "verdict": "pass",
+          "source": "hard_rule",
+          "deduction": 3,
+          "evidence": [],
+          "reviewStatus": "pending"
+        },
+        {
+          "constraint": "C2",
+          "verdict": "unsure",
+          "source": "model_off",
+          "deduction": 4,
+          "evidence": [],
+          "reviewStatus": "pending"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "startedAt": "2026-11-25T07:16:50.707Z",
+  "verifiedAt": "2026-11-25T07:17:15.286Z",
+  "commit": "1ce5953314cfef1917d384fc779bbc3fb9589d91",
+  "model": "gemini-3.5-flash-lite",
+  "isolatedDb": true,
+  "cap": 3,
+  "reservations": 3,
+  "providerHttp": [400, 400, 400],
+  "result": [
+    {
+      "fixture": "s01",
+      "judge": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "source": "hard_rule",
+          "actual": "pass",
+          "expected": "pass",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": true
+        },
+        {
+          "constraint": "C2",
+          "source": "guardrail_fallback",
+          "actual": "unsure",
+          "expected": "pass",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": true
+        }
+      ],
+      "call": {
+        "constraintCode": "C2",
+        "status": "error",
+        "model": "gemini-3.5-flash-lite",
+        "promptTokens": null,
+        "completionTokens": null,
+        "latencyMs": 462,
+        "costUsd": 0,
+        "hasRequestId": false
+      }
+    },
+    {
+      "fixture": "s04",
+      "judge": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "source": "hard_rule",
+          "actual": "violation",
+          "expected": "violation",
+          "evidenceLines": [11],
+          "evidenceMatchesLabel": true
+        },
+        {
+          "constraint": "C2",
+          "source": "guardrail_fallback",
+          "actual": "unsure",
+          "expected": "violation",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": false
+        }
+      ],
+      "call": {
+        "constraintCode": "C2",
+        "status": "error",
+        "model": "gemini-3.5-flash-lite",
+        "promptTokens": null,
+        "completionTokens": null,
+        "latencyMs": 248,
+        "costUsd": 0,
+        "hasRequestId": false
+      }
+    },
+    {
+      "fixture": "s09",
+      "judge": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "source": "hard_rule",
+          "actual": "pass",
+          "expected": "pass",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": true
+        },
+        {
+          "constraint": "C2",
+          "source": "guardrail_fallback",
+          "actual": "unsure",
+          "expected": "violation",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": false
+        }
+      ],
+      "call": {
+        "constraintCode": "C2",
+        "status": "error",
+        "model": "gemini-3.5-flash-lite",
+        "promptTokens": null,
+        "completionTokens": null,
+        "latencyMs": 207,
+        "costUsd": 0,
+        "hasRequestId": false
+      }
+    }
+  ]
+}
