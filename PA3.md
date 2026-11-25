@@ -11,7 +11,7 @@
 
 ## 1. Deployment và hồ sơ PA3
 
-- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) chạy ứng dụng ở commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker public dùng `gemini-3.5-flash-lite` Free tier, giới hạn 80 yêu cầu mỗi lab. Bản chấm PA3 dùng lớp demo và dữ liệu mẫu.
+- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) đã phục vụ bản quay giao diện ở commit `dd84584e69bb70d20730de679b1419a305758ff2`. Web và worker dùng chung SQLite WAL. Worker public dùng `gemini-3.5-flash-lite` Free tier, giới hạn 80 yêu cầu mỗi lab. Bản chấm PA3 dùng lớp demo và dữ liệu mẫu.
 - Lab live `sort-merge` #4 nhận 3 bài qua HTTPS. Cả ba chuyển `queued` → `judged` và đều `Accepted`. Queue TA có 6 verdict và mức trừ điểm do TA đặt. Cả ba verdict C1 khớp nhãn dev. C2 của `s01` là `pass` từ model với request ID. Hai lượt C2 còn lại được ghi `error` và trả `unsure`. TA lớp B nhận `404` khi đọc queue. [Kết quả live và metadata](evidence/pa3-deployment/korea-public-live.json)
 - Lab `sort-merge` #3 được tạo qua HTTPS public trên Korea với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra Korea](evidence/pa3-deployment/korea-public-offline.json)
 - Trên VM Korea, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Korea](evidence/pa3-deployment/korea-vm-sandbox.txt)
@@ -21,7 +21,7 @@
 - Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
 - Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
 - CI chạy trên tag `pa3` tại commit `ec6ef8d9b616fed709478d854edc52bf968f75b5` gồm `gates`, `e2e` và `sandbox-tests`. [CI của tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45621675509)
-- Video diễn tập dài 50 giây, ghi lại tạo lab, nộp 3 bài, đọc hàng đợi TA và kiểm tra quyền qua API public. [Video MP4](https://raw.githubusercontent.com/AWAD-26-27/awad-leetkob/refs/tags/pa3/evidence/pa3-deployment/korea-public-demo.mp4)
+- Video giao diện public dài 1:39 trên lab `sort-merge` #17. TA lớp A tạo lab với 7 test case và C1/C2 (0:00), sinh viên nộp `s01`, `s04`, `s09` và thấy từng bài chuyển sang `Accepted` (0:15), TA lớp A xem 6 verdict và bằng chứng (1:07), TA lớp B mở lab lớp A và thấy `404` ngay trên trang (1:26). [Video giao diện MP4](https://raw.githubusercontent.com/AWAD-26-27/awad-leetkob/refs/heads/main/evidence/pa3-deployment/korea-public-ui-demo.mp4)
 
 ### Checker và eval
 
