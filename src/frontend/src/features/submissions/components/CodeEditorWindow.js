@@ -155,11 +155,7 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
         },
       },
       h('span', null, 'Phím tắt: Ctrl + Enter để nộp bài'),
-      h(
-        'span',
-        null,
-        lastSaved ? `Đã lưu nháp lúc ${lastSaved}` : 'Tự động lưu nháp',
-      ),
+      h('span', null, lastSaved ? `Đã lưu nháp lúc ${lastSaved}` : 'Tự động lưu nháp'),
     ),
   );
 }
