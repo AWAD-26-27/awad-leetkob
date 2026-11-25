@@ -1,5 +1,6 @@
 import { h } from '../lib/react.js';
 import { Callout } from '../components/feedback/index.js';
+import { Button } from '../components/ui/index.js';
 import { AdminDashboard } from '../features/admin/index.js';
 import { TeacherPortal } from '../features/teacher/index.js';
 import { StudentPortal } from '../features/student/index.js';
@@ -17,6 +18,7 @@ export function AppRoutes({
   labs,
   activeLabId,
   labDetails,
+  labDetailError,
   setActiveLabId,
   refreshLabs,
   refreshDetails,
@@ -47,6 +49,29 @@ export function AppRoutes({
   if (isAdmin) {
     // Key by user.id ensures full remount on account switch — clears all stale state
     return h(AdminDashboard, { key: user.id });
+  }
+
+  if (labDetailError?.status === 404 || labDetailError?.status === 403) {
+    const title =
+      labDetailError.status === 404
+        ? '404 — Không tìm thấy bài thực hành'
+        : '403 — Truy cập bị từ chối';
+    return h(
+      Callout,
+      { variant: 'danger', title },
+      h('p', null, 'Bài thực hành này không khả dụng với tài khoản hiện tại.'),
+      h(
+        Button,
+        {
+          variant: 'outline',
+          onClick: () => {
+            setActiveLabId(null);
+            navigateTo('#/classes');
+          },
+        },
+        'Về danh sách lớp',
+      ),
+    );
   }
 
   // Teacher Portal: Multi-class management, announcements, roster, labs, and lab detail grades
