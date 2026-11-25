@@ -56,6 +56,7 @@ test('the lab form preserves multiline tests and another class sees the server 4
     await student
       .getByRole('textbox', { name: 'Trình soạn thảo mã nguồn C++' })
       .fill('int main() {}');
+    await expect(student.getByText(/Đã lưu nháp lúc \d{2}:\d{2}:\d{2}/)).toBeVisible();
     const queued = student.waitForResponse(
       (response) =>
         response.url().endsWith(`/api/labs/${id}/submissions`) &&
