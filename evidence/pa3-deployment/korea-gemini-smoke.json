@@ -1,0 +1,45 @@
+{
+  "startedAt": "2026-11-25T11:38:00.845Z",
+  "verifiedAt": "2026-11-25T11:38:10.480Z",
+  "commit": "1ce5953314cfef1917d384fc779bbc3fb9589d91",
+  "model": "gemini-3.5-flash-lite",
+  "isolatedDb": true,
+  "cap": 1,
+  "reservations": 1,
+  "providerHttp": [200],
+  "providerErrors": [],
+  "result": [
+    {
+      "fixture": "s01",
+      "judge": "Accepted",
+      "verdicts": [
+        {
+          "constraint": "C1",
+          "source": "hard_rule",
+          "actual": "pass",
+          "expected": "pass",
+          "evidenceLines": [],
+          "evidenceMatchesLabel": true
+        },
+        {
+          "constraint": "C2",
+          "source": "model",
+          "actual": "pass",
+          "expected": "pass",
+          "evidenceLines": [5, 17, 20, 21, 22],
+          "evidenceMatchesLabel": false
+        }
+      ],
+      "call": {
+        "constraintCode": "C2",
+        "status": "ok",
+        "model": "gemini-3.5-flash-lite",
+        "promptTokens": 1211,
+        "completionTokens": 241,
+        "latencyMs": 2104,
+        "costUsd": 0,
+        "hasRequestId": true
+      }
+    }
+  ]
+}

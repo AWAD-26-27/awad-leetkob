@@ -11,9 +11,10 @@
 
 ## 1. Deployment và hồ sơ PA3
 
-- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) chạy commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker chạy với `MODEL_OFF=1` trong lúc chuẩn bị cấu hình Gemini cho Korea.
+- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) chạy commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker public chạy với `MODEL_OFF=1`.
 - Lab `sort-merge` #3 được tạo qua HTTPS public trên Korea với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra Korea](evidence/pa3-deployment/korea-public-offline.json)
 - Trên VM Korea, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Korea](evidence/pa3-deployment/korea-vm-sandbox.txt)
+- Lượt thử Gemini trên Korea dùng worker và SQLite riêng, giới hạn một request. `sort-merge/s01` đạt `Accepted`. C1 là `pass` từ hard rule và C2 là `pass` từ `gemini-3.5-flash-lite`. Google trả HTTP `200` và request ID. Model dẫn thêm các dòng mã gốc cho verdict `pass`; nhãn dev chỉ định verdict và để danh sách bằng chứng trống. [Lượt thử Gemini trên Korea](evidence/pa3-deployment/korea-gemini-smoke.json)
 - Lượt thử Gemini trên East Asia dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên East Asia](evidence/pa3-deployment/azure-gemini-smoke.json)
 - Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
 - Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
@@ -97,7 +98,7 @@ pm2 save
 
 PM2 gọi trực tiếp Node cho worker để entrypoint chạy `main()`. Dòng `PA3 worker ready` và việc xử lý một job thật xác nhận worker đã bắt đầu lấy job. Dịch vụ `pm2-azureuser.service` được bật để phục hồi cấu hình sau khi VM khởi động.
 
-Cấu hình riêng của worker đặt tại `~/app/.env`, quyền tệp `600`. Cấu hình dự kiến dùng Gemini Free tier với `MAX_MODEL_CALLS_PER_LAB=80`. Khi xác minh Gemini trên Korea, dùng bài mẫu công khai trong SQLite riêng.
+Cấu hình riêng của worker đặt tại `~/app/.env`, quyền tệp `600`. Trên VM Korea, Node đọc được model, Free tier và `MAX_MODEL_CALLS_PER_LAB=80`. Lượt thử Korea dùng bài mẫu công khai trong SQLite riêng với giới hạn một lần gọi.
 
 Caddy chuyển HTTPS về `127.0.0.1:3007` và trả `403` cho route Publish trên bản public theo [contract PA3](docs/contract/pa3-integration.md). Trên Korea, HTTP/2 và một phiên Chromium mới tắt QUIC tải được trang chủ và `/api/health`. Điều chỉnh MSS cho TCP 443 thuộc bản East Asia.
 

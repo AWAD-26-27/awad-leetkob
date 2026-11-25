@@ -607,3 +607,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Built the C++ sandbox, started the web on `127.0.0.1:3007` and the worker through PM2's direct Node invocation. Used a new shared SQLite WAL database and enabled systemd startup. Added the PA3 Publish gate to the existing Caddy HTTPS proxy.
 - Decision: Kept the public worker offline pending the private Gemini configuration. The Korea connection passed TLS on a new TCP session, so the East Asia MSS adjustment was unnecessary here.
 - Validation: All 10 Docker and restart checks passed on the VM with no skips. Public HTTPS and a fresh Chromium context without QUIC loaded the service. A new `sort-merge` lab accepted all three submitted fixtures, exposed six verdicts only to the authorized TA, rejected the cross-class queue request with 404, and refused Publish with 403. [Korea sandbox log](evidence/pa3-deployment/korea-vm-sandbox.txt) · [Korea public rehearsal](evidence/pa3-deployment/korea-public-offline.json)
+
+## 2026-11-25 — Tú — Live Gemini smoke in Korea Central
+
+- Tool/model: Codex, SSH, Node.js, Docker and Gemini `gemini-3.5-flash-lite`.
+- Task: Verify the provided Free tier configuration with one authorized request using an isolated database and the public `sort-merge/s01` fixture.
+- Changed: Started a separate worker with a one-request cap. Parsed the mode-600 configuration without disclosing the key and verified the configured deployment cap of 80.
+- Decision: Ran the model smoke separately from the public worker.
+- Validation: Docker judged the fixture `Accepted`. The checker recorded C1 `pass` from the hard rule and C2 `pass` from the model. The one C2 request returned HTTP 200 with a provider request ID, 1,211 prompt tokens, 241 completion tokens, and 2,104 ms recorded latency. The verdict matched the pass label and included original source lines while that dev label leaves its evidence list empty. [Korea Gemini smoke](evidence/pa3-deployment/korea-gemini-smoke.json)
