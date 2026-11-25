@@ -82,6 +82,14 @@ function AppContent() {
   );
 
   const isStudent = user.role === 'student';
+  const selectLab = (id) => {
+    setActiveLabId(id);
+    if (id) {
+      navigateTo(`#/labs/${id}`);
+    } else if (routeLabId) {
+      navigateTo('#/classes');
+    }
+  };
 
   // Load existing student submissions for this lab
   useEffect(() => {
@@ -164,7 +172,7 @@ function AppContent() {
         activeLabId,
         labDetails,
         labDetailError: labDetailError?.labId === routeLabId ? labDetailError : null,
-        setActiveLabId,
+        setActiveLabId: selectLab,
         refreshLabs,
         refreshDetails,
         queue,

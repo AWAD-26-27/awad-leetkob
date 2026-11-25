@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 
-async function login(page, username, classNumber) {
+async function login(page, username, classNumber, role = 'Giảng viên') {
   await page.goto('/#/login');
   await page.locator('#login-username').fill(username);
   await page.locator('#login-password').fill('password123');
   await page.locator('form').getByRole('button', { name: 'Đăng nhập', exact: true }).click();
-  await expect(page.getByText(`Giảng viên • Lớp ${classNumber}`)).toBeVisible();
+  await expect(page.getByText(`${role} • Lớp ${classNumber}`)).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`#/labs/${classNumber}$`));
 }
 
@@ -41,6 +41,37 @@ test('the lab form preserves multiline tests and another class sees the server 4
     ['1\n42\n', '42\n'],
   ]);
   expect(payload.constraints).toHaveLength(2);
+
+  const student = await browser.newPage({ baseURL: new URL(page.url()).origin });
+  try {
+    await login(student, 'student_1', 1, 'Sinh viên');
+    await student.getByRole('tab', { name: /Các bài labs/ }).click();
+    await student.getByRole('button', { name: /Trở về danh sách bài lab/ }).click();
+    const card = student
+      .getByText('Multiline lab', { exact: true })
+      .locator('xpath=ancestor::div[.//button[contains(., "Vào làm bài")]][1]');
+    await card.getByRole('button', { name: /Vào làm bài/ }).click();
+    await expect(student).toHaveURL(new RegExp(`#/labs/${id}$`));
+    await expect(student.getByRole('button', { name: /Test cases \(2\)/ })).toBeVisible();
+    await student
+      .getByRole('textbox', { name: 'Trình soạn thảo mã nguồn C++' })
+      .fill('int main() {}');
+    const queued = student.waitForResponse(
+      (response) =>
+        response.url().endsWith(`/api/labs/${id}/submissions`) &&
+        response.request().method() === 'POST',
+    );
+    await student.getByRole('button', { name: 'Nộp bài', exact: true }).click();
+    const submission = await queued;
+    expect(submission.status()).toBe(202);
+    const submitted = await submission.json();
+    await expect(student.getByRole('row').filter({ hasText: `#${submitted.id}` })).toContainText(
+      'QUEUED',
+    );
+    await expect(student.getByRole('button', { name: /Test cases \(2\)/ })).toBeVisible();
+  } finally {
+    await student.close();
+  }
 
   const otherClass = await browser.newPage({ baseURL: new URL(page.url()).origin });
   try {
