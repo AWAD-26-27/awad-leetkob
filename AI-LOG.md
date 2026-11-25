@@ -653,3 +653,10 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Tool/model: Codex, Chromium, Playwright, FFmpeg and ffprobe.
 - Changed: Replaced the submission report's primary video link with a new browser recording from Azure Korea. The recording uses the seeded demo accounts and published evaluation fixtures.
 - Validation: Created lab #17 with all seven multiline test cases and deductions of 3 and 4 through the form. Saw `s01`, `s04` and `s09` queued or judging before `Accepted`, six verdicts in the TA queue, and the server's 404 on the lab screen for the other class. Verified the MP4 decodes and lasts 1:39. [Recording](evidence/pa3-deployment/korea-public-ui-demo.mp4)
+
+## 2026-11-25 — Tú — Prepare the PA3 submission
+
+- Tool/model: Codex, Git, Python, Node.js and `pdftotext`.
+- Changed: Added the eight-criterion self-assessment and the Product Owners' FAQ-08 citation. Updated the README heading to name the actual deployed and evaluated model.
+- Rejected: Kept separate results for the public lab #4, the lab #17 recording and the 102-pair checker eval. Documented the student test display gap against FAQ-02 and the model errors in the claimed marks.
+- Validation: Compared the scorer and labels SHA-256 prefixes with the rubric and checked that `eval/dev` matches the imported tree. The assessment links evidence for every criterion.

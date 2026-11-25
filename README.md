@@ -70,7 +70,7 @@ Read [AGENTS.md](AGENTS.md) and [permissions](docs/permissions.md). Keep real cr
 
 ## Model and Budget
 
-**Provider/model:** Google Gemini API, `gemini-3.8-flash`.
+**Provider/model:** Google Gemini API, `gemini-3.5-flash-lite` for the PA3 deployment and committed live eval.
 
 **Paid spending limit: USD 0.** The dedicated **LeeTKOB PA3** project is configured in **Free tier with no billing account linked**. Its server key inherits that project status. Automated unit and contract tests use deterministic mock fixtures and make zero external network or model calls. See [model/budget documentation](docs/model-budget.md).
 
