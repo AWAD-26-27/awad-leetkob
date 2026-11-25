@@ -580,3 +580,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Rejected: Kept the worker offline for the rehearsal and kept the public grading flow at the review queue. Kept HTTP/3 available after restoring TCP HTTPS. A host-wide MTU change was unnecessary.
 - Changed: Restored `eval/dev/README.md` from the published dev-set revision `552c811` after the integration merge altered its first paragraph. Compared the replacement byte for byte with the lecturer's file and checked that the dev set matched the pre-merge snapshot.
 - Validation: On the VM the Docker sandbox and worker restart tests passed 10/10 with zero skips. A separate public rehearsal created lab #4 and queued submissions #7–9 via HTTPS. All became `Accepted` with six queue entries and cross-class queue access returned 404. The five demo logins succeeded. A new Chromium context with QUIC disabled loaded the public home and health endpoints. Local `npm run check` passed. [Docker log](evidence/pa3-deployment/vm-sandbox.txt) · [Public rehearsal](evidence/pa3-deployment/public-offline.json)
+
+## 2026-11-25 — Tú — Isolated Gemini verification on Azure
+
+- Tool/model: Codex, SSH, Node.js, Docker and Gemini `gemini-3.5-flash-lite`.
+- Task: Run the three public `sort-merge` fixtures through the Azure worker with the approved Free tier credentials and a three-request cap.
+- Changed: Recovered from an SSH interruption by storing the next authorized run's report on Azure before retrieving it. Used a separate SQLite database and normalized the private deploy setting to the confirmed cap of 80. The temporary worker reserved exactly 3 requests.
+- Rejected: Deferred enabling Gemini in the public worker while the isolated requests returned HTTP 400.
+- Validation: All three submissions reached `Accepted`; all three C1 hard-rule verdicts matched the dev labels. All three C2 calls returned HTTP 400 with no provider request ID, and the worker recorded `unsure` from the guardrail. [Azure smoke report](evidence/pa3-deployment/azure-gemini-smoke.json)

@@ -13,6 +13,7 @@
 
 - [Bản demo trên Azure](https://leetkob-awad-26.eastasia.cloudapp.azure.com/) chạy commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker hiện chạy với `MODEL_OFF=1`.
 - Lab `sort-merge` #4 được tạo qua HTTPS public với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra API](evidence/pa3-deployment/public-offline.json)
+- Lượt thử Gemini trên Azure dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên Azure](evidence/pa3-deployment/azure-gemini-smoke.json)
 - Trên VM, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Azure](evidence/pa3-deployment/vm-sandbox.txt)
 - CI của commit đang chạy đã đạt `gates`, `e2e` và `sandbox-tests`. Run của tag `pa3` còn chờ tạo tag cuối. [CI của commit deploy](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45439030198)
 - Video dự phòng tối đa 5 phút còn chờ ghi lại luồng tạo lab, nộp ba bài và mở review queue trên bản public.
@@ -92,6 +93,8 @@ pm2 save
 ```
 
 PM2 gọi trực tiếp Node cho worker để entrypoint chạy `main()`. Dòng `PA3 worker ready` và việc xử lý một job thật xác nhận worker đã bắt đầu lấy job. Dịch vụ `pm2-azureuser.service` được bật để phục hồi cấu hình sau khi VM khởi động.
+
+Cấu hình riêng của worker dùng quyền tệp `600`. Node đọc được giới hạn deploy `MAX_MODEL_CALLS_PER_LAB=80`. Lượt thử SQLite riêng ghi đè giới hạn xuống `3`.
 
 Caddy chuyển HTTPS về `127.0.0.1:3007` và trả `403` cho route Publish trên bản public theo [contract PA3](docs/contract/pa3-integration.md). Dịch vụ `leetkob-https-mss.service` áp dụng MSS 1024 cho bắt tay IPv4 TCP trên cổng 443. HTTP/2 và HTTP/3 đều trả `200`. Một phiên Chromium mới tắt QUIC tải được trang chủ và `/api/health` qua HTTPS.
 
