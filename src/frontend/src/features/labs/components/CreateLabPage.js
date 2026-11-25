@@ -172,7 +172,7 @@ export function CreateLabPage({ classId, className, onBack, onSuccess }) {
           label: 'Tiêu đề bài thực hành',
           placeholder: 'vd: Lab 3: Sắp xếp mảng và tìm phần tử',
           value: title,
-          onChange: (e) => setTitle(e.target.value),
+          onInput: (e) => setTitle(e.target.value),
           required: true,
         }),
         h(Textarea, {
@@ -180,7 +180,7 @@ export function CreateLabPage({ classId, className, onBack, onSuccess }) {
           placeholder: 'Mô tả chi tiết yêu cầu bài toán, định dạng dữ liệu vào/ra...',
           rows: 5,
           value: statement,
-          onChange: (e) => setStatement(e.target.value),
+          onInput: (e) => setStatement(e.target.value),
           required: true,
         }),
         h(TestCaseInputs, {

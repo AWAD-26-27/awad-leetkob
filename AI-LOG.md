@@ -632,3 +632,5 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Retain the requested lab until its details response is resolved. Ignore superseded detail requests. Render the backend's 403 or 404 on the actual lab screen and provide a way back to the class list.
 - Decision: Kept the existing backend class-isolation contract and used its response status in the frontend.
 - Validation: `npm run check` passed. Both Chromium tests passed, including the new cross-class test that checks the actual 404 response, visible UI message and absence of the Publish action.
+- Changed: The browser form rehearsals exposed that single-line test fields discarded line breaks. Switched the test input and output fields to textareas and handled input events while typing so the custom renderer no longer replaces action buttons during blur. Added stable input IDs for focus restoration.
+- Validation: The browser regression creates a lab with multiline test cases and two constraints, checks the real submission body, and then checks that the other TA sees HTTP 404 on the lab screen. This regression, the existing Publish browser test and `npm run check` passed.
