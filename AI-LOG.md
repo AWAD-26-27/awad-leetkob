@@ -588,3 +588,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Recovered from an SSH interruption by storing the next authorized run's report on Azure before retrieving it. Used a separate SQLite database and normalized the private deploy setting to the confirmed cap of 80. The temporary worker reserved exactly 3 requests.
 - Rejected: Deferred enabling Gemini in the public worker while the isolated requests returned HTTP 400.
 - Validation: All three submissions reached `Accepted`; all three C1 hard-rule verdicts matched the dev labels. All three C2 calls returned HTTP 400 with no provider request ID, and the worker recorded `unsure` from the guardrail. [Azure smoke report](evidence/pa3-deployment/azure-gemini-smoke.json)
+
+## 2026-11-25 — Tú — Azure Gemini key retest
+
+- Tool/model: Codex, SSH, Node.js and Gemini `gemini-3.5-flash-lite`.
+- Task: Retest the updated key from Azure with the public `sort-merge/s01` fixture.
+- Changed: Captured the provider error code and a message category in an isolated one-request checker run. The persisted report excludes the key, prompt and raw provider error body.
+- Rejected: Deferred starting the public worker in live mode after the provider rejected the Azure request.
+- Validation: The single request returned HTTP 400 and Google status `FAILED_PRECONDITION`. The error message referred to region support. C1 passed and C2 was `unsure`. [Azure key retest](evidence/pa3-deployment/azure-gemini-key-retest.json)
