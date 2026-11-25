@@ -20,8 +20,8 @@
 - Lượt thử Gemini trên East Asia dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên East Asia](evidence/pa3-deployment/azure-gemini-smoke.json)
 - Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
 - Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
-- CI của commit ứng dụng đã đạt `gates`, `e2e` và `sandbox-tests`. Xem lượt push của tag `pa3` trong [CI dành cho tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/workflows/ci.yml?query=event%3Apush+branch%3Apa3).
-- Video diễn tập dài 50 giây, ghi lại tạo lab, nộp 3 bài, đọc hàng đợi TA và kiểm tra quyền qua API public. [Video MP4](evidence/pa3-deployment/korea-public-demo.mp4?raw=true)
+- CI chạy trên tag `pa3` tại commit `ec6ef8d9b616fed709478d854edc52bf968f75b5` gồm `gates`, `e2e` và `sandbox-tests`. [CI của tag pa3](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45621675509)
+- Video diễn tập dài 50 giây, ghi lại tạo lab, nộp 3 bài, đọc hàng đợi TA và kiểm tra quyền qua API public. [Video MP4](https://raw.githubusercontent.com/AWAD-26-27/awad-leetkob/refs/tags/pa3/evidence/pa3-deployment/korea-public-demo.mp4)
 
 ### Checker và eval
 
