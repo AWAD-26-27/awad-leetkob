@@ -158,7 +158,7 @@ export function CodeEditorWindow({ labId = '1', onSubmit, submitting = false }) 
       h(
         'span',
         null,
-        lastSaved ? `Đã lưu nháp lúc ${lastSaved.toLocaleTimeString()}` : 'Tự động lưu nháp',
+        lastSaved ? `Đã lưu nháp lúc ${lastSaved}` : 'Tự động lưu nháp',
       ),
     ),
   );

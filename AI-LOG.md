@@ -641,3 +641,9 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Task: Fix an issue found during the public demo rehearsal where the student selected a new lab but the page temporarily showed another lab's statement and lost the new submission row.
 - Changed: Update the browser route when the active lab changes. Display loaded details only when they belong to the selected lab.
 - Validation: `npm run check` and the Chromium suite passed. The regression opens the newly created lab from the student class list, verifies its URL, statement and test count, and checks that a submitted solution stays in that lab's history with its queued status.
+
+## 2026-11-25 — Tú — Keep the student UI updating after draft autosave
+
+- Tool/model: Codex, Playwright and Chromium.
+- Changed: Display the time already formatted by the draft hook. The former extra formatting threw a browser error after autosave and prevented the submission history from updating.
+- Validation: The regression failed before the fix and passed afterward. It waits for the autosave message, submits code and verifies that the queued entry appears on the same lab screen.
