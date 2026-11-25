@@ -634,3 +634,10 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: `npm run check` passed. Both Chromium tests passed, including the new cross-class test that checks the actual 404 response, visible UI message and absence of the Publish action.
 - Changed: The browser form rehearsals exposed that single-line test fields discarded line breaks. Switched the test input and output fields to textareas and handled input events while typing so the custom renderer no longer replaces action buttons during blur. Added stable input IDs for focus restoration.
 - Validation: The browser regression creates a lab with multiline test cases and two constraints, checks the real submission body, and then checks that the other TA sees HTTP 404 on the lab screen. This regression, the existing Publish browser test and `npm run check` passed.
+
+## 2026-11-25 — Tú — Keep the selected lab and browser route in sync
+
+- Tool/model: Codex, Playwright and Chromium.
+- Task: Fix an issue found during the public demo rehearsal where the student selected a new lab but the page temporarily showed another lab's statement and lost the new submission row.
+- Changed: Update the browser route when the active lab changes. Display loaded details only when they belong to the selected lab.
+- Validation: `npm run check` and the Chromium suite passed. The regression opens the newly created lab from the student class list, verifies its URL, statement and test count, and checks that a submitted solution stays in that lab's history with its queued status.

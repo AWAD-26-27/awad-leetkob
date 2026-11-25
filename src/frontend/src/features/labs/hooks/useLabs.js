@@ -77,7 +77,7 @@ export function useLabs(routeLabId = null) {
     labs,
     activeLabId,
     setActiveLabId,
-    labDetails,
+    labDetails: labDetails?.id === activeLabId ? labDetails : null,
     labDetailError,
     loading,
     error,
