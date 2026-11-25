@@ -1,0 +1,84 @@
+{
+  "deployment": "https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com",
+  "startedAt": "2026-11-25T13:09:44.760206+00:00",
+  "verifiedAt": "2026-11-25T13:10:21.053276+00:00",
+  "fixtureAdjustments": {
+    "wall": "bounded sleep of 10s against the deployed 8s limit",
+    "output": "bounded output over the deployed 64 KiB budget",
+    "secret": "a synthetic marker pathname checked for visibility without reading it"
+  },
+  "results": [
+    {
+      "fixture": "01-no-network",
+      "labId": 5,
+      "submissionId": 10,
+      "expected": "Accepted",
+      "actual": "Accepted",
+      "limit": null
+    },
+    {
+      "fixture": "02-cpu-limit",
+      "labId": 6,
+      "submissionId": 11,
+      "expected": "TLE",
+      "actual": "TLE",
+      "limit": null
+    },
+    {
+      "fixture": "03-wall-limit",
+      "labId": 7,
+      "submissionId": 12,
+      "expected": "TLE",
+      "actual": "TLE",
+      "limit": "wall"
+    },
+    {
+      "fixture": "04-memory-limit",
+      "labId": 8,
+      "submissionId": 13,
+      "expected": "MLE",
+      "actual": "MLE",
+      "limit": null
+    },
+    {
+      "fixture": "05-process-limit",
+      "labId": 9,
+      "submissionId": 14,
+      "expected": "Accepted",
+      "actual": "Accepted",
+      "limit": null
+    },
+    {
+      "fixture": "06-output-limit",
+      "labId": 10,
+      "submissionId": 15,
+      "expected": "OLE",
+      "actual": "OLE",
+      "limit": "output"
+    },
+    {
+      "fixture": "07-non-root",
+      "labId": 11,
+      "submissionId": 16,
+      "expected": "Accepted",
+      "actual": "Accepted",
+      "limit": null
+    },
+    {
+      "fixture": "08-no-host-mounts",
+      "labId": 12,
+      "submissionId": 17,
+      "expected": "Accepted",
+      "actual": "Accepted",
+      "limit": null
+    },
+    {
+      "fixture": "09-no-secrets",
+      "labId": 13,
+      "submissionId": 18,
+      "expected": "Accepted",
+      "actual": "Accepted",
+      "limit": null
+    }
+  ]
+}

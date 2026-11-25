@@ -615,3 +615,11 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Changed: Started a separate worker with a one-request cap. Parsed the mode-600 configuration without disclosing the key and verified the configured deployment cap of 80.
 - Decision: Ran the model smoke separately from the public worker.
 - Validation: Docker judged the fixture `Accepted`. The checker recorded C1 `pass` from the hard rule and C2 `pass` from the model. The one C2 request returned HTTP 200 with a provider request ID, 1,211 prompt tokens, 241 completion tokens, and 2,104 ms recorded latency. The verdict matched the pass label and included original source lines while that dev label leaves its evidence list empty. [Korea Gemini smoke](evidence/pa3-deployment/korea-gemini-smoke.json)
+
+## 2026-11-25 — Tú — PA3 public model and hand-in evidence
+
+- Tool/model: Codex, SSH, PM2, SQLite, Docker, Playwright, Chromium, FFmpeg and Gemini `gemini-3.5-flash-lite`.
+- Task: Enable the demo worker's model and verify PA3 through public HTTPS.
+- Changed: Verified the public database contained only seeded demo accounts and no pending jobs before the worker switch. Used Node's runtime env file with the verified Free tier settings and cap of 80. Saved the PM2 startup state after checking its environment metadata for provider credentials.
+- Validation: Three public `sort-merge` submissions were judged `Accepted` in one attempt each. All three C1 outcomes matched the labels. The three model reservations yielded one successful C2 verdict and two logged errors, which became `unsure`. The cross-class queue response was 404. [Live API report](evidence/pa3-deployment/korea-public-live.json) · [Recording](evidence/pa3-deployment/korea-public-demo.mp4)
+- Validation: All nine public sandbox probes matched their expected outcomes. The probes used repository fixtures with the deployed wall-clock and output thresholds, a synthetic host canary, and a hard-rule constraint. Docker showed zero remaining sandbox containers and the probes made zero model calls. [Public sandbox evidence](evidence/pa3-deployment/korea-public-sandbox.json)
