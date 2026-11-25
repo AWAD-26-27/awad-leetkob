@@ -11,12 +11,12 @@
 
 ## 1. Deployment và hồ sơ PA3
 
-- [Bản demo trên Azure](https://leetkob-awad-26.eastasia.cloudapp.azure.com/) chạy commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker hiện chạy với `MODEL_OFF=1`.
-- Lab `sort-merge` #4 được tạo qua HTTPS public với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra API](evidence/pa3-deployment/public-offline.json)
-- Lượt thử Gemini trên Azure dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên Azure](evidence/pa3-deployment/azure-gemini-smoke.json)
+- [Bản demo Azure Korea Central](https://leetkob-awad-26-kr.koreacentral.cloudapp.azure.com/) chạy commit `1ce5953314cfef1917d384fc779bbc3fb9589d91`. Web và worker dùng chung SQLite WAL. Worker chạy với `MODEL_OFF=1` trong lúc chuẩn bị cấu hình Gemini cho Korea.
+- Lab `sort-merge` #3 được tạo qua HTTPS public trên Korea với đủ 7 test cases. Ba bài mẫu chuyển từ `queued` sang `judged` và đều đạt `Accepted`. TA lớp A thấy 6 verdict, trong đó C1 của `s04` dẫn bằng chứng dòng 11. C2 trả `unsure` với nguồn `model_off`. TA lớp B đọc queue nhận `404`. [Kết quả kiểm tra Korea](evidence/pa3-deployment/korea-public-offline.json)
+- Trên VM Korea, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Korea](evidence/pa3-deployment/korea-vm-sandbox.txt)
+- Lượt thử Gemini trên East Asia dùng SQLite riêng và giới hạn 3 lượt. Cả ba bài đều `Accepted`, ba verdict C1 đúng theo nhãn dev set. Gemini trả HTTP `400` cho cả ba lượt C2. Worker lưu `unsure` từ `guardrail_fallback` và không có request ID từ nhà cung cấp. [Kết quả thử Gemini trên East Asia](evidence/pa3-deployment/azure-gemini-smoke.json)
 - Thử lại một lần với key mới trên Azure cho `sort-merge/s01` trả HTTP `400`, mã Google `FAILED_PRECONDITION` và thông báo về vùng không được hỗ trợ. Azure `eastasia` đặt tại Hồng Kông, nằm ngoài danh sách khu vực hỗ trợ của Gemini API. [Kết quả thử key mới](evidence/pa3-deployment/azure-gemini-key-retest.json) · [Danh sách vùng Azure](https://learn.microsoft.com/en-us/azure/reliability/regions-list) · [Danh sách khu vực Gemini API](https://aistudio.google.com/docs/available-regions)
 - Lượt kiểm tra với key cũ được khôi phục dùng cùng VM, model và bài mẫu. Google trả cùng HTTP `400`, mã `FAILED_PRECONDITION` và thông báo về vùng. [Kết quả thử key cũ](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
-- Trên VM, cả 9 kiểm tra cách ly Docker và bài kiểm tra worker phục hồi với đúng một bộ verdict đều đạt. [Log Docker trên Azure](evidence/pa3-deployment/vm-sandbox.txt)
 - CI của commit đang chạy đã đạt `gates`, `e2e` và `sandbox-tests`. Run của tag `pa3` còn chờ tạo tag cuối. [CI của commit deploy](https://github.com/AWAD-26-27/awad-leetkob/actions/runs/45439030198)
 - Video dự phòng tối đa 5 phút còn chờ ghi lại luồng tạo lab, nộp ba bài và mở review queue trên bản public.
 
@@ -68,10 +68,11 @@ Hệ thống được khởi tạo sẵn với 2 lớp học rỗng (`Class A` -
 
 ### 3.2. Lệnh khởi tạo Cơ sở Dữ liệu & Tài khoản Demo
 
-Web tự khởi tạo schema và nạp 5 tài khoản demo khi mở DB mới. Tạo thư mục cha của DB trước khi chạy web.
+Trên VM mới, clone `main` vào `~/app/code` và tạo thư mục cha của DB trước khi chạy web. Web tự khởi tạo schema và nạp 5 tài khoản demo khi mở DB mới.
 
 ```bash
 mkdir -p "$HOME/app/data"
+git clone --branch main --single-branch https://github.com/AWAD-26-27/awad-leetkob.git "$HOME/app/code"
 ```
 
 ### 3.3. Lệnh chạy Web Server (Dịch vụ 1)
@@ -96,9 +97,17 @@ pm2 save
 
 PM2 gọi trực tiếp Node cho worker để entrypoint chạy `main()`. Dòng `PA3 worker ready` và việc xử lý một job thật xác nhận worker đã bắt đầu lấy job. Dịch vụ `pm2-azureuser.service` được bật để phục hồi cấu hình sau khi VM khởi động.
 
-Cấu hình riêng của worker dùng quyền tệp `600`. Node đọc được giới hạn deploy `MAX_MODEL_CALLS_PER_LAB=80`. Lượt thử SQLite riêng ghi đè giới hạn xuống `3`.
+Cấu hình riêng của worker đặt tại `~/app/.env`, quyền tệp `600`. Cấu hình dự kiến dùng Gemini Free tier với `MAX_MODEL_CALLS_PER_LAB=80`. Khi xác minh Gemini trên Korea, dùng bài mẫu công khai trong SQLite riêng.
 
-Caddy chuyển HTTPS về `127.0.0.1:3007` và trả `403` cho route Publish trên bản public theo [contract PA3](docs/contract/pa3-integration.md). Dịch vụ `leetkob-https-mss.service` áp dụng MSS 1024 cho bắt tay IPv4 TCP trên cổng 443. HTTP/2 và HTTP/3 đều trả `200`. Một phiên Chromium mới tắt QUIC tải được trang chủ và `/api/health` qua HTTPS.
+Caddy chuyển HTTPS về `127.0.0.1:3007` và trả `403` cho route Publish trên bản public theo [contract PA3](docs/contract/pa3-integration.md). Trên Korea, HTTP/2 và một phiên Chromium mới tắt QUIC tải được trang chủ và `/api/health`. Điều chỉnh MSS cho TCP 443 thuộc bản East Asia.
+
+| Triệu chứng | Cách kiểm tra hoặc xử lý |
+| --- | --- |
+| `Bad owner or permissions` ở cấu hình SSH hệ thống | Dùng `ssh -F ~/.ssh/config leetkob-kr` để nạp cấu hình người dùng. Korea dùng cổng 22. |
+| `npm ci` báo `EUSAGE` về lockfile | Chạy trong `~/app/code`, nơi có `package-lock.json`. |
+| Caddy trả `502` | Kiểm tra `curl http://127.0.0.1:3007/api/health` trên VM trước, rồi gọi HTTPS qua Caddy. |
+| Worker `online` nhưng bài còn `queued` | Kiểm tra log `PA3 worker ready`, cấu hình PM2 gọi trực tiếp Node và `DB_PATH` trùng web. |
+| HTTPS timeout ở phiên mới | Kiểm tra phiên Chromium tắt QUIC và HTTP/2 ngoài VM. Korea đã qua hai kiểm tra này. |
 
 ---
 

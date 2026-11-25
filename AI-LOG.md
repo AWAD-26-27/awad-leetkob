@@ -598,3 +598,12 @@ Tại baseline `55a5c30`, test `it refuses while reviews are pending` trong [pub
 - Validation: The single request returned HTTP 400 and Google status `FAILED_PRECONDITION`. The error message referred to region support. C1 passed and C2 was `unsure`. [Azure key retest](evidence/pa3-deployment/azure-gemini-key-retest.json)
 
 - Follow-up: A separately authorized one-request retest with the previous key restored on the same VM returned HTTP 400 and `FAILED_PRECONDITION` with the same region-related error category. The checker recorded C2 as `unsure`. [Previous key retest](evidence/pa3-deployment/azure-gemini-old-key-retest.json)
+
+## 2026-11-25 — Tú — PA3 deployment in Korea Central
+
+- Tool/model: Codex, SSH, Git, Node.js, npm, Docker, Caddy, PM2, systemd, Chromium and Python.
+- Task: Deploy the integrated PA3 application to the new Korea Central VM and repeat the East Asia infrastructure checks.
+- Changed: Connected to the pinned Korea host on SSH port 22. Bypassed a local system SSH include with invalid permissions by selecting the user config with `ssh -F`. Cloned the verified `main` commit `1ce5953` and ran `npm ci` beside its lockfile.
+- Changed: Built the C++ sandbox, started the web on `127.0.0.1:3007` and the worker through PM2's direct Node invocation. Used a new shared SQLite WAL database and enabled systemd startup. Added the PA3 Publish gate to the existing Caddy HTTPS proxy.
+- Decision: Kept the public worker offline pending the private Gemini configuration. The Korea connection passed TLS on a new TCP session, so the East Asia MSS adjustment was unnecessary here.
+- Validation: All 10 Docker and restart checks passed on the VM with no skips. Public HTTPS and a fresh Chromium context without QUIC loaded the service. A new `sort-merge` lab accepted all three submitted fixtures, exposed six verdicts only to the authorized TA, rejected the cross-class queue request with 404, and refused Publish with 403. [Korea sandbox log](evidence/pa3-deployment/korea-vm-sandbox.txt) · [Korea public rehearsal](evidence/pa3-deployment/korea-public-offline.json)
